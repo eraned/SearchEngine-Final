@@ -30,7 +30,7 @@ public class SearchEngine {
         long StartTime = System.nanoTime();
         CorpusPathIN = corpusPathIN;
         CorpusPathOUT = corpusPathOUT;
-        StopWordsPath = new StringBuilder(corpusPathIN + "\\stop_words.txt");
+        StopWordsPath = new StringBuilder(corpusPathIN + "/stop_words.txt"); // lab path - "\\stop_words.txt"
         StemmerNeeded = Steemer;
         readFile = new ReadFile(CorpusPathIN);
         parse = new Parse(StemmerNeeded, StopWordsPath.toString());

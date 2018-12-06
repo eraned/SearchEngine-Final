@@ -43,10 +43,10 @@ public class Indexer {
         DocMacCity = "";
 
         if(StemmerNeeded){
-            stbOUT.append(CorpusPathOUT + "\\EngineOut_WithStemmer\\");
+            stbOUT.append(CorpusPathOUT + "/EngineOut_WithStemmer/"); //lab path - "\\EngineOut_WithStemmer\\"
         }
         else
-            stbOUT.append(CorpusPathOUT + "\\EngineOut\\");
+            stbOUT.append(CorpusPathOUT + "/EngineOut/"); //lab path - "\\EngineOut\\"
 
         File folder = new File(stbOUT.toString());
         File[] listOfFiles = folder.listFiles();
@@ -66,7 +66,7 @@ public class Indexer {
     public void CreateMINI_Posting(HashMap<String, TermDetailes> DocAfterParse,String Docid) throws IOException {
         int MaxTermFreq = 0;
         for (String tmpTerm : DocAfterParse.keySet()) {
-            //  if (tmpTerm.length() > 15 || tmpTerm.length() <= 1) { continue;}
+              if (tmpTerm.length() > 15 || tmpTerm.length() <= 1) { continue;}
             // in Post
             if (!Posting.containsKey(tmpTerm)) {
                 Posting.put(tmpTerm,new ArrayList<TermDetailes>());
@@ -149,7 +149,7 @@ public class Indexer {
     }
 
     public void MERGE_SORT(File F1 ,File F2) throws IOException{
-        FileWriter FW = new FileWriter(new File(stbOUT + "\\tmpMerge" + ".txt"));
+        FileWriter FW = new FileWriter(new File(stbOUT + "/tmpMerge" + ".txt")); //lab path - "\\tmpMerge" + ".txt"
         BufferedReader BR1 = new BufferedReader(new FileReader(F1));
         BufferedReader BR2 = new BufferedReader(new FileReader(F2));
         String S1 = BR1.readLine();
@@ -200,13 +200,13 @@ public class Indexer {
 
     //for showing the dic sorted
     public void ItsTimeForSPLIT_Final_Posting(){
-        File Numbers = new File(stbOUT+"\\Numbers.txt");
-        File A_E = new File(stbOUT+"\\A_E.txt");
-        File F_J = new File(stbOUT+"\\F_J.txt");
-        File K_P= new File(stbOUT+"\\K_O.txt" );
-        File Q_U = new File(stbOUT+"\\Q_U.txt");
-        File V_Z = new File(stbOUT+"\\V_Z.txt");
-        File Final_Posting =  new File(stbOUT + "\\tmpMerge" + ".txt");
+        File Numbers = new File(stbOUT+"/Numbers.txt"); //lab path - \\Numbers.txt"
+        File A_E = new File(stbOUT+"/A_E.txt");  //lab path - "\\A_E.txt"
+        File F_J = new File(stbOUT+"/F_J.txt");  //lab path - "\\F_J.txt"
+        File K_P= new File(stbOUT+"/K_O.txt" );  //lab path - "\\K_O.txt"
+        File Q_U = new File(stbOUT+"/Q_U.txt");  //lab path - "\\Q_U.txt"
+        File V_Z = new File(stbOUT+"/V_Z.txt");  //lab path -   "\\V_Z.txt"
+        File Final_Posting =  new File(stbOUT + "/tmpMerge" + ".txt");  //lab path - "\\tmpMerge" + ".txt"
         int countNumber = 0 ;
         int countA_E = 0 ;
         int countF_J = 0 ;
@@ -370,7 +370,7 @@ public class Indexer {
         }
     }
 
-    public void ItsTimeFor_FinalDoc() throws IOException {
+    public void ItsTimeFor_FinalDoc(){
         System.out.println("###################  Finale Doc  ###################");
         System.out.println(" Nummber of Terms Without Stamming :" + NumOfTermsBeforeStemming);
         System.out.println(" Nummber of Terms With Stamming :" + NumOfTermsAfterStemming);
