@@ -9,6 +9,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 
+/**
+ *
+ */
 public class SearchEngine {
     public static String CorpusPathIN;
     public static String CorpusPathOUT;
@@ -26,6 +29,13 @@ public class SearchEngine {
     public static HashSet<String> Languages;
     public static int NumOfCitysNotCapital;
 
+    /**
+     * @param corpusPathIN
+     * @param corpusPathOUT
+     * @param Steemer
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     public SearchEngine(String corpusPathIN, String corpusPathOUT, boolean Steemer) throws IOException, URISyntaxException {
         long StartTime = System.nanoTime();
         CorpusPathIN = corpusPathIN;
@@ -67,11 +77,22 @@ public class SearchEngine {
         System.out.println("Total time foe engine : " + TotalTime / 1000000);
     }
 
+    /**
+     * @param CitySection
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     //if term not in Cities database
     public void ProcessCity(String CitySection) throws IOException, URISyntaxException {  // API brings :String cityName, String country, String crrency, String populationSize
         Cities.put(CitySection, CityDetailesAPI(CitySection));
     }
 
+    /**
+     * @param city
+     * @return
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     //https://docs.oracle.com/javase/tutorial/networking/urls/readingURL.html
     public CityDetailes CityDetailesAPI(String city) throws IOException, URISyntaxException {
         try {

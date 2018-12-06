@@ -9,6 +9,9 @@ import java.io.*;
 import java.util.*;
 
 
+/**
+ *
+ */
 public class Indexer {
 
     public String CorpusPathOUT;
@@ -26,6 +29,11 @@ public class Indexer {
     public boolean FinalLap;
     public static  String DocMacCity;
 
+
+    /**
+     * @param corpusPathOUT
+     * @param isStemmer
+     */
     public Indexer(String corpusPathOUT,Boolean isStemmer) {
         CorpusPathOUT = corpusPathOUT;
         StemmerNeeded = isStemmer;
@@ -63,6 +71,11 @@ public class Indexer {
         }
     }
 
+    /**
+     * @param DocAfterParse
+     * @param Docid
+     * @throws IOException
+     */
     public void CreateMINI_Posting(HashMap<String, TermDetailes> DocAfterParse,String Docid) throws IOException {
         int MaxTermFreq = 0;
         for (String tmpTerm : DocAfterParse.keySet()) {
@@ -110,6 +123,10 @@ public class Indexer {
         BlockCounter++;
     }
 
+
+    /**
+     * @throws IOException
+     */
     //copy to disk
     public void ItsTimeForFLUSH_POSTING()throws IOException{
         File tmpPost = new File(stbOUT.toString() + PostingNumber + ".txt");
@@ -134,6 +151,9 @@ public class Indexer {
         }
     }
 
+    /**
+     * @throws IOException
+     */
     public void ItsTimeForMERGE_All_Postings() throws IOException {
         File file = new File(stbOUT.toString());
         File[] FilestoMerge = file.listFiles();
@@ -148,6 +168,11 @@ public class Indexer {
         ItsTimeForSPLIT_Final_Posting();
     }
 
+    /**
+     * @param F1
+     * @param F2
+     * @throws IOException
+     */
     public void MERGE_SORT(File F1 ,File F2) throws IOException{
         FileWriter FW = new FileWriter(new File(stbOUT + "/tmpMerge" + ".txt")); //lab path - "\\tmpMerge" + ".txt"
         BufferedReader BR1 = new BufferedReader(new FileReader(F1));
@@ -198,6 +223,9 @@ public class Indexer {
         Files.delete(F1.toPath());
     }
 
+    /**
+     *
+     */
     //for showing the dic sorted
     public void ItsTimeForSPLIT_Final_Posting(){
         File Numbers = new File(stbOUT+"/Numbers.txt"); //lab path - \\Numbers.txt"
@@ -328,6 +356,10 @@ public class Indexer {
         ItsTimeToWriteDictionary();
     }
 
+    /**
+     * @param file
+     * @throws IOException
+     */
     public void ItsTimeForFinalLap(File file)throws IOException{
         ItsTimeForFLUSH_POSTING();
         File[] FilestoMerge = file.listFiles();
@@ -336,6 +368,9 @@ public class Indexer {
         PostingSize = FilestoMerge[0].length()/1024;
     }
 
+    /**
+     *
+     */
     public void ItsTImeToBoostDic(){
         HashSet<String> Garbage = new HashSet<>();
         for (Map.Entry<String,DictionaryDetailes> term : Dictionary.entrySet()) {
@@ -349,6 +384,9 @@ public class Indexer {
         }
     }
 
+    /**
+     *
+     */
     public void ItsTimeToWriteDictionary(){
         File DictionaryDoc = new File(stbOUT + "/Dictionary" + ".txt");
         ArrayList<String> SortedDic = new ArrayList<>(Dictionary.keySet());
@@ -370,6 +408,9 @@ public class Indexer {
         }
     }
 
+    /**
+     *
+     */
     public void ItsTimeFor_FinalDoc(){
         System.out.println("###################  Finale Doc  ###################");
         System.out.println(" Nummber of Terms Without Stamming :" + NumOfTermsBeforeStemming);

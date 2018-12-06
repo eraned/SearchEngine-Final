@@ -9,6 +9,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+/**
+ *
+ */
 // read folder folder
 public class ReadFile {
 
@@ -16,17 +19,27 @@ public class ReadFile {
     public static ArrayList<File> SubFilesPath;
     public StringBuilder stb;
 
+    /**
+     * @param path
+     */
     public ReadFile(String path) {
         this.MainPath = new File(path);
         SubFilesPath = new ArrayList<>();
     }
 
+    /**
+     * @throws IOException
+     */
     public void ReadCorpus() throws IOException {
         if (MainPath.isDirectory() && MainPath != null) {
             ProccessSubFilesDirectories(MainPath.getAbsolutePath());
         }
     }
 
+    /**
+     * @param path
+     * @throws IOException
+     */
     public void ProccessSubFilesDirectories(String path) throws IOException {
         File file = new File(path);
         File[] SubDirectories = file.listFiles();
@@ -40,6 +53,11 @@ public class ReadFile {
         }
     }
 
+    /**
+     * @param subdirectory
+     * @return
+     * @throws IOException
+     */
     public HashMap<String, DocDetailes> ProccessSubFileToDocs(File subdirectory) throws IOException {
         BufferedReader bfr = new BufferedReader(new FileReader(subdirectory));
         HashMap<String, DocDetailes> tmpDocs = new HashMap<>();
@@ -89,10 +107,17 @@ public class ReadFile {
         return tmpDocs;
     }
 
+    /**
+     * @return
+     */
     public int GetSubFilesSize() {
         return SubFilesPath.size();
     }
 
+    /**
+     * @param i
+     * @return
+     */
     public File GetSubFilesPath(int i) {
         return SubFilesPath.get(i);
     }
