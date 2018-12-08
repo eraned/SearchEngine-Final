@@ -90,7 +90,7 @@ public class Parse {
         }
         if(LocationOfCity.size() > MaxDocCityFreq){
             MaxDocCityFreq = LocationOfCity.size();
-            Indexer.DocMacCity = DocId;
+            SearchEngine.indexer.DocMacCity = DocId;
         }
         return resultForIndex;
     }

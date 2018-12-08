@@ -22,12 +22,12 @@ public class Indexer {
     public int PostingNumber;
     public int BlockCounter;
     public int PostingDocIndex;
-    public long PostingSize;
-    public int NumOfTermsBeforeStemming;// Dictionary size
-    public int NumOfTermsAfterStemming;// Dictionary size
-    public int NumOfTerms_Numbers;
+    public  long PostingSize;
+    public  int NumOfTermsBeforeStemming;// Dictionary size
+    public  int NumOfTermsAfterStemming;// Dictionary size
+    public  int NumOfTerms_Numbers;
     public boolean FinalLap;
-    public static  String DocMacCity;
+    public String DocMacCity;
 
 
     /**
@@ -159,7 +159,7 @@ public class Indexer {
         File[] FilestoMerge = file.listFiles();
         while (FilestoMerge.length > 1) {
             for (int i = 0; i < FilestoMerge.length - 1; i += 2) {
-                MERGE_SORT(FilestoMerge[i], FilestoMerge[i + 1]);
+                EXTERNAL_SORT(FilestoMerge[i], FilestoMerge[i + 1]);
             }
             FilestoMerge = file.listFiles();
         }
@@ -173,7 +173,7 @@ public class Indexer {
      * @param F2
      * @throws IOException
      */
-    public void MERGE_SORT(File F1 ,File F2) throws IOException{
+    public void EXTERNAL_SORT(File F1 , File F2) throws IOException{
         FileWriter FW = new FileWriter(new File(stbOUT + "/tmpMerge" + ".txt")); //lab path - "\\tmpMerge" + ".txt"
         BufferedReader BR1 = new BufferedReader(new FileReader(F1));
         BufferedReader BR2 = new BufferedReader(new FileReader(F2));
@@ -354,6 +354,7 @@ public class Indexer {
             e.printStackTrace();
         }
         ItsTimeToWriteDictionary();
+        Dictionary.clear();
     }
 
     /**
@@ -363,7 +364,7 @@ public class Indexer {
     public void ItsTimeForFinalLap(File file)throws IOException{
         ItsTimeForFLUSH_POSTING();
         File[] FilestoMerge = file.listFiles();
-        MERGE_SORT(FilestoMerge[0],FilestoMerge[1]);
+        EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1]);
         FilestoMerge = file.listFiles();
         PostingSize = FilestoMerge[0].length()/1024;
     }
@@ -397,7 +398,7 @@ public class Indexer {
             BufferedWriter BW = new BufferedWriter(FW);
             for(String term : SortedDic){
                 // BW.write(  term + " :  ( Total TF  : " + Dictionary.get(term).getNumOfTermInCorpus() +")" );
-                BW.write(  term + " : " + Dictionary.get(term).getNumOfTermInCorpus());
+                BW.write(  term + " : " + "Total Freq:"+Dictionary.get(term).getNumOfTermInCorpus() + ";DF:" + Dictionary.get(term).getNumOfDocsTermIN() + ";Pointer:" + Dictionary.get(term).getPointer());
 
                 BW.newLine();
             }
@@ -409,32 +410,43 @@ public class Indexer {
     }
 
 
-    public HashMap<String,StringBuilder> ItsTimeToLoadDictionary() throws IOException{
-        try {
-            FileInputStream Finput = new FileInputStream(CorpusPathOUT +"/Dictionary.txt"); //lab path - "\\Dictionary.txt"
-            ObjectInputStream Oinput = new ObjectInputStream(Finput);
-            return (HashMap<String, StringBuilder>) Oinput.readObject();
-        }
-        catch(Exception e)
-        {
-            return null;
-        }
-    }
-
     /**
-     *
+     * @param Path
+     * @return
      */
-    public String ItsTimeFor_FinalDoc(){
-        StringBuilder stb = new StringBuilder();
-        stb.append("###################  Finale Doc  ###################.\n");
-        stb.append(" Nummber of Terms Without Stamming :" + NumOfTermsBeforeStemming + "\n");
-        stb.append(" Nummber of Terms With Stamming :" + NumOfTermsAfterStemming + "\n");
-        stb.append(" Nummber of Terms Only Numbers :" + NumOfTerms_Numbers + "\n");
-        stb.append(" Nummber of Different Countries :" + SearchEngine.Countries.size() + "\n");
-        stb.append(" Nummber of Different Cities :" + SearchEngine.Cities.size() + "  Nummber of Different Cities not Capital :" + SearchEngine.NumOfCitysNotCapital + "\n");
-        stb.append(" Doc with Max City Freq :" + DocMacCity + "\n");
-        stb.append(" Posting Size :" + PostingSize + "KBs.\n");
-        stb.append("###################  Finished  ###################.\n");
-        return stb.toString();
+    public HashMap<String,DictionaryDetailes> ItsTimeToLoadDictionary(String Path){
+        HashMap<String,DictionaryDetailes> LoadedDic = new HashMap<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
+            String line = br.readLine();
+            int totalfreq = 0,df = 0,pointer = 0;
+            while (line != null ){
+                int index = line.indexOf(':');
+                String term = line.substring(0,index);
+                line = line.substring(index + 1);
+                if (!term.isEmpty()){
+                    String TFreq = line.substring(12, line.indexOf(';'));
+                    totalfreq = Integer.parseInt(TFreq);
+                    line = line.substring(line.indexOf(';') + 1);
+                    index = line.indexOf("DF:");
+                    String DF = line.substring(index + 3, line.indexOf(';'));
+                    df = Integer.parseInt(DF);
+                    line = line.substring(line.indexOf(';') + 1);
+                    index = line.indexOf("Pointer:");
+                    String point = line.substring(index + 8);
+                    pointer = Integer.parseInt(point);
+                    DictionaryDetailes DD = new DictionaryDetailes();
+                    DD.setNumOfTermInCorpus(totalfreq);
+                    DD.setNumOfDocsTermIN(df);
+                    DD.setPointer(pointer);
+                    LoadedDic.put(term,DD);
+                }
+                line = br.readLine();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return LoadedDic;
     }
 }

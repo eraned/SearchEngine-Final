@@ -28,6 +28,7 @@ public class SearchEngine {
     public static HashSet<String> Countries;
     public static HashSet<String> Languages;
     public static int NumOfCitysNotCapital;
+    public static long TotalTime;
 
     /**
      * @param corpusPathIN
@@ -51,6 +52,7 @@ public class SearchEngine {
         Countries = new HashSet<>();
         Languages = new HashSet<>();
         NumOfCitysNotCapital = 0;
+        TotalTime = 0;
         System.out.println("Start your Engines!!!");
         // Starts threads
         readFile.ReadCorpus();
@@ -70,10 +72,9 @@ public class SearchEngine {
         }
         //finish threads
         indexer.ItsTimeForMERGE_All_Postings();
-        indexer.ItsTimeFor_FinalDoc();
+       // indexer.ItsTimeFor_FinalDoc();
         long FinishTime = System.nanoTime();
-        long TotalTime = FinishTime - StartTime;
-        System.out.println("Total time foe engine : " + TotalTime / 1000000);
+        TotalTime = FinishTime - StartTime;
     }
 
     /**
@@ -123,6 +124,26 @@ public class SearchEngine {
         catch (URISyntaxException e) {
             return new CityDetailes();
         }
+    }
+
+
+    /**
+     *
+     */
+    public static String ItsTimeFor_FinalDoc(){
+        StringBuilder stb = new StringBuilder();
+        stb.append("##############  Finale Doc  ##############.\n");
+        stb.append(" Nummber of Terms Without Stamming :" + indexer.NumOfTermsBeforeStemming + "\n");
+        stb.append(" Nummber of Terms With Stamming :" + indexer.NumOfTermsAfterStemming + "\n");
+        stb.append(" Nummber of Terms Only Numbers :" + indexer.NumOfTerms_Numbers + "\n");
+        stb.append(" Nummber of Different Countries :" + Countries.size() + "\n");
+        stb.append(" Nummber of Different Cities :" + Cities.size() +"\n");
+        stb.append(" Nummber of Different Cities not Capital :" + SearchEngine.NumOfCitysNotCapital + "\n");
+        stb.append(" Doc with Max City Freq :" + indexer.DocMacCity + "\n");
+        stb.append(" Posting Size :" + indexer.PostingSize + "KBs.\n");
+        stb.append(" Total time foe engine : " + SearchEngine.TotalTime / 1000000 +" Seconds.\n");
+        stb.append("##############  Finished  ##############.\n");
+        return stb.toString();
     }
 }
 
