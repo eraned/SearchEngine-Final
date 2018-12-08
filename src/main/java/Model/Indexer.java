@@ -140,7 +140,7 @@ public class Indexer {
             for(String term : SortedPost){
                 BW.write(term + ":");
                 for(TermDetailes TD : Posting.get(term)) {
-                    BW.write("(Docid :" + TD.getDocId() + "  ,  TF  :" + TD.getTF() + ")");
+                    BW.write("(Docid :" + TD.getDocId() + " , TF  :" + TD.getTF() + ")->");
                 }
                 BW.newLine();
             }
@@ -262,9 +262,9 @@ public class Indexer {
             while(S != null) {
                 stbTerm.append(S.substring(0, S.indexOf(":")));
                 //A-E
-                if (S.charAt(0) >= 'a' && S.charAt(0) <= 'e') {
+                if (stbTerm.charAt(0) >= 'a' && stbTerm.charAt(0) <= 'e') {
                     A_E_BW.write(S);
-                    if(Dictionary.containsKey(S)){
+                    if(Dictionary.containsKey(stbTerm)){
                         Dictionary.get(S).setPointer(countA_E);
                     }
                     A_E_BW.newLine();
@@ -274,7 +274,7 @@ public class Indexer {
                     continue;
                 }
                 //F-J
-                else if (S.charAt(0) >= 'f' && S.charAt(0) <= 'j') {
+                else if (stbTerm.charAt(0) >= 'f' && stbTerm.charAt(0) <= 'j') {
                     F_J_BW.write(S);
                     if(Dictionary.containsKey(S)){
                         Dictionary.get(S).setPointer(countF_J);
@@ -286,7 +286,7 @@ public class Indexer {
                     continue;
                 }
                 //K-P
-                else if (S.charAt(0) >= 'k' && S.charAt(0) <= 'p') {
+                else if (stbTerm.charAt(0) >= 'k' && stbTerm.charAt(0) <= 'p') {
                     K_P_BW.write(S);
                     if(Dictionary.containsKey(S)){
                         Dictionary.get(S).setPointer(countK_P);
@@ -298,7 +298,7 @@ public class Indexer {
                     continue;
                 }
                 //Q-U
-                else if (S.charAt(0) >= 'q' && S.charAt(0) <= 'u') {
+                else if (stbTerm.charAt(0) >= 'q' && stbTerm.charAt(0) <= 'u') {
                     Q_U_BW.write(S);
                     if(Dictionary.containsKey(S)){
                         Dictionary.get(S).setPointer(countQ_U);
@@ -310,7 +310,7 @@ public class Indexer {
                     continue;
                 }
                 //V-Z
-                else if (S.charAt(0) >= 'v' && S.charAt(0) <= 'z') {
+                else if (stbTerm.charAt(0) >= 'v' && stbTerm.charAt(0) <= 'z') {
                     V_Z_BW.write(S);
                     if(Dictionary.containsKey(S)){
                         Dictionary.get(S).setPointer(countV_Z);
@@ -324,7 +324,7 @@ public class Indexer {
                 //Numbers
                 else {
                     Numbers_BW.write(S);
-                    if(Dictionary.containsKey(S)){
+                    if(Dictionary.containsKey(stbTerm)){
                         Dictionary.get(S).setPointer(countNumber);
                     }
                     Numbers_BW.newLine();
