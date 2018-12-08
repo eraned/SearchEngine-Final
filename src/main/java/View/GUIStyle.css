@@ -1,17 +1,13 @@
 .root{
-    -fx-background-color: azure;
-
-}
-
-body {
-    background-image: url("1.jpg");
+    -fx-background-image: url("//Users/eranedri/Documents/GitHub/SearchEngine-Final/src/main/resources/1.jpg ");
+    -fx-background-size: cover;
 }
 
 Button {
     -fx-text-fill: white;
     -fx-font-family: "Arial";
     -fx-font-weight: bold;
-    -fx-background-color: darkgoldenrod;
+    -fx-background-color: green;
     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
 }
 

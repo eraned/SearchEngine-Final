@@ -19,7 +19,7 @@ public class SearchEngine {
     public static boolean StemmerNeeded;
     private ReadFile readFile;
     private Parse parse;
-    private Indexer indexer;
+    public static Indexer indexer;
     private HashMap<String, DocDetailes> DocsPerBlock;
     private HashMap<String, TermDetailes> TermsPerDoc;
     private NumberToken NT;

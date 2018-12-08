@@ -408,6 +408,16 @@ public class Indexer {
         }
     }
 
+
+    public HashMap<String,StringBuilder> ItsTimeToLoadDictionary(){
+
+
+
+
+
+        return null;
+    }
+
     /**
      *
      */
