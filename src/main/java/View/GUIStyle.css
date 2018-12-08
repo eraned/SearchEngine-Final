@@ -1,5 +1,10 @@
 .root{
     -fx-background-color: azure;
+
+}
+
+body {
+    background-image: url("1.jpg");
 }
 
 Button {

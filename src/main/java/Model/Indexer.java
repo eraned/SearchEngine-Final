@@ -71,10 +71,6 @@ public class Indexer {
         }
     }
 
-    public static HashMap<String,StringBuilder> getDictionry(String text) {
-        return null;
-    }
-
     /**
      * @param DocAfterParse
      * @param Docid
