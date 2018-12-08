@@ -79,7 +79,7 @@ public class Indexer {
     public void CreateMINI_Posting(HashMap<String, TermDetailes> DocAfterParse,String Docid) throws IOException {
         int MaxTermFreq = 0;
         for (String tmpTerm : DocAfterParse.keySet()) {
-              if (tmpTerm.length() > 15 || tmpTerm.length() <= 1) { continue;}
+            if (tmpTerm.length() > 15 || tmpTerm.length() <= 1) { continue;}
             // in Post
             if (!Posting.containsKey(tmpTerm)) {
                 Posting.put(tmpTerm,new ArrayList<TermDetailes>());
@@ -409,27 +409,32 @@ public class Indexer {
     }
 
 
-    public HashMap<String,StringBuilder> ItsTimeToLoadDictionary(){
-
-
-
-
-
-        return null;
+    public HashMap<String,StringBuilder> ItsTimeToLoadDictionary() throws IOException{
+        try {
+            FileInputStream Finput = new FileInputStream(CorpusPathOUT +"/Dictionary.txt"); //lab path - "\\Dictionary.txt"
+            ObjectInputStream Oinput = new ObjectInputStream(Finput);
+            return (HashMap<String, StringBuilder>) Oinput.readObject();
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
     }
 
     /**
      *
      */
-    public void ItsTimeFor_FinalDoc(){
-        System.out.println("###################  Finale Doc  ###################");
-        System.out.println(" Nummber of Terms Without Stamming :" + NumOfTermsBeforeStemming);
-        System.out.println(" Nummber of Terms With Stamming :" + NumOfTermsAfterStemming);
-        System.out.println(" Nummber of Terms Only Numbers :" + NumOfTerms_Numbers);
-        System.out.println(" Nummber of Different Countries :" + SearchEngine.Countries.size());
-        System.out.println(" Nummber of Different Cities :" + SearchEngine.Cities.size() + "  Nummber of Different Cities not Capital :" + SearchEngine.NumOfCitysNotCapital);
-        System.out.println(" Doc with Max City Freq :" + DocMacCity);
-        System.out.println(" Posting Size :" + PostingSize + "KBs");
-        System.out.println("###################  Finished  ###################");
+    public String ItsTimeFor_FinalDoc(){
+        StringBuilder stb = new StringBuilder();
+        stb.append("###################  Finale Doc  ###################.\n");
+        stb.append(" Nummber of Terms Without Stamming :" + NumOfTermsBeforeStemming + "\n");
+        stb.append(" Nummber of Terms With Stamming :" + NumOfTermsAfterStemming + "\n");
+        stb.append(" Nummber of Terms Only Numbers :" + NumOfTerms_Numbers + "\n");
+        stb.append(" Nummber of Different Countries :" + SearchEngine.Countries.size() + "\n");
+        stb.append(" Nummber of Different Cities :" + SearchEngine.Cities.size() + "  Nummber of Different Cities not Capital :" + SearchEngine.NumOfCitysNotCapital + "\n");
+        stb.append(" Doc with Max City Freq :" + DocMacCity + "\n");
+        stb.append(" Posting Size :" + PostingSize + "KBs.\n");
+        stb.append("###################  Finished  ###################.\n");
+        return stb.toString();
     }
 }

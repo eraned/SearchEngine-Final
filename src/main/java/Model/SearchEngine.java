@@ -73,7 +73,6 @@ public class SearchEngine {
         indexer.ItsTimeFor_FinalDoc();
         long FinishTime = System.nanoTime();
         long TotalTime = FinishTime - StartTime;
-        System.out.println("Out of fuel... lets do Summery :");
         System.out.println("Total time foe engine : " + TotalTime / 1000000);
     }
 
