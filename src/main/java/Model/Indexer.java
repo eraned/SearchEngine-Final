@@ -10,29 +10,32 @@ import java.util.*;
 
 
 /**
- *
+ * This department is responsible for create InvertedIndex from all the Corpus,
+ * it receives block from the Parser of parsed document and adds each term to pusting and the Dictionary.
+ * In order to keep the memory free and not to crush it performs Flush every block of documents
+ * and writes the posting to disk and starts new posting.
+ * then merge all the files into one file and divide it into 6 ranges that the dictionary points to them by each term
  */
 public class Indexer {
 
     public String CorpusPathOUT;
     public boolean StemmerNeeded;
-    public static HashMap<String, DictionaryDetailes> Dictionary; //<Term,DictionaryDetailes>
-    public static HashMap<String, ArrayList<TermDetailes>> Posting; //<Term,ArrayList<TermDetailes>>
+    public  HashMap<String, DictionaryDetailes> Dictionary;
+    public  HashMap<String, ArrayList<TermDetailes>> Posting;
     public StringBuilder stbOUT;
     public int PostingNumber;
     public int BlockCounter;
     public int PostingDocIndex;
     public  long PostingSize;
-    public  int NumOfTermsBeforeStemming;// Dictionary size
-    public  int NumOfTermsAfterStemming;// Dictionary size
+    public  int NumOfTermsBeforeStemming;
+    public  int NumOfTermsAfterStemming;
     public  int NumOfTerms_Numbers;
-    public boolean FinalLap;
     public String DocMacCity;
 
 
     /**
-     * @param corpusPathOUT
-     * @param isStemmer
+     * @param corpusPathOUT - where to save all the output of the indexer
+     * @param isStemmer - get from the user
      */
     public Indexer(String corpusPathOUT,Boolean isStemmer) {
         CorpusPathOUT = corpusPathOUT;
@@ -47,14 +50,13 @@ public class Indexer {
         NumOfTermsBeforeStemming = 0;
         NumOfTermsAfterStemming = 0;
         NumOfTerms_Numbers = 0;
-        FinalLap = false;
         DocMacCity = "";
 
         if(StemmerNeeded){
-            stbOUT.append(CorpusPathOUT + "/EngineOut_WithStemmer/"); //lab path - "\\EngineOut_WithStemmer\\"
+            stbOUT.append(CorpusPathOUT + "\\EngineOut_WithStemmer\\");
         }
         else
-            stbOUT.append(CorpusPathOUT + "/EngineOut/"); //lab path - "\\EngineOut\\"
+            stbOUT.append(CorpusPathOUT + "\\EngineOut\\");
 
         File folder = new File(stbOUT.toString());
         File[] listOfFiles = folder.listFiles();
@@ -72,20 +74,22 @@ public class Indexer {
     }
 
     /**
-     * @param DocAfterParse
-     * @param Docid
+     * method that hellpes the memory not to crush.
+     * every bluck create tmp posting file into txt file and clear the hashmap of posting
+     * @param DocAfterParse - get from the parser parsed doc in hashmap
+     * @param Docid - the docid that parsed
      * @throws IOException
+     *
      */
     public void CreateMINI_Posting(HashMap<String, TermDetailes> DocAfterParse,String Docid) throws IOException {
         int MaxTermFreq = 0;
         for (String tmpTerm : DocAfterParse.keySet()) {
-            if (tmpTerm.length() > 15 || tmpTerm.length() <= 1) { continue;}
-            // in Post
+            // not in Post
             if (!Posting.containsKey(tmpTerm)) {
                 Posting.put(tmpTerm,new ArrayList<TermDetailes>());
                 Posting.get(tmpTerm).add(DocAfterParse.get(tmpTerm));
             }
-            //not in Post
+            // in Post
             else {
                 Posting.get(tmpTerm).add(DocAfterParse.get(tmpTerm));
             }
@@ -125,6 +129,7 @@ public class Indexer {
 
 
     /**
+     * when you get the memory full its write all the hashmap of the posting to txt file for later use.
      * @throws IOException
      */
     //copy to disk
@@ -152,29 +157,63 @@ public class Indexer {
     }
 
     /**
+     * after all tmp posting files was created merge every 2 docs Lexicography for final posting file.
      * @throws IOException
      */
     public void ItsTimeForMERGE_All_Postings() throws IOException {
         File file = new File(stbOUT.toString());
         File[] FilestoMerge = file.listFiles();
-        while (FilestoMerge.length > 1) {
-            for (int i = 0; i < FilestoMerge.length - 1; i += 2) {
-                EXTERNAL_SORT(FilestoMerge[i], FilestoMerge[i + 1]);
+        //big corpuse and posting not empty case one : odd tmp files , case two : even tmp files
+        String tmpPath = stbOUT + "tmpMerge" + ".txt";
+        String FinalePath = stbOUT + "FinaleMerge" + ".txt";
+        if(!Posting.isEmpty() && FilestoMerge.length > 1) {
+            while (FilestoMerge.length > 2) {
+                for (int i = 0; i < FilestoMerge.length - 1; i += 2) {
+                    EXTERNAL_SORT(FilestoMerge[i], FilestoMerge[i + 1],tmpPath);
+                }
+                FilestoMerge = file.listFiles();
             }
-            FilestoMerge = file.listFiles();
+            //even
+            if(FilestoMerge.length == 1){
+                ItsTimeForFLUSH_POSTING();
+                FilestoMerge = file.listFiles();
+                EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],FinalePath);
+                FilestoMerge = file.listFiles();
+                PostingSize = FilestoMerge[0].length()/1024;
+                ItsTimeForSPLIT_Final_Posting();
+            }
+            //odd
+            if(FilestoMerge.length == 2){
+                ItsTimeForFLUSH_POSTING();
+                FilestoMerge = file.listFiles();
+                EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],tmpPath);
+                FilestoMerge = file.listFiles();
+                File filenewName = new File(stbOUT + "\\FinaleMerge" + ".txt");
+                FilestoMerge[0].renameTo(filenewName);
+                FilestoMerge = file.listFiles();
+                PostingSize = FilestoMerge[0].length()/1024;
+                ItsTimeForSPLIT_Final_Posting();
+            }
         }
-        ItsTimeForFinalLap(file);
-        ItsTImeToBoostDic();
-        ItsTimeForSPLIT_Final_Posting();
+        //small corpus and posting is empty
+        else{
+            ItsTimeForFLUSH_POSTING();
+            FilestoMerge = file.listFiles();
+            File filenewName = new File(stbOUT + "\\FinaleMerge" + ".txt");
+            FilestoMerge[0].renameTo(filenewName);
+            PostingSize = FilestoMerge[0].length()/1024;
+            ItsTimeForSPLIT_Final_Posting();
+        }
     }
 
     /**
-     * @param F1
-     * @param F2
+     * merge two file Lexicography implementaion line by line.
+     * @param F1 - tmp posting file to merge
+     * @param F2 - tmp posting file to merge
      * @throws IOException
      */
-    public void EXTERNAL_SORT(File F1 , File F2) throws IOException{
-        FileWriter FW = new FileWriter(new File(stbOUT + "/tmpMerge" + ".txt")); //lab path - "\\tmpMerge" + ".txt"
+    public void EXTERNAL_SORT(File F1 , File F2 ,String PathToMerge) throws IOException{
+        FileWriter FW = new FileWriter(new File(PathToMerge));
         BufferedReader BR1 = new BufferedReader(new FileReader(F1));
         BufferedReader BR2 = new BufferedReader(new FileReader(F2));
         String S1 = BR1.readLine();
@@ -198,6 +237,7 @@ public class Indexer {
             }
             else{
                 StringBuilder stb = new StringBuilder();
+                stb.append(t2 + ":");
                 stb.append(S1.substring(S1.indexOf(":")+2));
                 stb.append(S2.substring(S2.indexOf(":")+2));
                 FW.write(stb.toString() + System.getProperty( "line.separator" ));
@@ -206,35 +246,33 @@ public class Indexer {
             }
         }
         while (S1 != null){
-            if(S1.length()==0)
-                break;
             FW.write(S1 + System.getProperty( "line.separator" ));
             S1 = BR1.readLine();
         }
         while(S2 != null){
-            if(S2.length()==0)
-                break;
             FW.write(S2 + System.getProperty( "line.separator" ));
             S2 = BR2.readLine();
         }
+        FW.flush();
         FW.close();
         BR1.close();
         BR2.close();
         Files.delete(F1.toPath());
+        Files.delete(F2.toPath());
     }
 
     /**
-     *
+     * split the final posting file to 6 ranges to improve to find doc for query
      */
     //for showing the dic sorted
     public void ItsTimeForSPLIT_Final_Posting(){
-        File Numbers = new File(stbOUT+"/Numbers.txt"); //lab path - \\Numbers.txt"
-        File A_E = new File(stbOUT+"/A_E.txt");  //lab path - "\\A_E.txt"
-        File F_J = new File(stbOUT+"/F_J.txt");  //lab path - "\\F_J.txt"
-        File K_P= new File(stbOUT+"/K_O.txt" );  //lab path - "\\K_O.txt"
-        File Q_U = new File(stbOUT+"/Q_U.txt");  //lab path - "\\Q_U.txt"
-        File V_Z = new File(stbOUT+"/V_Z.txt");  //lab path -   "\\V_Z.txt"
-        File Final_Posting =  new File(stbOUT + "/tmpMerge" + ".txt");  //lab path - "\\tmpMerge" + ".txt"
+        File Numbers = new File(stbOUT+"\\Numbers.txt");
+        File A_E = new File(stbOUT+"\\A_E.txt");
+        File F_J = new File(stbOUT+"\\F_J.txt");
+        File K_P= new File(stbOUT+"\\K_P.txt" );
+        File Q_U = new File(stbOUT+"\\Q_U.txt");
+        File V_Z = new File(stbOUT+"\\V_Z.txt");
+        File Final_Posting =  new File(stbOUT + "\\FinaleMerge" + ".txt");
         int countNumber = 0 ;
         int countA_E = 0 ;
         int countF_J = 0 ;
@@ -334,6 +372,7 @@ public class Indexer {
                     continue;
                 }
             }
+
             BR_Final_Posting.close();
             Files.delete(Final_Posting.toPath());
             Numbers_BW.close();
@@ -344,10 +383,10 @@ public class Indexer {
             V_Z_BW.close();
             NumOfTerms_Numbers = countNumber;
             if(StemmerNeeded) {
-                NumOfTermsAfterStemming = countA_E + countF_J + countK_P + countNumber + countQ_U + countV_Z;
+                NumOfTermsAfterStemming = Dictionary.size();
             }
             else {
-                NumOfTermsBeforeStemming = countA_E + countF_J + countK_P + countNumber + countQ_U + countV_Z;
+                NumOfTermsBeforeStemming = Dictionary.size();
             }
         }
         catch (IOException e){
@@ -358,38 +397,10 @@ public class Indexer {
     }
 
     /**
-     * @param file
-     * @throws IOException
-     */
-    public void ItsTimeForFinalLap(File file)throws IOException{
-        ItsTimeForFLUSH_POSTING();
-        File[] FilestoMerge = file.listFiles();
-        EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1]);
-        FilestoMerge = file.listFiles();
-        PostingSize = FilestoMerge[0].length()/1024;
-    }
-
-    /**
-     *
-     */
-    public void ItsTImeToBoostDic(){
-        HashSet<String> Garbage = new HashSet<>();
-        for (Map.Entry<String,DictionaryDetailes> term : Dictionary.entrySet()) {
-            String tmpTerm = term.getKey();
-            if(term.getValue().getNumOfTermInCorpus() < 8 || tmpTerm.equals(" ") || tmpTerm.equals("") || tmpTerm.isEmpty() || tmpTerm.length()<= 1){
-                Garbage.add(tmpTerm);
-            }
-        }
-        for(String t : Garbage){
-            Dictionary.remove(t);
-        }
-    }
-
-    /**
-     *
+     * after the inverted index was created write the Dictionary to the disk
      */
     public void ItsTimeToWriteDictionary(){
-        File DictionaryDoc = new File(stbOUT + "/Dictionary" + ".txt");
+        File DictionaryDoc = new File(stbOUT + "\\Dictionary" + ".txt");
         ArrayList<String> SortedDic = new ArrayList<>(Dictionary.keySet());
         Collections.sort(SortedDic);
 
@@ -397,9 +408,8 @@ public class Indexer {
             FileWriter FW = new FileWriter(DictionaryDoc);
             BufferedWriter BW = new BufferedWriter(FW);
             for(String term : SortedDic){
-                // BW.write(  term + " :  ( Total TF  : " + Dictionary.get(term).getNumOfTermInCorpus() +")" );
-                BW.write(  term + " : " + "Total Freq:"+Dictionary.get(term).getNumOfTermInCorpus() + ";DF:" + Dictionary.get(term).getNumOfDocsTermIN() + ";Pointer:" + Dictionary.get(term).getPointer());
-
+                BW.write(  term + " : " + "Total Freq:"+Dictionary.get(term).getNumOfTermInCorpus() + ";DF:" + Dictionary.get(term).getNumOfDocsTermIN());
+                //            BW.write(  term + " : " + Dictionary.get(term).NumOfTermInCorpus);  // for excel
                 BW.newLine();
             }
             BW.close();
@@ -411,7 +421,8 @@ public class Indexer {
 
 
     /**
-     * @param Path
+     * reading line by line from disk and create new data structue that represent the Dictionary.
+     * @param Path - where from to load the Dictionary from disk to memory
      * @return
      */
     public HashMap<String,DictionaryDetailes> ItsTimeToLoadDictionary(String Path){

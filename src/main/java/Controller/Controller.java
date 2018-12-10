@@ -1,6 +1,7 @@
 package Controller;
 
 import Model.SearchEngine;
+import Model.DictionaryDetailes;
 import javafx.scene.control.Alert;
 import javafx.stage.DirectoryChooser;
 import java.awt.*;
@@ -10,7 +11,8 @@ import java.util.HashMap;
 import java.io.*;
 
 /**
- *
+ * This class manages all the interaction between the View package and  Model package,
+ * linking each button that the user clicks in the GUI and translate to the action that the engine needs to do or display.
  */
 public class Controller{
 
@@ -26,7 +28,7 @@ public class Controller{
     public javafx.scene.control.Button ShoewDic;
 
     /**
-     * Gets the path that we picked for the corpus and the stop words.
+     * translate the user choise to string for input to the search engine
      */
     public void GetCorpusDirectoryIN() {
         DirectoryChooser DC = new DirectoryChooser();
@@ -39,7 +41,7 @@ public class Controller{
     }
 
     /**
-     * Gets the path which we will save the final posting file.
+     * translate the user choise to string for output to the search engine output
      */
     public void GetCorpusDirectoryOUT() {
         DirectoryChooser DC = new DirectoryChooser();
@@ -52,9 +54,9 @@ public class Controller{
     }
 
     /**
-     * This function is activated when the Start button is clicked,
-     * we check the the three paths aren't empty and we start the whole process
-     * parsing -> stemming if necessary -> create temp posting -> create dictionary and cache + save them -> create final posting File
+     * when the user want to start the engine this  function run
+     * its initiate new show of search engine and start to indexing the corpuse
+     *
      */
     public void startEngine() throws IOException, URISyntaxException {
         if (!PathIN.getText().trim().isEmpty() && !PathOUT.getText().trim().isEmpty()) {
@@ -76,17 +78,17 @@ public class Controller{
         }
     }
 
-
+    /**
+     * return from the search engine the finale doc to show in new GUI Window.
+     */
     public String getFinalDoc ()
     {
         return SearchEngine.ItsTimeFor_FinalDoc();
     }
 
     /**
-     * This function gets a String which is the content of the message
-     * And open up an alert with this content
-     *
-     * @param str - The string that we want to show at the alert.
+     * gets string to pop alert for the user/
+     * @param str - String to pop
      */
     public static void showAlert(String str) {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
@@ -96,7 +98,7 @@ public class Controller{
 
 
     /**
-     *
+     * after the search engine run first time its initiate all the languages that he fing to new menu item
      */
     public void LoadLangugesToScroll(){
         for(String lang : SearchEngine.Languages) {
@@ -106,16 +108,15 @@ public class Controller{
     }
 
     /**
-     * The function which delete all the files that we have created from the run,
-     * The cache,dictionary,final posting file,all the temp postings, and the doctext.
+     * this function after the user click the reset button delete all the search engine output.
      */
     public void resetAll() {
         File FileToReset;
         String Pathout = PathOUT.getText();
         if (Stemmer.isSelected()) {
-            FileToReset = new File(Pathout + "/EngineOut_WithStemmer"); //lab path - "\\EngineOut_WithStemmer\\"
+            FileToReset = new File(Pathout + "\\EngineOut_WithStemmer"); //lab path - "\\EngineOut_WithStemmer\\"
         } else {
-            FileToReset = new File(Pathout + "/EngineOut"); //lab path - "\\EngineOut\\"
+            FileToReset = new File(Pathout + "\\EngineOut"); //lab path - "\\EngineOut\\"
         }
         if (FileToReset.exists()) {
             File[] fileList = FileToReset.listFiles();
@@ -136,18 +137,17 @@ public class Controller{
     }
 
     /**
-     * This function open the notepad,
-     * And show the dictionary inside it as the requested format.
+     * open new window and display the Dictionary from the disk.
      */
     public void ShowDictionary() throws IOException{
         if (!PathOUT.getText().trim().isEmpty()) {
             String Pathout = PathOUT.getText();
             if(!Stemmer.isSelected()) {
-                File dictionary = new File(Pathout + "/EngineOut/Dictionary.txt"); //lab path - "\\Dictionary.txt"
+                File dictionary = new File(Pathout + "\\EngineOut\\Dictionary.txt"); //lab path - "\\Dictionary.txt"
                 Desktop.getDesktop().edit(dictionary);
             }
             else{
-                File dictionary = new File(Pathout + "/EngineOut_WithStemmer/Dictionary.txt"); //lab path - "\\Dictionary.txt"
+                File dictionary = new File(Pathout + "\\EngineOut_WithStemmer\\Dictionary.txt"); //lab path - "\\Dictionary.txt"
                 Desktop.getDesktop().edit(dictionary);
             }
         }
@@ -157,18 +157,16 @@ public class Controller{
     }
 
     /**
-     * Function that gets the Path which we want to load the dictionary and the cache from,
-     * and load the cache and dictionary into HashMaps.
+     * read the dic from the disk and initialized it to new data structure that save in the memory.
      */
-//todo - needed to fixxxxxxx
     public void LoadDicToMemory() throws IOException {
         if(!Stemmer.isSelected()) {
-            HashMap<String, Model.DictionaryDetailes> LoadedDictionary = new HashMap<>();
-            LoadedDictionary = SearchEngine.indexer.ItsTimeToLoadDictionary(  PathOUT.getText() + "/EngineOut/Dictionary.txt");
+            HashMap<String, DictionaryDetailes> LoadedDictionary = new HashMap<>();
+            LoadedDictionary = SearchEngine.indexer.ItsTimeToLoadDictionary(  PathOUT.getText() + "\\EngineOut\\Dictionary.txt");
         }
         else{
-            HashMap<String, Model.DictionaryDetailes> LoadedDictionary = new HashMap<>();
-            LoadedDictionary = SearchEngine.indexer.ItsTimeToLoadDictionary( PathOUT.getText()+ "/EngineOut_WithStemmer/Dictionary.txt");
+            HashMap<String, DictionaryDetailes> LoadedDictionary = new HashMap<>();
+            LoadedDictionary = SearchEngine.indexer.ItsTimeToLoadDictionary( PathOUT.getText()+ "\\EngineOut_WithStemmer\\Dictionary.txt");
         }
         if (LoadDic != null) {
             showAlert("Dictionary successfully loaded to Memory!");

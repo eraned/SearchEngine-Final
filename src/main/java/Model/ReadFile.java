@@ -10,9 +10,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 /**
- *
+ * This class is responsible for reading all the corpus database,
+ * first it reads all sub-folders and then every block sends a sub-folder to the parser to split to documents
  */
-// read folder folder
 public class ReadFile {
 
     protected File MainPath;
@@ -20,7 +20,7 @@ public class ReadFile {
     public StringBuilder stb;
 
     /**
-     * @param path
+     * @param path - to the corpuse directory
      */
     public ReadFile(String path) {
         this.MainPath = new File(path);
@@ -29,6 +29,7 @@ public class ReadFile {
 
     /**
      * @throws IOException
+     * read all the sub-folders Directories
      */
     public void ReadCorpus() throws IOException {
         if (MainPath.isDirectory() && MainPath != null) {
@@ -37,14 +38,14 @@ public class ReadFile {
     }
 
     /**
-     * @param path
+     * @param path - recursive Function to read all the sub-folders until you get to files
      * @throws IOException
      */
     public void ProccessSubFilesDirectories(String path) throws IOException {
         File file = new File(path);
         File[] SubDirectories = file.listFiles();
         for (File tmp : SubDirectories) {
-            StringBuilder stop =new StringBuilder( MainPath.toString() + "/stop_words.txt"); // lab path - "\\stop_words.txt"
+            StringBuilder stop =new StringBuilder( MainPath.toString() + "/stop_words.txt");
             if (tmp.isFile() && !(tmp.toString().equals(stop.toString()))) {
                 SubFilesPath.add(tmp);
             } else if (tmp != null && tmp.isDirectory()) {
@@ -54,8 +55,8 @@ public class ReadFile {
     }
 
     /**
-     * @param subdirectory
-     * @return
+     * @param subdirectory - a path to sub-folder and read the file and split it to docs and all the information needed to save for each doc
+     * @return - a hashmap with all the docs and doc detailes.
      * @throws IOException
      */
     public HashMap<String, DocDetailes> ProccessSubFileToDocs(File subdirectory) throws IOException {
@@ -108,15 +109,15 @@ public class ReadFile {
     }
 
     /**
-     * @return
+     * @return - the size of the array list that save all the sub-folders directoris.
      */
     public int GetSubFilesSize() {
         return SubFilesPath.size();
     }
 
     /**
-     * @param i
-     * @return
+     * @param i - get the next sub-folder directory to process
+     * @return - directory to the file to split.
      */
     public File GetSubFilesPath(int i) {
         return SubFilesPath.get(i);

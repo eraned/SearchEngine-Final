@@ -6,11 +6,10 @@ import java.net.URL;
 import java.util.*;
 import java.net.*;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
 
 /**
- *
+ * This class manages the entire search engine,
+ * it initializes all the documents from the corpus and sends each document to the parser and then to the  Indexer to create an inverted index.
  */
 public class SearchEngine {
     public static String CorpusPathIN;
@@ -23,17 +22,17 @@ public class SearchEngine {
     private HashMap<String, DocDetailes> DocsPerBlock;
     private HashMap<String, TermDetailes> TermsPerDoc;
     private NumberToken NT;
-    public static HashMap<String, DocDetailes> All_Docs;  //<DocId,Model.DocDetailes>
-    public static HashMap<String, CityDetailes> Cities;     //<Cities,CityDetailes>
+    public static HashMap<String, DocDetailes> All_Docs;
+    public static HashMap<String, CityDetailes> Cities;
     public static HashSet<String> Countries;
     public static HashSet<String> Languages;
     public static int NumOfCitysNotCapital;
     public static long TotalTime;
 
     /**
-     * @param corpusPathIN
-     * @param corpusPathOUT
-     * @param Steemer
+     * @param corpusPathIN - path in that the user enter
+     * @param corpusPathOUT - path out that the user enter
+     * @param Steemer - user choise
      * @throws IOException
      * @throws URISyntaxException
      */
@@ -41,7 +40,7 @@ public class SearchEngine {
         long StartTime = System.nanoTime();
         CorpusPathIN = corpusPathIN;
         CorpusPathOUT = corpusPathOUT;
-        StopWordsPath = new StringBuilder(corpusPathIN + "/stop_words.txt"); // lab path - "\\stop_words.txt"
+        StopWordsPath = new StringBuilder(corpusPathIN + "\\stop_words.txt");
         StemmerNeeded = Steemer;
         readFile = new ReadFile(CorpusPathIN);
         parse = new Parse(StemmerNeeded, StopWordsPath.toString());
@@ -72,13 +71,14 @@ public class SearchEngine {
         }
         //finish threads
         indexer.ItsTimeForMERGE_All_Postings();
-       // indexer.ItsTimeFor_FinalDoc();
         long FinishTime = System.nanoTime();
         TotalTime = FinishTime - StartTime;
     }
 
     /**
-     * @param CitySection
+     * This function gets the city from each document and adds its to the data structure of the cities.
+     * all the information that required get it from the API by the requirements of the work.
+     * @param CitySection - city to find detailes on her in the api
      * @throws IOException
      * @throws URISyntaxException
      */
@@ -88,8 +88,8 @@ public class SearchEngine {
     }
 
     /**
-     * @param city
-     * @return
+     * @param city - city to find in the API
+     * @return - new City detailes for the cities data structure
      * @throws IOException
      * @throws URISyntaxException
      */
@@ -126,9 +126,8 @@ public class SearchEngine {
         }
     }
 
-
     /**
-     *
+     * print all the detailes that needed by the work Requirements.
      */
     public static String ItsTimeFor_FinalDoc(){
         StringBuilder stb = new StringBuilder();
