@@ -114,9 +114,9 @@ public class Controller{
         File FileToReset;
         String Pathout = PathOUT.getText();
         if (Stemmer.isSelected()) {
-            FileToReset = new File(Pathout + "\\EngineOut_WithStemmer"); //lab path - "\\EngineOut_WithStemmer\\"
+            FileToReset = new File(Pathout + "/EngineOut_WithStemmer"); //lab path - "\\EngineOut_WithStemmer\\"
         } else {
-            FileToReset = new File(Pathout + "\\EngineOut"); //lab path - "\\EngineOut\\"
+            FileToReset = new File(Pathout + "/EngineOut"); //lab path - "\\EngineOut\\"
         }
         if (FileToReset.exists()) {
             File[] fileList = FileToReset.listFiles();
@@ -143,11 +143,11 @@ public class Controller{
         if (!PathOUT.getText().trim().isEmpty()) {
             String Pathout = PathOUT.getText();
             if(!Stemmer.isSelected()) {
-                File dictionary = new File(Pathout + "\\EngineOut\\Dictionary.txt"); //lab path - "\\Dictionary.txt"
+                File dictionary = new File(Pathout + "/EngineOut/Dictionary.txt"); //lab path - "\\Dictionary.txt"
                 Desktop.getDesktop().edit(dictionary);
             }
             else{
-                File dictionary = new File(Pathout + "\\EngineOut_WithStemmer\\Dictionary.txt"); //lab path - "\\Dictionary.txt"
+                File dictionary = new File(Pathout + "/EngineOut_WithStemmer/Dictionary.txt"); //lab path - "\\Dictionary.txt"
                 Desktop.getDesktop().edit(dictionary);
             }
         }
@@ -162,11 +162,11 @@ public class Controller{
     public void LoadDicToMemory() throws IOException {
         if(!Stemmer.isSelected()) {
             HashMap<String, DictionaryDetailes> LoadedDictionary = new HashMap<>();
-            LoadedDictionary = SearchEngine.indexer.ItsTimeToLoadDictionary(  PathOUT.getText() + "\\EngineOut\\Dictionary.txt");
+            LoadedDictionary = SearchEngine.indexer.ItsTimeToLoadDictionary(  PathOUT.getText() + "/EngineOut/Dictionary.txt");
         }
         else{
             HashMap<String, DictionaryDetailes> LoadedDictionary = new HashMap<>();
-            LoadedDictionary = SearchEngine.indexer.ItsTimeToLoadDictionary( PathOUT.getText()+ "\\EngineOut_WithStemmer\\Dictionary.txt");
+            LoadedDictionary = SearchEngine.indexer.ItsTimeToLoadDictionary( PathOUT.getText()+ "/EngineOut_WithStemmer/Dictionary.txt");
         }
         if (LoadDic != null) {
             showAlert("Dictionary successfully loaded to Memory!");

@@ -14,6 +14,7 @@ public class DictionaryDetailes {
     public DictionaryDetailes() {
         NumOfTermInCorpus = 0;
         NumOfDocsTermIN = 1;
+        Pointer = 0;
     }
 
     public int getNumOfDocsTermIN() {

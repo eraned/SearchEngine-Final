@@ -53,10 +53,10 @@ public class Indexer {
         DocMacCity = "";
 
         if(StemmerNeeded){
-            stbOUT.append(CorpusPathOUT + "\\EngineOut_WithStemmer\\");
+            stbOUT.append(CorpusPathOUT + "/EngineOut_WithStemmer/");
         }
         else
-            stbOUT.append(CorpusPathOUT + "\\EngineOut\\");
+            stbOUT.append(CorpusPathOUT + "/EngineOut/");
 
         File folder = new File(stbOUT.toString());
         File[] listOfFiles = folder.listFiles();
@@ -163,17 +163,17 @@ public class Indexer {
     public void ItsTimeForMERGE_All_Postings() throws IOException {
         File file = new File(stbOUT.toString());
         File[] FilestoMerge = file.listFiles();
-        //big corpuse and posting not empty case one : odd tmp files , case two : even tmp files
         String tmpPath = stbOUT + "tmpMerge" + ".txt";
         String FinalePath = stbOUT + "FinaleMerge" + ".txt";
-        if(!Posting.isEmpty() && FilestoMerge.length > 1) {
+        //todo - corpus more then one block
+        if(FilestoMerge.length >= 1) {
             while (FilestoMerge.length > 2) {
                 for (int i = 0; i < FilestoMerge.length - 1; i += 2) {
                     EXTERNAL_SORT(FilestoMerge[i], FilestoMerge[i + 1],tmpPath);
                 }
                 FilestoMerge = file.listFiles();
             }
-            //even
+            //todo - corpus odd posting files
             if(FilestoMerge.length == 1){
                 ItsTimeForFLUSH_POSTING();
                 FilestoMerge = file.listFiles();
@@ -182,24 +182,22 @@ public class Indexer {
                 PostingSize = FilestoMerge[0].length()/1024;
                 ItsTimeForSPLIT_Final_Posting();
             }
-            //odd
+            //todo - corpus even posting files
             if(FilestoMerge.length == 2){
+                EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],tmpPath);
                 ItsTimeForFLUSH_POSTING();
                 FilestoMerge = file.listFiles();
-                EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],tmpPath);
-                FilestoMerge = file.listFiles();
-                File filenewName = new File(stbOUT + "\\FinaleMerge" + ".txt");
-                FilestoMerge[0].renameTo(filenewName);
+                EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],FinalePath);
                 FilestoMerge = file.listFiles();
                 PostingSize = FilestoMerge[0].length()/1024;
                 ItsTimeForSPLIT_Final_Posting();
             }
         }
-        //small corpus and posting is empty
+        //todo - corpus less then one block
         else{
             ItsTimeForFLUSH_POSTING();
             FilestoMerge = file.listFiles();
-            File filenewName = new File(stbOUT + "\\FinaleMerge" + ".txt");
+            File filenewName = new File(FinalePath);
             FilestoMerge[0].renameTo(filenewName);
             PostingSize = FilestoMerge[0].length()/1024;
             ItsTimeForSPLIT_Final_Posting();
@@ -266,13 +264,13 @@ public class Indexer {
      */
     //for showing the dic sorted
     public void ItsTimeForSPLIT_Final_Posting(){
-        File Numbers = new File(stbOUT+"\\Numbers.txt");
-        File A_E = new File(stbOUT+"\\A_E.txt");
-        File F_J = new File(stbOUT+"\\F_J.txt");
-        File K_P= new File(stbOUT+"\\K_P.txt" );
-        File Q_U = new File(stbOUT+"\\Q_U.txt");
-        File V_Z = new File(stbOUT+"\\V_Z.txt");
-        File Final_Posting =  new File(stbOUT + "\\FinaleMerge" + ".txt");
+        File Numbers = new File(stbOUT+"/Numbers.txt");
+        File A_E = new File(stbOUT+"/A_E.txt");
+        File F_J = new File(stbOUT+"/F_J.txt");
+        File K_P= new File(stbOUT+"/K_P.txt" );
+        File Q_U = new File(stbOUT+"/Q_U.txt");
+        File V_Z = new File(stbOUT+"/V_Z.txt");
+        File Final_Posting =  new File(stbOUT + "/FinaleMerge" + ".txt");
         int countNumber = 0 ;
         int countA_E = 0 ;
         int countF_J = 0 ;
@@ -400,7 +398,7 @@ public class Indexer {
      * after the inverted index was created write the Dictionary to the disk
      */
     public void ItsTimeToWriteDictionary(){
-        File DictionaryDoc = new File(stbOUT + "\\Dictionary" + ".txt");
+        File DictionaryDoc = new File(stbOUT + "/Dictionary" + ".txt");
         ArrayList<String> SortedDic = new ArrayList<>(Dictionary.keySet());
         Collections.sort(SortedDic);
 
@@ -408,8 +406,7 @@ public class Indexer {
             FileWriter FW = new FileWriter(DictionaryDoc);
             BufferedWriter BW = new BufferedWriter(FW);
             for(String term : SortedDic){
-                BW.write(  term + " : " + "Total Freq:"+Dictionary.get(term).getNumOfTermInCorpus() + ";DF:" + Dictionary.get(term).getNumOfDocsTermIN());
-                //            BW.write(  term + " : " + Dictionary.get(term).NumOfTermInCorpus);  // for excel
+                BW.write(  term + " : " + "Total Freq:"+Dictionary.get(term).getNumOfTermInCorpus() + ";DF:" + Dictionary.get(term).getNumOfDocsTermIN() + "Pointer:" + Dictionary.get(term).getPointer());
                 BW.newLine();
             }
             BW.close();

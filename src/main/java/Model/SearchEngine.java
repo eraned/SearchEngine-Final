@@ -40,7 +40,7 @@ public class SearchEngine {
         long StartTime = System.nanoTime();
         CorpusPathIN = corpusPathIN;
         CorpusPathOUT = corpusPathOUT;
-        StopWordsPath = new StringBuilder(corpusPathIN + "\\stop_words.txt");
+        StopWordsPath = new StringBuilder(corpusPathIN + "/stop_words.txt");
         StemmerNeeded = Steemer;
         readFile = new ReadFile(CorpusPathIN);
         parse = new Parse(StemmerNeeded, StopWordsPath.toString());
@@ -73,6 +73,7 @@ public class SearchEngine {
         indexer.ItsTimeForMERGE_All_Postings();
         long FinishTime = System.nanoTime();
         TotalTime = FinishTime - StartTime;
+
     }
 
     /**
@@ -140,7 +141,7 @@ public class SearchEngine {
         stb.append(" Nummber of Different Cities not Capital :" + SearchEngine.NumOfCitysNotCapital + "\n");
         stb.append(" Doc with Max City Freq :" + indexer.DocMacCity + "\n");
         stb.append(" Posting Size :" + indexer.PostingSize + "KBs.\n");
-        stb.append(" Total time foe engine : " + SearchEngine.TotalTime / 1000000 +" Seconds.\n");
+        stb.append(" Total time foe engine : " + (double)SearchEngine.TotalTime / 1000000.0 +" Seconds.\n");
         stb.append("##############  Finished  ##############.\n");
         return stb.toString();
     }
