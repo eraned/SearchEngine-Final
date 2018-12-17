@@ -7,7 +7,7 @@ import java.util.*;
  * parse doc after doc
  */
 public class Parse {
-    public boolean isStemmer;
+    public boolean SteemerNeeded;
     public static Stemmer stemmer;
     private HashSet<String> stopWords; //array of all stop word
     private ArrayList<IToken> departments;
@@ -23,10 +23,7 @@ public class Parse {
      * @throws FileNotFoundException
      */
     public Parse(boolean isStemmer, String stopwordsPath) throws FileNotFoundException {
-        if (isStemmer) {
-            stemmer = new Stemmer();
-        }
-        this.stopWords = InitiateStopWords(stopwordsPath);
+        SteemerNeeded = isStemmer;
         departments = new ArrayList<IToken>();
         departments.add(new RangeToken());
         departments.add(new PercentageToken());
@@ -36,6 +33,10 @@ public class Parse {
         departments.add(new CapitalLetterToken(stopWords));
         departments.add(new RelevanceToken());
         MaxDocCityFreq = 0;
+        stopWords = InitiateStopWords(stopwordsPath);
+        if (SteemerNeeded) {
+            stemmer = new Stemmer();
+        }
     }
 
     /**

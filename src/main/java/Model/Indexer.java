@@ -37,7 +37,7 @@ public class Indexer {
      * @param corpusPathOUT - where to save all the output of the indexer
      * @param isStemmer - get from the user
      */
-    public Indexer(String corpusPathOUT,Boolean isStemmer) {
+    public Indexer(String corpusPathOUT,boolean isStemmer) {
         CorpusPathOUT = corpusPathOUT;
         StemmerNeeded = isStemmer;
         Dictionary = new HashMap<>();

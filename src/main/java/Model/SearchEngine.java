@@ -16,9 +16,12 @@ public class SearchEngine {
     public static String CorpusPathOUT;
     public static StringBuilder StopWordsPath;
     public static boolean StemmerNeeded;
+    public static boolean SemanticNeeded;
+    public static boolean ResultByCityNeeded;
     private ReadFile readFile;
-    private Parse parse;
+    private Parse parser;
     public static Indexer indexer;
+    public static Searcher searcher;
     private HashMap<String, DocDetailes> DocsPerBlock;
     private HashMap<String, TermDetailes> TermsPerDoc;
     private NumberToken NT;
@@ -32,19 +35,22 @@ public class SearchEngine {
     /**
      * @param corpusPathIN - path in that the user enter
      * @param corpusPathOUT - path out that the user enter
-     * @param Steemer - user choise
+     * @param isSteemer - user choise
      * @throws IOException
      * @throws URISyntaxException
      */
-    public SearchEngine(String corpusPathIN, String corpusPathOUT, boolean Steemer) throws IOException, URISyntaxException {
+    public SearchEngine(String corpusPathIN, String corpusPathOUT, String query,boolean isSteemer,boolean isSemantic,boolean isResultByCity) throws IOException, URISyntaxException {
         long StartTime = System.nanoTime();
         CorpusPathIN = corpusPathIN;
         CorpusPathOUT = corpusPathOUT;
         StopWordsPath = new StringBuilder(corpusPathIN + "/stop_words.txt");
-        StemmerNeeded = Steemer;
+        StemmerNeeded = isSteemer;
+        SemanticNeeded = isSemantic;
+        ResultByCityNeeded = isResultByCity;
         readFile = new ReadFile(CorpusPathIN);
-        parse = new Parse(StemmerNeeded, StopWordsPath.toString());
+        parser = new Parse(StemmerNeeded, StopWordsPath.toString());
         indexer = new Indexer(CorpusPathOUT, StemmerNeeded);
+        searcher = new Searcher(query,indexer, parser,SemanticNeeded,ResultByCityNeeded);
         NT = new NumberToken();
         All_Docs = new HashMap<>();
         Cities = new HashMap<>();
@@ -63,7 +69,7 @@ public class SearchEngine {
                         ProcessCity(Docid.getValue().getDocCity());
                     }
                     All_Docs.put(Docid.getKey(), Docid.getValue());
-                    TermsPerDoc = parse.ParseDoc(Docid.getValue().getDocText(), Docid.getKey(), Docid.getValue().getDocCity(), Docid.getValue().getDocTitle());
+                    TermsPerDoc = parser.ParseDoc(Docid.getValue().getDocText(), Docid.getKey(), Docid.getValue().getDocCity(), Docid.getValue().getDocTitle());
                     All_Docs.get(Docid.getKey()).setNumOfSpecialWords(TermsPerDoc.size());
                     indexer.CreateMINI_Posting(TermsPerDoc, Docid.getKey()); // update - tNumOfSpecialWords , DocLength , MaxTermFrequency
                 }
