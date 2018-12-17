@@ -40,4 +40,9 @@ public class CityDetailes {
     public void AddNewDoc(String docid,ArrayList<Integer> positionsindoc){
         CityInDoc.put(docid,positionsindoc);
     }
+
+    public HashMap<String, ArrayList<Integer>> getCityInDoc() {
+        return CityInDoc;
+    }
 }
+

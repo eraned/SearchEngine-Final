@@ -30,7 +30,7 @@ public class Indexer {
     public  int NumOfTermsBeforeStemming;
     public  int NumOfTermsAfterStemming;
     public  int NumOfTerms_Numbers;
-    public String DocMacCity;
+    public String DocMaxCity;
 
 
     /**
@@ -50,7 +50,7 @@ public class Indexer {
         NumOfTermsBeforeStemming = 0;
         NumOfTermsAfterStemming = 0;
         NumOfTerms_Numbers = 0;
-        DocMacCity = "";
+        DocMaxCity = "";
 
         if(StemmerNeeded){
             stbOUT.append(CorpusPathOUT + "/EngineOut_WithStemmer/");

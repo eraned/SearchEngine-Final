@@ -127,6 +127,18 @@ public class SearchEngine {
         }
     }
 
+
+
+    public static StringBuilder Prepare_DocMaxCity_ToFinalDoc(){
+        StringBuilder Final = new StringBuilder();
+        CityDetailes tmpD = Cities.get(All_Docs.get(indexer.DocMaxCity).getDocCity());
+        ArrayList<Integer> tmpP = tmpD.getCityInDoc().get(indexer.DocMaxCity);
+        Final.append(" Doc with Max City Freq :" + indexer.DocMaxCity);
+        Final.append(" City :" + All_Docs.get(indexer.DocMaxCity).getDocCity());
+        Final.append(" Positiones :" + Arrays.toString(tmpP.toArray()));
+        return Final;
+    }
+
     /**
      * print all the detailes that needed by the work Requirements.
      */
@@ -139,7 +151,12 @@ public class SearchEngine {
         stb.append(" Nummber of Different Countries :" + Countries.size() + "\n");
         stb.append(" Nummber of Different Cities :" + Cities.size() +"\n");
         stb.append(" Nummber of Different Cities not Capital :" + SearchEngine.NumOfCitysNotCapital + "\n");
-        stb.append(" Doc with Max City Freq :" + indexer.DocMacCity + "\n");
+        if(!indexer.DocMaxCity.isEmpty()) {
+            stb.append(Prepare_DocMaxCity_ToFinalDoc() + "\n");
+        }
+        else {
+            stb.append("No Cities where found!\n");
+        }
         stb.append(" Posting Size :" + indexer.PostingSize + "KBs.\n");
         stb.append(" Total time foe engine : " + (double)SearchEngine.TotalTime / 1000000.0 +" Seconds.\n");
         stb.append("##############  Finished  ##############.\n");
