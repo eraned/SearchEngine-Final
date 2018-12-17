@@ -84,6 +84,9 @@ public class Indexer {
     public void CreateMINI_Posting(HashMap<String, TermDetailes> DocAfterParse,String Docid) throws IOException {
         int MaxTermFreq = 0;
         for (String tmpTerm : DocAfterParse.keySet()) {
+            if(!Character.isLetterOrDigit(tmpTerm.charAt(0))){
+                continue;
+            }
             // not in Post
             if (!Posting.containsKey(tmpTerm)) {
                 Posting.put(tmpTerm,new ArrayList<TermDetailes>());
@@ -199,6 +202,7 @@ public class Indexer {
             FilestoMerge = file.listFiles();
             File filenewName = new File(FinalePath);
             FilestoMerge[0].renameTo(filenewName);
+            FilestoMerge = file.listFiles();
             PostingSize = FilestoMerge[0].length()/1024;
             ItsTimeForSPLIT_Final_Posting();
         }
@@ -294,14 +298,16 @@ public class Indexer {
             BufferedWriter V_Z_BW = new BufferedWriter(V_Z_FW);
             String S = BR_Final_Posting.readLine();
             StringBuilder stbTerm = new StringBuilder();
-            //if(!stbTerm.toString().isEmpty()){
+
             while(S != null) {
                 stbTerm.append(S.substring(0, S.indexOf(":")));
+                char tmpFirst = stbTerm.charAt(0);
+                tmpFirst = Character.toLowerCase(tmpFirst);
                 //A-E
-                if (stbTerm.charAt(0) >= 'a' && stbTerm.charAt(0) <= 'e') {
+                if (tmpFirst >= 'a' && tmpFirst <= 'e') {
                     A_E_BW.write(S);
-                    if(Dictionary.containsKey(stbTerm)){
-                        Dictionary.get(S).setPointer(countA_E);
+                    if(Dictionary.containsKey(stbTerm.toString())){
+                        Dictionary.get(stbTerm.toString()).setPointer(countA_E);
                     }
                     A_E_BW.newLine();
                     S = BR_Final_Posting.readLine();
@@ -310,10 +316,10 @@ public class Indexer {
                     continue;
                 }
                 //F-J
-                else if (stbTerm.charAt(0) >= 'f' && stbTerm.charAt(0) <= 'j') {
+                else if (tmpFirst >= 'f' && tmpFirst <= 'j') {
                     F_J_BW.write(S);
-                    if(Dictionary.containsKey(S)){
-                        Dictionary.get(S).setPointer(countF_J);
+                    if(Dictionary.containsKey(stbTerm.toString())){
+                        Dictionary.get(stbTerm.toString()).setPointer(countF_J);
                     }
                     F_J_BW.newLine();
                     S = BR_Final_Posting.readLine();
@@ -322,10 +328,10 @@ public class Indexer {
                     continue;
                 }
                 //K-P
-                else if (stbTerm.charAt(0) >= 'k' && stbTerm.charAt(0) <= 'p') {
+                else if (tmpFirst >= 'k' && tmpFirst <= 'p') {
                     K_P_BW.write(S);
-                    if(Dictionary.containsKey(S)){
-                        Dictionary.get(S).setPointer(countK_P);
+                    if(Dictionary.containsKey(stbTerm.toString())){
+                        Dictionary.get(stbTerm.toString()).setPointer(countK_P);
                     }
                     K_P_BW.newLine();
                     S = BR_Final_Posting.readLine();
@@ -334,10 +340,10 @@ public class Indexer {
                     continue;
                 }
                 //Q-U
-                else if (stbTerm.charAt(0) >= 'q' && stbTerm.charAt(0) <= 'u') {
+                else if (tmpFirst >= 'q' && tmpFirst <= 'u') {
                     Q_U_BW.write(S);
-                    if(Dictionary.containsKey(S)){
-                        Dictionary.get(S).setPointer(countQ_U);
+                    if(Dictionary.containsKey(stbTerm.toString())){
+                        Dictionary.get(stbTerm.toString()).setPointer(countQ_U);
                     }
                     Q_U_BW.newLine();
                     S = BR_Final_Posting.readLine();
@@ -346,10 +352,10 @@ public class Indexer {
                     continue;
                 }
                 //V-Z
-                else if (stbTerm.charAt(0) >= 'v' && stbTerm.charAt(0) <= 'z') {
+                else if (tmpFirst >= 'v' && tmpFirst <= 'z') {
                     V_Z_BW.write(S);
-                    if(Dictionary.containsKey(S)){
-                        Dictionary.get(S).setPointer(countV_Z);
+                    if(Dictionary.containsKey(stbTerm.toString())){
+                        Dictionary.get(stbTerm.toString()).setPointer(countV_Z);
                     }
                     V_Z_BW.newLine();
                     S = BR_Final_Posting.readLine();
@@ -360,8 +366,8 @@ public class Indexer {
                 //Numbers
                 else {
                     Numbers_BW.write(S);
-                    if(Dictionary.containsKey(stbTerm)){
-                        Dictionary.get(S).setPointer(countNumber);
+                    if(Dictionary.containsKey(stbTerm.toString())){
+                        Dictionary.get(stbTerm.toString()).setPointer(countNumber);
                     }
                     Numbers_BW.newLine();
                     S = BR_Final_Posting.readLine();
@@ -406,7 +412,7 @@ public class Indexer {
             FileWriter FW = new FileWriter(DictionaryDoc);
             BufferedWriter BW = new BufferedWriter(FW);
             for(String term : SortedDic){
-                BW.write(  term + " : " + "Total Freq:"+Dictionary.get(term).getNumOfTermInCorpus() + ";DF:" + Dictionary.get(term).getNumOfDocsTermIN() + "Pointer:" + Dictionary.get(term).getPointer());
+                BW.write(  term + " : " + "  Total Freq:"+Dictionary.get(term).getNumOfTermInCorpus() + "  DF:" + Dictionary.get(term).getNumOfDocsTermIN() + "  Pointer:" + Dictionary.get(term).getPointer());
                 BW.newLine();
             }
             BW.close();
