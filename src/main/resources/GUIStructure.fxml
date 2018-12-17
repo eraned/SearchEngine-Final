@@ -17,84 +17,110 @@
 <?import javafx.scene.text.Font?>
 
 <GridPane alignment="CENTER" hgap="10" prefHeight="700.0" prefWidth="500.0" vgap="10" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.Controller" stylesheets="@GUIStyle.css">
-   <columnConstraints>
-      <ColumnConstraints />
-   </columnConstraints>
-   <rowConstraints>
-      <RowConstraints />
-   </rowConstraints>
-   <children>
-      <Pane prefHeight="700.0" prefWidth="500.0">
-         <children>
-            <VBox layoutX="-1.0" prefHeight="700.0" prefWidth="500.0">
-               <children>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-                     <children>
-                        <Label alignment="CENTER" contentDisplay="CENTER" text="Search Engine " textFill="#1293c7">
-                           <font>
-                              <Font name="Arial" size="18.0" />
-                           </font>
-                        </Label>
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-                     <children>
-                        <Label text="Search engine IN Path" />
-                        <TextField fx:id="PathIN" alignment="CENTER" disable="false" />
-                        <Button fx:id="PathINButton" mnemonicParsing="false" onAction="#GetCorpusDirectoryIN" text="Browse" />
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-                     <children>
-                        <Label text="Search engine OUT Path" />
-                        <TextField fx:id="PathOUT" alignment="CENTER" disable="false" />
-                        <Button fx:id="PathOUTButton" mnemonicParsing="false" onAction="#GetCorpusDirectoryOUT" text="Browse" />
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-                     <children>
-                        <CheckBox fx:id="Stemmer" mnemonicParsing="false" prefHeight="36.0" prefWidth="200.0" text="Including Stemmer" />
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-                     <children>
-                        <Label text="Document Language:" />
-                        <ChoiceBox fx:id="LangSelctor" layoutX="396" layoutY="66" maxWidth="200" prefHeight="24" prefWidth="61">
-                           <items>
-                              <FXCollections fx:factory="observableArrayList">
-                                 <String fx:value="None" />
-                              </FXCollections>
-                           </items>
-                        </ChoiceBox>
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="500.0">
-                     <children>
-                        <GridPane alignment="CENTER">
-                           <columnConstraints>
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                           </columnConstraints>
-                           <rowConstraints>
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                           </rowConstraints>
-                           <children>
-                              <Button fx:id="resetEngine" disable="true" mnemonicParsing="false" onAction="#resetAll" prefHeight="27.0" prefWidth="150.0" text="Reset All" GridPane.columnIndex="0" />
-                              <Button fx:id="LoadDic" disable="true" mnemonicParsing="false" onAction="#LoadDicToMemory" prefHeight="27.0" prefWidth="150.0" text="Load Dictionary" GridPane.columnIndex="1" />
-                              <Button fx:id="ShoewDic" disable="true" mnemonicParsing="false" onAction="#ShowDictionary" prefHeight="27.0" prefWidth="150.0" text="Show Dictionary" GridPane.columnIndex="2" />
-                           </children>
-                        </GridPane>
-                     </children>
-                  </HBox>
-                  <HBox prefHeight="100.0" prefWidth="150.0">
-                     <children>
-                        <Button fx:id="StartEngine" alignment="CENTER" contentDisplay="TOP" mnemonicParsing="false" onAction="#startEngine" prefHeight="50.0" prefWidth="500.0" text="Start Engine" />
-                     </children>
-                  </HBox>
-               </children>
-            </VBox>
-         </children>
-      </Pane>
-   </children>
+    <columnConstraints>
+        <ColumnConstraints />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints />
+    </rowConstraints>
+    <children>
+        <Pane prefHeight="700.0" prefWidth="500.0">
+            <children>
+                <VBox layoutX="-1.0" prefHeight="700.0" prefWidth="500.0">
+                    <children>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                            <children>
+                                <Label alignment="CENTER" contentDisplay="CENTER" text="Search Engine " textFill="#1293c7">
+                                    <font>
+                                        <Font name="Arial" size="18.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                            <children>
+                                <Label text="Search engine IN Path" />
+                                <TextField fx:id="PathIN" alignment="CENTER" disable="false" />
+                                <Button fx:id="PathINButton" mnemonicParsing="false" onAction="#GetCorpusDirectoryIN" text="Browse" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                            <children>
+                                <Label text="Search engine OUT Path" />
+                                <TextField fx:id="PathOUT" alignment="CENTER" disable="false" />
+                                <Button fx:id="PathOUTButton" mnemonicParsing="false" onAction="#GetCorpusDirectoryOUT" text="Browse" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                            <children>
+                                <CheckBox fx:id="Stemmer" mnemonicParsing="false" prefHeight="36.0" prefWidth="200.0" text="Include Stemmer" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                            <children>
+                                <Label text="Document Language:" />
+                                <ChoiceBox fx:id="LangSelctor" layoutX="396" layoutY="66" maxWidth="200" prefHeight="24" prefWidth="61">
+                                    <items>
+                                        <FXCollections fx:factory="observableArrayList">
+                                            <String fx:value="None" />
+                                        </FXCollections>
+                                    </items>
+                                </ChoiceBox>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="500.0">
+                            <children>
+                                <GridPane alignment="CENTER">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    </rowConstraints>
+                                    <children>
+                                        <Button fx:id="resetEngine" disable="true" mnemonicParsing="false" onAction="#resetAll" prefHeight="27.0" prefWidth="150.0" text="Reset All" GridPane.rowIndex="0" GridPane.columnIndex="0"  />
+                                        <Button fx:id="LoadDic" disable="true" mnemonicParsing="false" onAction="#LoadDicToMemory" prefHeight="27.0" prefWidth="150.0" text="Load Dictionary" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                                        <Button fx:id="ShoewDic" disable="true" mnemonicParsing="false" onAction="#ShowDictionary" prefHeight="27.0" prefWidth="150.0" text="Show Dictionary" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                                        <Button fx:id="ShowEntitys" disable="true" mnemonicParsing="false" onAction="#ShowDictionary" prefHeight="27.0" prefWidth="150.0" text="Show Doc Entitys" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </HBox>
+                        <HBox prefHeight="100.0" prefWidth="150.0">
+                            <children>
+                                <Button fx:id="StartEngine" alignment="CENTER" contentDisplay="TOP" mnemonicParsing="false" onAction="#startEngine" prefHeight="30.0" prefWidth="500.0" text="Start Engine" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                            <children>
+                                <CheckBox fx:id="Semantic" mnemonicParsing="false" prefHeight="36.0" prefWidth="200.0" text="Include Semantic" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                            <children>
+                                <Label text="Single Query -&gt; " />
+                                <TextField fx:id="SingleQuery" disable="true" prefHeight="25.0" prefWidth="105.0" />
+                                <Button fx:id="RunSingleQueryButton" disable="true" mnemonicParsing="false" onAction="#RunSingle" text="Run" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                            <children>
+                                <Label text="List Of Queries" />
+                                <TextField fx:id="PathQueriesFile" disable="true" />
+                                <Button fx:id="BrowseQueryButton" disable="true" mnemonicParsing="false" onAction="#QueriesInput" text="Browse" />
+                                <Button fx:id="runQueryFileButton" disable="true" mnemonicParsing="false" onAction="#RunAll" text="Run" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                            <children>
+                                <Button fx:id="newSearchButton" disable="true" mnemonicParsing="false" onAction="#NewSearch" prefHeight="30.0" prefWidth="500.0" text="New Search" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </Pane>
+    </children>
 </GridPane>

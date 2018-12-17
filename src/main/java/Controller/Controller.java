@@ -2,7 +2,10 @@ package Controller;
 
 import Model.SearchEngine;
 import Model.DictionaryDetailes;
+import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import java.awt.*;
 import java.io.File;
@@ -21,11 +24,19 @@ public class Controller{
     public javafx.scene.control.TextField PathOUT;
     public javafx.scene.control.Button PathOUTButton;
     public javafx.scene.control.CheckBox Stemmer;
+    public javafx.scene.control.CheckBox Semantic;
     public javafx.scene.control.ChoiceBox LangSelctor;
     public javafx.scene.control.Button StartEngine;
     public javafx.scene.control.Button resetEngine;
     public javafx.scene.control.Button LoadDic;
     public javafx.scene.control.Button ShoewDic;
+    public javafx.scene.control.Button ShowEntitys;
+    public TextField SingleQuery;
+    public TextField PathQueriesFile;
+    public Button RunSingleQueryButton;
+    public Button BrowseQueryButton;
+    public Button runQueryFileButton;
+    public Button newSearchButton;
 
     /**
      * translate the user choise to string for input to the search engine
@@ -173,5 +184,21 @@ public class Controller{
         } else {
             showAlert("Dictionry failed to load in to the Memory!");
         }
+    }
+
+    public void SplitQueries(){
+
+    }
+
+    public void RunSingle(ActionEvent actionEvent) {
+    }
+
+    public void QueriesInput(ActionEvent actionEvent) {
+    }
+
+    public void RunAll(ActionEvent actionEvent) {
+    }
+
+    public void NewSearch(ActionEvent actionEvent) {
     }
 }

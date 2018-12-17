@@ -9,16 +9,18 @@ public class Searcher {
 
 
     public String Query;
+    public Ranker ranker;
     public Indexer RankerIndexer;
     public Parse RankerParser;
-    public Ranker ranker;
+    public ReadFile RankerReadfile;
     public StringBuilder stbResult;
 
-    public Searcher(String query, Indexer indexer, Parse parser, boolean semanticNeeded, boolean resultByCityNeeded) {
+    public Searcher(String query, Indexer indexer, Parse parser, ReadFile readFile, boolean semanticNeeded, boolean resultByCityNeeded, boolean stemmerNeeded) {
         Query = query;
         RankerIndexer = indexer;
         RankerParser = parser;
-        ranker = new Ranker();
+        RankerReadfile = readFile;
+        ranker = new Ranker(RankerIndexer,RankerParser,RankerReadfile,stemmerNeeded);
         stbResult = new StringBuilder();
 
         if(semanticNeeded){

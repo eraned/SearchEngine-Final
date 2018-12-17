@@ -39,7 +39,7 @@ public class SearchEngine {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public SearchEngine(String corpusPathIN, String corpusPathOUT, String query,boolean isSteemer,boolean isSemantic,boolean isResultByCity) throws IOException, URISyntaxException {
+    public SearchEngine(String corpusPathIN, String corpusPathOUT,boolean isSteemer,boolean isSemantic,boolean isResultByCity) throws IOException, URISyntaxException {
         long StartTime = System.nanoTime();
         CorpusPathIN = corpusPathIN;
         CorpusPathOUT = corpusPathOUT;
@@ -50,7 +50,7 @@ public class SearchEngine {
         readFile = new ReadFile(CorpusPathIN);
         parser = new Parse(StemmerNeeded, StopWordsPath.toString());
         indexer = new Indexer(CorpusPathOUT, StemmerNeeded);
-        searcher = new Searcher(query,indexer, parser,SemanticNeeded,ResultByCityNeeded);
+        searcher = new Searcher(query,indexer, parser,readFile,SemanticNeeded,ResultByCityNeeded,StemmerNeeded);
         NT = new NumberToken();
         All_Docs = new HashMap<>();
         Cities = new HashMap<>();
