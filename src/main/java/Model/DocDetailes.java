@@ -8,7 +8,7 @@ package Model;
 public class DocDetailes {
     private int MaxTermFrequency; //max_tf
     private int NumOfSpecialWords;
-    private int DocLength;
+    private int DocLength; //doc size
     private String DocText;
     private String DocDate;
     private String DocTitle;
@@ -20,14 +20,13 @@ public class DocDetailes {
      * @param docDate
      * @param docTitle
      * @param city
-     * @param doclength
      */
-    public DocDetailes(String docText, String docDate, String docTitle, String city ,int doclength) {
+    public DocDetailes(String docText, String docDate, String docTitle, String city) {
         DocText = docText;
         DocDate = docDate;
         DocTitle = docTitle;
         DocCity = city;
-        DocLength = doclength;
+        DocLength = 0;
         MaxTermFrequency = 0;
     }
 

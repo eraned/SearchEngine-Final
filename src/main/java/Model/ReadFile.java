@@ -77,7 +77,6 @@ public class ReadFile {
             String DocDate = element.getElementsByTag("DATE1").text();
             String DocTitle = element.getElementsByTag("TI").text();
             String CitySection = element.getElementsByTag("F").toString();
-            int Length = DocText.length();
             if (!CitySection.isEmpty()){
                 String[] splited = StringUtils.splitString(CitySection, "[]}{(),<>%/:\"");
                 for (int i = 0; i < splited.length; i++) {
@@ -103,7 +102,7 @@ public class ReadFile {
 
                 }
             }
-            tmpDocs.put(DocID, new DocDetailes(DocText, DocDate, DocTitle, CitySection, Length));
+            tmpDocs.put(DocID, new DocDetailes(DocText, DocDate, DocTitle, CitySection));
         }
         return tmpDocs;
     }

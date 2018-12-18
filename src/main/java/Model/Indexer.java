@@ -121,6 +121,7 @@ public class Indexer {
             }
         }
         SearchEngine.All_Docs.get(Docid).setMaxTermFrequency(MaxTermFreq);
+        SearchEngine.All_Docs.get(Docid).setDocLength(DocAfterParse.size());
         if(BlockCounter == 5000) {
             ItsTimeForFLUSH_POSTING();
             Posting.clear();
@@ -412,7 +413,7 @@ public class Indexer {
             FileWriter FW = new FileWriter(DictionaryDoc);
             BufferedWriter BW = new BufferedWriter(FW);
             for(String term : SortedDic){
-                BW.write(  term + " : " + "  Total Freq:"+Dictionary.get(term).getNumOfTermInCorpus() + "  DF:" + Dictionary.get(term).getNumOfDocsTermIN() + "  Pointer:" + Dictionary.get(term).getPointer());
+                BW.write(  term + ": " + "Total Freq:"+Dictionary.get(term).getNumOfTermInCorpus() + "; DF:" + Dictionary.get(term).getNumOfDocsTermIN() + "; Pointer:" + Dictionary.get(term).getPointer());
                 BW.newLine();
             }
             BW.close();

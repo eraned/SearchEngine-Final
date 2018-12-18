@@ -76,6 +76,7 @@ public class SearchEngine {
         }
         //finish threads
         indexer.ItsTimeForMERGE_All_Postings();
+        ItsTimeToWriteAllDocs();
         long FinishTime = System.nanoTime();
         TotalTime = FinishTime - StartTime;
 
@@ -167,5 +168,56 @@ public class SearchEngine {
         stb.append("##############  Finished  ##############.\n");
         return stb.toString();
     }
+
+    public void ItsTimeToWriteAllDocs(){
+        File AllDocsFile = new File(indexer.stbOUT + "/Docs" + ".txt");
+        ArrayList<String> SortedDocs = new ArrayList<>(All_Docs.keySet());
+        Collections.sort(SortedDocs);
+
+        try {
+            FileWriter FW = new FileWriter(AllDocsFile);
+            BufferedWriter BW = new BufferedWriter(FW);
+            for(String doc : SortedDocs){
+                BW.write(  doc + ": " + "DocLength:"+All_Docs.get(doc).getDocLength() + "; MaxTermFrequency:" + All_Docs.get(doc).getMaxTermFrequency());
+                BW.newLine();
+            }
+            BW.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static HashMap<String, StringBuilder> ItsTimeToLoadAllDocs(String Path){
+        HashMap<String, StringBuilder> LoadedDocs = new HashMap<>();
+        StringBuilder stb = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
+            String line = br.readLine();
+            int doclength = 0,max_tf = 0;
+            while (line != null ){
+                int index = line.indexOf(':');
+                String doc = line.substring(0,index);
+                line = line.substring(index + 1);
+                if (!doc.isEmpty()){
+                    String Length = line.substring(11, line.indexOf(';'));
+                    doclength = Integer.parseInt(Length);
+                    line = line.substring(line.indexOf(';') + 1);
+                    index = line.indexOf("MaxTermFrequency:");
+                    String Maxtf = line.substring(index + 17);
+                    max_tf = Integer.parseInt(Maxtf);
+                    stb.append(doclength + ";" + max_tf);
+                    LoadedDocs.put(doc,stb);
+                    stb.setLength(0);
+                }
+                line = br.readLine();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return LoadedDocs;
+    }
+
 }
 

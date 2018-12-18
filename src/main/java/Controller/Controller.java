@@ -186,7 +186,7 @@ public class Controller{
     /**
      * read the dic from the disk and initialized it to new data structure that save in the memory.
      */
-    public void LoadDicToMemory() throws IOException {
+    public void LoadDicToMemory() throws IOException { //todo - to move to the function in the indexer!!
         if(!Stemmer.isSelected()) {
             HashMap<String, DictionaryDetailes> LoadedDictionary = new HashMap<>();
             LoadedDictionary = SearchEngine.indexer.ItsTimeToLoadDictionary(  PathOUT.getText() + "/EngineOut/Dictionary.txt");
@@ -229,7 +229,6 @@ public class Controller{
         searcher = new Searcher(searchEngine.indexer,searchEngine.parser,searchEngine.readFile,Semantic.isSelected(),CitySelctor.isShowing(),Stemmer.isSelected());
         searcher.ProccesQuery(PathQueriesFile.getText());
         searcher.EntityIdentification();
-        searcher.ReturnResults();
         newSearchButton.setDisable(false);
     }
 

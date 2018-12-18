@@ -11,6 +11,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Searcher {
 
@@ -22,15 +23,17 @@ public class Searcher {
     public boolean ResultByCityNeeded;
     public boolean StemmerNeeded;
     public StringBuilder stbResult;
+    public HashMap<String, DictionaryDetailes> LoadedDictionary;
+    public HashMap<String, StringBuilder> LoadedDocs;
 
-    public Searcher(Indexer indexer, Parse parser, ReadFile readFile, boolean semanticNeeded, boolean resultByCityNeeded, boolean stemmerNeeded) {
+
+    public Searcher(Indexer indexer, Parse parser, ReadFile readFile, boolean semanticNeeded, boolean resultByCityNeeded, boolean stemmerNeeded) throws IOException {
         RankerIndexer = indexer;
         RankerParser = parser;
         RankerReadfile = readFile;
         SemanticNeeded = semanticNeeded;
         ResultByCityNeeded = resultByCityNeeded;
         StemmerNeeded = stemmerNeeded;
-        ranker = new Ranker(RankerIndexer,RankerParser,RankerReadfile,StemmerNeeded);
         stbResult = new StringBuilder();
 
         if(semanticNeeded){
@@ -52,26 +55,22 @@ public class Searcher {
         else{
             folder.mkdir();
         }
+
+        ranker = new Ranker(RankerIndexer.stbOUT.toString());
+        LoadedDictionary = LoadDicToMemory();
+        LoadedDocs = LoadDocsToMemory();
     }
 
 
     public void ProccesQuery(String QueryPath) throws IOException {
         ArrayList<String> Queries = SplitQueriesFile(QueryPath);
-
-
-
-
-
-
-
-
+        for(String query : Queries) {
+            ranker.InitializWeights(query);
+            ranker.RankDocs();
+        }
     }
 
     public void EntityIdentification(){
-
-    }
-
-    public void ReturnResults(){
 
     }
 
@@ -93,5 +92,13 @@ public class Searcher {
             Result.add(QueryContent);
         }
         return Result;
+    }
+
+    public HashMap<String, DictionaryDetailes> LoadDicToMemory() throws IOException {
+        return SearchEngine.indexer.ItsTimeToLoadDictionary(  RankerIndexer.stbOUT.toString() + "Dictionary.txt");
+    }
+
+    public HashMap<String, StringBuilder> LoadDocsToMemory() throws IOException {
+        return SearchEngine.ItsTimeToLoadAllDocs(  RankerIndexer.stbOUT.toString() + "Docs.txt");
     }
 }
