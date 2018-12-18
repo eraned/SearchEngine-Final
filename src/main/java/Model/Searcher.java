@@ -24,7 +24,7 @@ public class Searcher {
     public boolean StemmerNeeded;
     public StringBuilder stbResult;
     public HashMap<String, DictionaryDetailes> LoadedDictionary;
-    public HashMap<String, StringBuilder> LoadedDocs;
+    public HashMap<String, String> LoadedDocs;
 
 
     public Searcher(Indexer indexer, Parse parser, ReadFile readFile, boolean semanticNeeded, boolean resultByCityNeeded, boolean stemmerNeeded) throws IOException {
@@ -67,7 +67,7 @@ public class Searcher {
         for(String query : Queries) {
             HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(query,"Q","","");
             ranker.InitializWeights(tmpQuery,SearcherIndexer.stbOUT.toString(),LoadedDictionary,LoadedDocs);
-            ranker.RankDocs();
+
         }
     }
 
@@ -99,7 +99,7 @@ public class Searcher {
         return SearchEngine.indexer.ItsTimeToLoadDictionary(  SearcherIndexer.stbOUT.toString() + "Dictionary.txt");
     }
 
-    public HashMap<String, StringBuilder> LoadDocsToMemory() throws IOException {
+    public HashMap<String, String> LoadDocsToMemory() throws IOException {
         return SearchEngine.ItsTimeToLoadAllDocs(  SearcherIndexer.stbOUT.toString() + "Docs.txt");
     }
 }

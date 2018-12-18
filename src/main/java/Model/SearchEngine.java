@@ -1,6 +1,8 @@
 package Model;
 
 
+import javafx.util.Pair;
+
 import java.io.*;
 import java.net.URL;
 import java.util.*;
@@ -45,8 +47,8 @@ public class SearchEngine {
         CorpusPathOUT = corpusPathOUT;
         StopWordsPath = new StringBuilder(corpusPathIN + "/stop_words.txt");
         StemmerNeeded = isSteemer;
-       // SemanticNeeded = isSemantic;
-       // ResultByCityNeeded = isResultByCity;
+        // SemanticNeeded = isSemantic;
+        // ResultByCityNeeded = isResultByCity;
         readFile = new ReadFile(CorpusPathIN);
         parser = new Parse(StemmerNeeded, StopWordsPath.toString());
         indexer = new Indexer(CorpusPathOUT, StemmerNeeded);
@@ -188,8 +190,8 @@ public class SearchEngine {
         }
     }
 
-    public static HashMap<String, StringBuilder> ItsTimeToLoadAllDocs(String Path){
-        HashMap<String, StringBuilder> LoadedDocs = new HashMap<>();
+    public static HashMap<String,String> ItsTimeToLoadAllDocs(String Path){
+        HashMap<String, String> LoadedDocs = new HashMap<>();
         StringBuilder stb = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
             String line = br.readLine();
@@ -206,13 +208,11 @@ public class SearchEngine {
                     String Maxtf = line.substring(index + 17);
                     max_tf = Integer.parseInt(Maxtf);
                     stb.append(doclength + ";" + max_tf);
-                    LoadedDocs.put(doc,stb);
+                    LoadedDocs.put(doc,stb.toString());
                     stb.setLength(0);
                 }
                 line = br.readLine();
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

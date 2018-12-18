@@ -10,41 +10,45 @@ import java.util.HashSet;
 public class Ranker {
 
 
-    public Ranker(){
+    public Ranker(){}
 
 
-
-    }
-
-
-    public void InitializWeights(HashMap<String, TermDetailes> QueryAfterParse,String pathforFindposting,HashMap<String, DictionaryDetailes> LoadedDictionary,HashMap<String, StringBuilder> LoadedDocs) throws IOException { //Matrix of columns: d1,d2,d3....q     rows: t1,t2,t3....
-        HashMap<String, HashMap<String, Integer>> CosSim_Matrix = new HashMap<>(); //<term,<Docid ,weight per Docid>>
+    public void InitializWeights(HashMap<String, TermDetailes> QueryAfterParse,String pathforFindposting,HashMap<String, DictionaryDetailes> LoadedDictionary,HashMap<String, String> LoadedDocs) throws IOException { //Matrix of columns: d1,d2,d3....q     rows: t1,t2,t3....
+        HashMap<String, HashMap<String, Double>> CosSim_Matrix = new HashMap<>(); //<term,<Docid ,weight per Docid>>
         HashMap<String, HashMap<String, Integer>> BM25_Matrix = new HashMap<>();  //<term,<,Docid,TF per Docid>>
-
+        int NumOdDocs = LoadedDocs.size();
         for (String term : QueryAfterParse.keySet()) {
             try {
-                HashMap<String, Integer> tmp = new HashMap<>();
                 int Pointer = LoadedDictionary.get(term).getPointer();
-                tmp = GetTFfromPosting(Pointer, term, pathforFindposting);
-
-
-
+                HashMap<String, Double> CosSimtmp = new HashMap<>();
+                HashMap<String, Integer> BM25tmp = new HashMap<>();
+                HashMap<String, Integer> tmp = GetTFfromPosting(Pointer, term, pathforFindposting);// <docid,tf> from posting
+                for(String docid : tmp.keySet()){
+                    String length = LoadedDocs.get(docid).substring(0,LoadedDocs.get(docid).indexOf(';'));
+                    int doclength = Integer.parseInt(length);
+                    int x = tmp.get(docid);
+                    int y = NumOdDocs;
+                    int z = LoadedDictionary.get(term).getNumOfDocsTermIN();
+                    double Wij = (tmp.get(docid)/doclength)*(Math.log(NumOdDocs/LoadedDictionary.get(term).getNumOfDocsTermIN()));
+                    int Cij = tmp.get(docid);
+                    CosSimtmp.put(docid,Wij);
+                    BM25tmp.put(docid,Cij);
+                }
+                CosSim_Matrix.put(term,CosSimtmp);
+                BM25_Matrix.put(term,BM25tmp);
             }
             catch (Exception e){
                 e.printStackTrace();
             }
-
         }
-
-
-
+        RankDocs(CosSim_Matrix,BM25_Matrix);
     }
 
 
 
 
 
-    public HashMap<Integer,String> RankDocs(){ //HashMap<Rank,DocID> return only max 50 docs  ...final rank = 0.5 cosim + 0.5 BM25
+    public HashMap<Integer,String> RankDocs(HashMap<String, HashMap<String, Double>> CosSim_Matrix,HashMap<String, HashMap<String, Integer>> BM25_Matrix){ //HashMap<Rank,DocID> return only max 50 docs  ...final rank = 0.5 cosim + 0.5 BM25
         HashMap<Integer,String> RankerResult = new HashMap<>();
 
         //calc CosSim
@@ -90,7 +94,12 @@ public class Ranker {
             TermLIne = TermLIne.substring(TermLIne.indexOf(',') + 1);
             String TF = TermLIne.substring(6, TermLIne.indexOf(')'));
             tf = Integer.parseInt(TF);
-            TermLIne = TermLIne.substring(TermLIne.indexOf("("));
+            try {
+                TermLIne = TermLIne.substring(TermLIne.indexOf("("));
+            }
+            catch (Exception e){
+                break;
+            }
             PostingResult.put(docID,tf);
         }
         return PostingResult;
