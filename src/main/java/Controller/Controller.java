@@ -236,11 +236,7 @@ public class Controller{
     public void NewSearch() {
         File ResultsToReset;
         String ResultPath = searcher.stbResult.toString();
-//        if (Stemmer.isSelected()) {
-            ResultsToReset = new File(ResultPath); //lab path - "\\EngineOut_WithStemmer\\"
-//        } else {
-//            ResultsToReset = new File(ResultPath); //lab path - "\\EngineOut\\"
-//        }
+        ResultsToReset = new File(ResultPath); //lab path - "\\EngineOut_WithStemmer\\"
         if (ResultsToReset.exists()) {
             File[] fileList = ResultsToReset.listFiles();
             for (int i = 0; i < fileList.length; i++) {
