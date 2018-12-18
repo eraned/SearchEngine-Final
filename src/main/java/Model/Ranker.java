@@ -25,11 +25,8 @@ public class Ranker {
                 HashMap<String, Integer> tmp = GetTFfromPosting(Pointer, term, pathforFindposting);// <docid,tf> from posting
                 for(String docid : tmp.keySet()){
                     String length = LoadedDocs.get(docid).substring(0,LoadedDocs.get(docid).indexOf(';'));
-                    int doclength = Integer.parseInt(length);
-                    int x = tmp.get(docid);
-                    int y = NumOdDocs;
-                    int z = LoadedDictionary.get(term).getNumOfDocsTermIN();
-                    double Wij = (tmp.get(docid)/doclength)*(Math.log(NumOdDocs/LoadedDictionary.get(term).getNumOfDocsTermIN()));
+                    double doclength = Integer.parseInt(length);
+                    double Wij = (tmp.get(docid)/doclength)*(Math.log(NumOdDocs/LoadedDictionary.get(term).getNumOfDocsTermIN())/Math.log(2));
                     int Cij = tmp.get(docid);
                     CosSimtmp.put(docid,Wij);
                     BM25tmp.put(docid,Cij);
