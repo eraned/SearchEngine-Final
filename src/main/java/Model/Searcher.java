@@ -16,9 +16,9 @@ import java.util.HashMap;
 public class Searcher {
 
     public Ranker ranker;
-    public Indexer RankerIndexer;
-    public Parse RankerParser;
-    public ReadFile RankerReadfile;
+    public Indexer SearcherIndexer;
+    public Parse SearcherParser;
+    // public ReadFile RankerReadfile;
     public boolean SemanticNeeded;
     public boolean ResultByCityNeeded;
     public boolean StemmerNeeded;
@@ -28,19 +28,19 @@ public class Searcher {
 
 
     public Searcher(Indexer indexer, Parse parser, ReadFile readFile, boolean semanticNeeded, boolean resultByCityNeeded, boolean stemmerNeeded) throws IOException {
-        RankerIndexer = indexer;
-        RankerParser = parser;
-        RankerReadfile = readFile;
+        SearcherIndexer = indexer;
+        SearcherParser = parser;
+        //RankerReadfile = readFile;
         SemanticNeeded = semanticNeeded;
         ResultByCityNeeded = resultByCityNeeded;
         StemmerNeeded = stemmerNeeded;
         stbResult = new StringBuilder();
 
         if(semanticNeeded){
-            stbResult.append(RankerIndexer.stbOUT.toString() + "/Results_WithSemantic/");
+            stbResult.append(SearcherIndexer.stbOUT.toString() + "/Results_WithSemantic/");
         }
         else
-            stbResult.append(RankerIndexer.stbOUT.toString() + "/Results/");
+            stbResult.append(SearcherIndexer.stbOUT.toString() + "/Results/");
 
         File folder = new File(stbResult.toString());
         File[] listOfFiles = folder.listFiles();
@@ -56,16 +56,17 @@ public class Searcher {
             folder.mkdir();
         }
 
-        ranker = new Ranker(RankerIndexer.stbOUT.toString());
         LoadedDictionary = LoadDicToMemory();
         LoadedDocs = LoadDocsToMemory();
+        ranker = new Ranker();
     }
 
 
     public void ProccesQuery(String QueryPath) throws IOException {
         ArrayList<String> Queries = SplitQueriesFile(QueryPath);
         for(String query : Queries) {
-            ranker.InitializWeights(query);
+            HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(query,"Q","","");
+            ranker.InitializWeights(tmpQuery,SearcherIndexer.stbOUT.toString(),LoadedDictionary,LoadedDocs);
             ranker.RankDocs();
         }
     }
@@ -95,10 +96,10 @@ public class Searcher {
     }
 
     public HashMap<String, DictionaryDetailes> LoadDicToMemory() throws IOException {
-        return SearchEngine.indexer.ItsTimeToLoadDictionary(  RankerIndexer.stbOUT.toString() + "Dictionary.txt");
+        return SearchEngine.indexer.ItsTimeToLoadDictionary(  SearcherIndexer.stbOUT.toString() + "Dictionary.txt");
     }
 
     public HashMap<String, StringBuilder> LoadDocsToMemory() throws IOException {
-        return SearchEngine.ItsTimeToLoadAllDocs(  RankerIndexer.stbOUT.toString() + "Docs.txt");
+        return SearchEngine.ItsTimeToLoadAllDocs(  SearcherIndexer.stbOUT.toString() + "Docs.txt");
     }
 }
