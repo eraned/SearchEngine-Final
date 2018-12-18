@@ -24,6 +24,7 @@ public class Parse {
      */
     public Parse(boolean isStemmer, String stopwordsPath) throws FileNotFoundException {
         SteemerNeeded = isStemmer;
+        stopWords = InitiateStopWords(stopwordsPath);
         departments = new ArrayList<IToken>();
         departments.add(new RangeToken());
         departments.add(new PercentageToken());
@@ -33,7 +34,6 @@ public class Parse {
         departments.add(new CapitalLetterToken(stopWords));
         departments.add(new RelevanceToken());
         MaxDocCityFreq = 0;
-        stopWords = InitiateStopWords(stopwordsPath);
         if (SteemerNeeded) {
             stemmer = new Stemmer();
         }

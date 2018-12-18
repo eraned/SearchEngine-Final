@@ -100,15 +100,27 @@
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                             <children>
-                                <Label text="Single Query -&gt; " />
-                                <TextField fx:id="SingleQuery" disable="true" prefHeight="25.0" prefWidth="105.0" />
+                                <Label text="Search by City:" />
+                                <ChoiceBox fx:id="CitySelctor" layoutX="396" layoutY="66" maxWidth="200" prefHeight="24" prefWidth="61">
+                                    <items>
+                                        <FXCollections fx:factory="observableArrayList">
+                                            <String fx:value="None" />
+                                        </FXCollections>
+                                    </items>
+                                </ChoiceBox>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                            <children>
+                                <Label text="Single Query:" />
+                                <TextField fx:id="SingleQuery" disable="true" prefHeight="25.0" prefWidth="200.0" />
                                 <Button fx:id="RunSingleQueryButton" disable="true" mnemonicParsing="false" onAction="#RunSingle" text="Run" />
                             </children>
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                             <children>
-                                <Label text="List Of Queries" />
-                                <TextField fx:id="PathQueriesFile" disable="true" />
+                                <Label text="List Of Queries:" />
+                                <TextField fx:id="PathQueriesFile" disable="true" prefHeight="25.0" prefWidth="200.0" />
                                 <Button fx:id="BrowseQueryButton" disable="true" mnemonicParsing="false" onAction="#QueriesInput" text="Browse" />
                                 <Button fx:id="runQueryFileButton" disable="true" mnemonicParsing="false" onAction="#RunAll" text="Run" />
                             </children>

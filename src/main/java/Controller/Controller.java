@@ -2,11 +2,15 @@ package Controller;
 
 import Model.SearchEngine;
 import Model.DictionaryDetailes;
+import Model.Searcher;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
+
 import java.awt.*;
 import java.io.File;
 import java.net.URISyntaxException;
@@ -31,12 +35,18 @@ public class Controller{
     public javafx.scene.control.Button LoadDic;
     public javafx.scene.control.Button ShoewDic;
     public javafx.scene.control.Button ShowEntitys;
-    public TextField SingleQuery;
-    public TextField PathQueriesFile;
-    public Button RunSingleQueryButton;
-    public Button BrowseQueryButton;
-    public Button runQueryFileButton;
-    public Button newSearchButton;
+    public javafx.scene.control.TextField SingleQuery;
+    public javafx.scene.control.TextField PathQueriesFile;
+    public javafx.scene.control.Button RunSingleQueryButton;
+    public javafx.scene.control.Button BrowseQueryButton;
+    public javafx.scene.control.Button runQueryFileButton;
+    public javafx.scene.control.Button newSearchButton;
+    public javafx.scene.control.ChoiceBox CitySelctor;
+
+
+
+    private SearchEngine searchEngine;
+    private Searcher searcher;
 
     /**
      * translate the user choise to string for input to the search engine
@@ -76,14 +86,20 @@ public class Controller{
             String Pathout = PathOUT.getText();
             String Pathin = PathIN.getText();
             SearchEngine searchEngine;
-            searchEngine = new SearchEngine(Pathin, Pathout, Stemmer.isSelected());
+            searchEngine = new SearchEngine(Pathin, Pathout,Stemmer.isSelected());
             LoadLangugesToScroll();
+            LoadCitiesToScroll();
             showAlert(getFinalDoc());
             PathIN.setDisable(false);
             PathOUT.setDisable(false);
             resetEngine.setDisable(false);
             LoadDic.setDisable(false);
             ShoewDic.setDisable(false);
+            SingleQuery.setDisable(false);
+            PathQueriesFile.setDisable(false);
+            BrowseQueryButton.setDisable(false);
+            RunSingleQueryButton.setDisable(false);
+            runQueryFileButton.setDisable(false);
         } else {
             showAlert("Please enter Path's!");
         }
@@ -186,19 +202,54 @@ public class Controller{
         }
     }
 
-    public void SplitQueries(){
+    public void LoadCitiesToScroll(){
+        for(String city : SearchEngine.Cities.keySet()) {
+            // MenuItem newLang= new MenuItem(lang);
+            CitySelctor.getItems().add(city);
+        }
+    }
+
+
+    public void RunSingle() {
+
 
     }
 
-    public void RunSingle(ActionEvent actionEvent) {
+    public void QueriesInput() {
+        FileChooser FC = new FileChooser();
+        FC.setTitle("Pick Directory for Queries!");
+        File file = FC.showOpenDialog(null);
+        if (file != null) {
+            String Path = file.getAbsolutePath();
+            PathQueriesFile.setText(Path);
+        }
     }
 
-    public void QueriesInput(ActionEvent actionEvent) {
+    public void RunAll() throws IOException {
+        searcher = new Searcher(searchEngine.indexer,searchEngine.parser,searchEngine.readFile,Semantic.isSelected(),CitySelctor.isShowing(),Stemmer.isSelected());
+        searcher.ProccesQuery(PathQueriesFile.getText());
+        searcher.EntityIdentification();
+        searcher.ReturnResults();
+        newSearchButton.setDisable(false);
     }
 
-    public void RunAll(ActionEvent actionEvent) {
-    }
-
-    public void NewSearch(ActionEvent actionEvent) {
+    public void NewSearch() {
+        File ResultsToReset;
+        String ResultPath = searcher.stbResult.toString();
+//        if (Stemmer.isSelected()) {
+            ResultsToReset = new File(ResultPath); //lab path - "\\EngineOut_WithStemmer\\"
+//        } else {
+//            ResultsToReset = new File(ResultPath); //lab path - "\\EngineOut\\"
+//        }
+        if (ResultsToReset.exists()) {
+            File[] fileList = ResultsToReset.listFiles();
+            for (int i = 0; i < fileList.length; i++) {
+                File textFileDirectory = fileList[i];
+                if (textFileDirectory.exists()) {
+                    textFileDirectory.delete();
+                }
+            }
+            ResultsToReset.delete();
+        }
     }
 }

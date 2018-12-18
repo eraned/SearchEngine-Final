@@ -16,12 +16,12 @@ public class SearchEngine {
     public static String CorpusPathOUT;
     public static StringBuilder StopWordsPath;
     public static boolean StemmerNeeded;
-    public static boolean SemanticNeeded;
-    public static boolean ResultByCityNeeded;
-    private ReadFile readFile;
-    private Parse parser;
-    public static Indexer indexer;
-    public static Searcher searcher;
+    //public static boolean SemanticNeeded;
+    //public static boolean ResultByCityNeeded;
+    public static ReadFile readFile;
+    public static Parse parser;
+    public  static Indexer indexer;
+    //public static Searcher searcher;
     private HashMap<String, DocDetailes> DocsPerBlock;
     private HashMap<String, TermDetailes> TermsPerDoc;
     private NumberToken NT;
@@ -39,18 +39,17 @@ public class SearchEngine {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public SearchEngine(String corpusPathIN, String corpusPathOUT,boolean isSteemer,boolean isSemantic,boolean isResultByCity) throws IOException, URISyntaxException {
+    public SearchEngine(String corpusPathIN, String corpusPathOUT,boolean isSteemer) throws IOException, URISyntaxException {
         long StartTime = System.nanoTime();
         CorpusPathIN = corpusPathIN;
         CorpusPathOUT = corpusPathOUT;
         StopWordsPath = new StringBuilder(corpusPathIN + "/stop_words.txt");
         StemmerNeeded = isSteemer;
-        SemanticNeeded = isSemantic;
-        ResultByCityNeeded = isResultByCity;
+       // SemanticNeeded = isSemantic;
+       // ResultByCityNeeded = isResultByCity;
         readFile = new ReadFile(CorpusPathIN);
         parser = new Parse(StemmerNeeded, StopWordsPath.toString());
         indexer = new Indexer(CorpusPathOUT, StemmerNeeded);
-        searcher = new Searcher(query,indexer, parser,readFile,SemanticNeeded,ResultByCityNeeded,StemmerNeeded);
         NT = new NumberToken();
         All_Docs = new HashMap<>();
         Cities = new HashMap<>();
