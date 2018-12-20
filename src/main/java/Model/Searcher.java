@@ -23,8 +23,8 @@ public class Searcher {
     public boolean ResultByCityNeeded;
     public boolean StemmerNeeded;
     public StringBuilder stbResult;
-    public HashMap<String, DictionaryDetailes> LoadedDictionary;
-    public HashMap<String, String> LoadedDocs;
+    public static HashMap<String, DictionaryDetailes> LoadedDictionary;
+    public static HashMap<String, String> LoadedDocs;
 
 
     public Searcher(Indexer indexer, Parse parser, ReadFile readFile, boolean semanticNeeded, boolean resultByCityNeeded, boolean stemmerNeeded) throws IOException {
@@ -58,7 +58,7 @@ public class Searcher {
 
         LoadedDictionary = LoadDicToMemory();
         LoadedDocs = LoadDocsToMemory();
-        ranker = new Ranker();
+        ranker = new Ranker(SearcherIndexer.stbOUT.toString());
     }
 
 
@@ -66,10 +66,11 @@ public class Searcher {
         ArrayList<String> Queries = SplitQueriesFile(QueryPath);
         for(String query : Queries) {
             HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(query,"Q","","");
-            ranker.InitializWeights(tmpQuery,SearcherIndexer.stbOUT.toString(),LoadedDictionary,LoadedDocs);
-
+            ranker.InitializWeights(tmpQuery);
         }
     }
+
+
 
     public void EntityIdentification(){
 
