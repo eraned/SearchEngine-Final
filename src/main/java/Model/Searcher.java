@@ -66,7 +66,7 @@ public class Searcher {
         ArrayList<String> Queries = SplitQueriesFile(QueryPath);
         for(String query : Queries) {
             HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(query,"Q","","");
-            ranker.InitializWeights(tmpQuery);
+            ranker.InitializScores(tmpQuery);
         }
     }
 
