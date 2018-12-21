@@ -130,7 +130,6 @@ public class Controller{
      */
     public void LoadLangugesToScroll(){
         for(String lang : SearchEngine.Languages) {
-            // MenuItem newLang= new MenuItem(lang);
             LangSelctor.getItems().add(lang);
         }
     }
@@ -209,13 +208,28 @@ public class Controller{
         }
     }
 
+    private String getResults() {  return Searcher.ItsTimeFor_Results();}
+
+    public void LoadDocsToScroll(){
+        for(String Doc : Searcher.Results) {
+            DocSelctor.getItems().add(Doc);
+        }
+    }
 
     public void RunSingle() throws IOException {
         searcher = new Searcher(searchEngine.indexer,searchEngine.parser,searchEngine.readFile,Semantic.isSelected(),CitySelctor.isShowing(),Stemmer.isSelected());
         searcher.ProccesSingleQuery(SingleQuery.getText());
         searcher.EntityIdentification();
+        LoadDocsToScroll();
+        ShowIdentityForDoc.setDisable(false);
+        NameForResults.setDisable(false);
+        BrowseSaveResults.setDisable(false);
+        SaveResults.setDisable(false);
+        PathForResults.setDisable(false);
+        showAlert(getResults());
         newSearchButton.setDisable(false);
     }
+
 
     public void QueriesInput() {
         FileChooser FC = new FileChooser();
@@ -231,6 +245,13 @@ public class Controller{
         searcher = new Searcher(searchEngine.indexer,searchEngine.parser,searchEngine.readFile,Semantic.isSelected(),CitySelctor.isShowing(),Stemmer.isSelected());
         searcher.ProccesQueryFile(PathQueriesFile.getText());
         searcher.EntityIdentification();
+        LoadDocsToScroll();
+        ShowIdentityForDoc.setDisable(false);
+        NameForResults.setDisable(false);
+        BrowseSaveResults.setDisable(false);
+        SaveResults.setDisable(false);
+        PathForResults.setDisable(false);
+        showAlert(getResults());
         newSearchButton.setDisable(false);
     }
 
@@ -250,12 +271,25 @@ public class Controller{
         }
     }
 
-    public void ResultsInput(ActionEvent actionEvent) {
+    public void ResultsInput() {
+        DirectoryChooser DC = new DirectoryChooser();
+        DC.setTitle("Pick Directory For saving Results!");
+        File file = DC.showDialog(null);
+        if (file != null) {
+            String Path = file.getAbsolutePath();
+            PathForResults.setText(Path);
+        }
     }
 
-    public void SaveResults(ActionEvent actionEvent) {
+    public void SaveResults() {
+        File SavedResultsFile = new File(PathForResults.getText() + "/"+NameForResults.getText());
+        SavedResultsFile.mkdir();
+
+
     }
 
     public void RunSearchIdentitis(ActionEvent actionEvent) {
+
+
     }
 }

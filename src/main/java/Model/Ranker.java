@@ -99,10 +99,12 @@ public class Ranker {
     public void RankDocs(HashMap<Double,String> RankedQuery){ //HashMap<Rank,DocID> return only max 50 docs  ...final rank = 0.5 cosim + 0.5 BM25
         ArrayList<Double> SortedRank = new ArrayList<>(RankedQuery.keySet());
         Collections.sort(SortedRank, Collections.reverseOrder());
+
         for(int i = 0 ; i < SortedRank.size() && i < 50 ;i++){
-            System.out.println(SortedRank.get(i) + "<->" +RankedQuery.get(SortedRank.get(i)));
+          //  System.out.println(SortedRank.get(i) + "<->" +RankedQuery.get(SortedRank.get(i)));
+            Searcher.Results.add(RankedQuery.get(SortedRank.get(i)));
         }
-        System.out.println("finish query!");
+      //  System.out.println("finish query!");
     }
 
 

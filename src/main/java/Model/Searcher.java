@@ -25,6 +25,7 @@ public class Searcher {
     public StringBuilder stbResult;
     public static HashMap<String, DictionaryDetailes> LoadedDictionary;
     public static HashMap<String, String> LoadedDocs;
+    public static ArrayList<String> Results;
 
 
     public Searcher(Indexer indexer, Parse parser, ReadFile readFile, boolean semanticNeeded, boolean resultByCityNeeded, boolean stemmerNeeded) throws IOException {
@@ -35,6 +36,7 @@ public class Searcher {
         ResultByCityNeeded = resultByCityNeeded;
         StemmerNeeded = stemmerNeeded;
         stbResult = new StringBuilder();
+        Results = new ArrayList<>();
 
         if(semanticNeeded){
             stbResult.append(SearcherIndexer.stbOUT.toString() + "/Results_WithSemantic/");
@@ -111,4 +113,18 @@ public class Searcher {
     public HashMap<String, String> LoadDocsToMemory() throws IOException {
         return SearchEngine.ItsTimeToLoadAllDocs(  SearcherIndexer.stbOUT.toString() + "Docs.txt");
     }
+
+
+    public static String ItsTimeFor_Results() {
+
+        StringBuilder stb = new StringBuilder();
+        stb.append("##############  Final Results  ##############.\n");
+        for(int i = 0 ; i < Results.size();i++) {
+            //  System.out.println(SortedRank.get(i) + "<->" +RankedQuery.get(SortedRank.get(i)));
+            stb.append(Results.get(i)+"\n");
+        }
+        stb.append("##############  Finished  ##############.\n");
+        return stb.toString();
+    }
+
 }

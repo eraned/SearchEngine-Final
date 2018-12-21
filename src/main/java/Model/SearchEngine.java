@@ -152,7 +152,7 @@ public class SearchEngine {
      */
     public static String ItsTimeFor_FinalDoc(){
         StringBuilder stb = new StringBuilder();
-        stb.append("##############  Finale Doc  ##############.\n");
+        stb.append("##############  Final Doc  ##############.\n");
         stb.append(" Nummber of Terms Without Stamming :" + indexer.NumOfTermsBeforeStemming + "\n");
         stb.append(" Nummber of Terms With Stamming :" + indexer.NumOfTermsAfterStemming + "\n");
         stb.append(" Nummber of Terms Only Numbers :" + indexer.NumOfTerms_Numbers + "\n");
