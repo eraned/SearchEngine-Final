@@ -71,7 +71,7 @@ public class Ranker {
                     Wij = (CosSim_Matrix.get(Doc).get(term) / DocsResultDL.get(Doc)) * (Math.log(NumOdDocs / idf) / Math.log(2));
                     Cij = BM25_Matrix.get(Doc).get(term);
                     Ciq = QueryAfterParse.get(term).getTF();
-                    Wiq = (QueryAfterParse.get(term).getTF() / querylength) * (Math.log(NumOdDocs / idf / Math.log(2))); //todo - how to get q tf??
+                    Wiq = (QueryAfterParse.get(term).getTF() / querylength) * (Math.log(NumOdDocs / idf / Math.log(2)));
 
                     //calc CosSim
                     CosSimRankUP += Wij * Wiq;

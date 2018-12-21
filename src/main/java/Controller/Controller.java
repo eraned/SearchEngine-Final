@@ -5,9 +5,6 @@ import Model.DictionaryDetailes;
 import Model.Searcher;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
@@ -213,9 +210,11 @@ public class Controller{
     }
 
 
-    public void RunSingle() {
-
-
+    public void RunSingle() throws IOException {
+        searcher = new Searcher(searchEngine.indexer,searchEngine.parser,searchEngine.readFile,Semantic.isSelected(),CitySelctor.isShowing(),Stemmer.isSelected());
+        searcher.ProccesSingleQuery(SingleQuery.getText());
+        searcher.EntityIdentification();
+        newSearchButton.setDisable(false);
     }
 
     public void QueriesInput() {
@@ -230,7 +229,7 @@ public class Controller{
 
     public void RunAll() throws IOException {
         searcher = new Searcher(searchEngine.indexer,searchEngine.parser,searchEngine.readFile,Semantic.isSelected(),CitySelctor.isShowing(),Stemmer.isSelected());
-        searcher.ProccesQuery(PathQueriesFile.getText());
+        searcher.ProccesQueryFile(PathQueriesFile.getText());
         searcher.EntityIdentification();
         newSearchButton.setDisable(false);
     }

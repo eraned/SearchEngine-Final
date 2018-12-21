@@ -62,7 +62,7 @@ public class Searcher {
     }
 
 
-    public void ProccesQuery(String QueryPath) throws IOException {
+    public void ProccesQueryFile(String QueryPath) throws IOException {
         ArrayList<String> Queries = SplitQueriesFile(QueryPath);
         for(String query : Queries) {
             HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(query,"Q","","");
@@ -70,9 +70,17 @@ public class Searcher {
         }
     }
 
+    public void ProccesSingleQuery(String Query) throws IOException {
+        HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(Query,"Q","","");
+        ranker.InitializScores(tmpQuery);
+    }
+
 
 
     public void EntityIdentification(){
+
+
+
 
     }
 
