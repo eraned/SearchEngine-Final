@@ -3,10 +3,7 @@ package Model;
 import javafx.util.Pair;
 import org.apache.commons.io.FileUtils;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 public class Ranker {
 
@@ -93,16 +90,16 @@ public class Ranker {
     }
 
 
-    public HashMap<Integer,String> RankDocs(HashMap<Double,String> RankedQuery){ //HashMap<Rank,DocID> return only max 50 docs  ...final rank = 0.5 cosim + 0.5 BM25
-        HashMap<Integer,String> RankerResult = new HashMap<>();
+    public void RankDocs(HashMap<Double,String> RankedQuery){ //HashMap<Rank,DocID> return only max 50 docs  ...final rank = 0.5 cosim + 0.5 BM25
+        ArrayList<Double> SortedRank = new ArrayList<>(RankedQuery.keySet());
+        Collections.sort(SortedRank);
 
-        return RankerResult;
+        for(int i = 0 ; i < SortedRank.size() || i < 50 ;i++){
+            System.out.println(SortedRank.get(i) + RankedQuery.get(SortedRank.get(i)));
+        }
+
     }
 
-
-    public void PrintRankedResults(){
-
-    }
 
     private void GetfromAllDocs(HashMap<String,String> loadedDocs) {
         double Doclength;double Docmax_tf;
