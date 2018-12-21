@@ -34,7 +34,6 @@ public class Controller{
     public javafx.scene.control.Button resetEngine;
     public javafx.scene.control.Button LoadDic;
     public javafx.scene.control.Button ShoewDic;
-    public javafx.scene.control.Button ShowEntitys;
     public javafx.scene.control.TextField SingleQuery;
     public javafx.scene.control.TextField PathQueriesFile;
     public javafx.scene.control.Button RunSingleQueryButton;
@@ -42,7 +41,12 @@ public class Controller{
     public javafx.scene.control.Button runQueryFileButton;
     public javafx.scene.control.Button newSearchButton;
     public javafx.scene.control.ChoiceBox CitySelctor;
-
+    public javafx.scene.control.ChoiceBox DocSelctor;
+    public javafx.scene.control.TextField PathForResults;
+    public javafx.scene.control.TextField NameForResults;
+    public javafx.scene.control.Button BrowseSaveResults;
+    public javafx.scene.control.Button SaveResults;
+    public javafx.scene.control.Button ShowIdentityForDoc;
 
 
     private SearchEngine searchEngine;
@@ -204,7 +208,6 @@ public class Controller{
 
     public void LoadCitiesToScroll(){
         for(String city : SearchEngine.Cities.keySet()) {
-            // MenuItem newLang= new MenuItem(lang);
             CitySelctor.getItems().add(city);
         }
     }
@@ -246,5 +249,14 @@ public class Controller{
             }
             ResultsToReset.delete();
         }
+    }
+
+    public void ResultsInput(ActionEvent actionEvent) {
+    }
+
+    public void SaveResults(ActionEvent actionEvent) {
+    }
+
+    public void RunSearchIdentitis(ActionEvent actionEvent) {
     }
 }

@@ -64,40 +64,45 @@ public class Ranker {
             }
         }
 
-        for (String Doc : CosSim_Matrix.keySet()){
-            for(String term : CosSim_Matrix.get(Doc).keySet()){
+        for (String Doc : CosSim_Matrix.keySet()) {
+            if (Doc != null) {
+                for (String term : CosSim_Matrix.get(Doc).keySet()) {
+                    double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
+                    Wij = (CosSim_Matrix.get(Doc).get(term) / DocsResultDL.get(Doc)) * (Math.log(NumOdDocs / idf) / Math.log(2));
+                    Cij = BM25_Matrix.get(Doc).get(term);
+                    Ciq = QueryAfterParse.get(term).getTF();
+                    Wiq = (QueryAfterParse.get(term).getTF() / querylength) * (Math.log(NumOdDocs / idf / Math.log(2))); //todo - how to get q tf??
 
-                Wij = (CosSim_Matrix.get(Doc).get(term) /DocsResultDL.get(Doc)) * (Math.log(NumOdDocs/Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN()+1) / Math.log(2));
-                Cij = BM25_Matrix.get(Doc).get(term);
-                Ciq = QueryAfterParse.get(term).getTF();
-                Wiq = (QueryAfterParse.get(term).getTF()/querylength) * (Math.log(NumOdDocs/Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN()+1)/Math.log(2)); //todo - how to get q tf??
-
-                //calc CosSim
-                CosSimRankUP += Wij * Wiq;
-                CosSimRankDOWNdoc += Math.pow(Wij,2);
-                CosSimRankDOWNquery += Math.pow(Wiq,2);
-                //calc BM25
-                BM25UP = Cij*(k+1)*Ciq;
-                BM25DOWN  = Cij + (k*((1-b)+(b*(DocsResultDL.get(Doc)/AVGdl))));
-                BM25Log = (Math.log(NumOdDocs/Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN()+1)/Math.log(2));
-                BM25Rank += BM25UP*BM25DOWN*BM25Log;
+                    //calc CosSim
+                    CosSimRankUP += Wij * Wiq;
+                    CosSimRankDOWNdoc += Math.pow(Wij, 2);
+                    CosSimRankDOWNquery += Math.pow(Wiq, 2);
+                    //calc BM25
+                    BM25UP = Cij * (k + 1) * Ciq;
+                    BM25DOWN = Cij + (k * ((1 - b) + (b * (DocsResultDL.get(Doc) / AVGdl))));
+                    BM25Log = (Math.log(NumOdDocs / idf) / Math.log(2));
+                    BM25Rank += BM25UP * BM25DOWN * BM25Log;
+                }
+                CosSimRankDOWN = Math.sqrt(CosSimRankDOWNdoc * CosSimRankDOWNquery);
+                CosSimRank = CosSimRankUP / CosSimRankDOWN;
+                RankerResult.put(0.5 * CosSimRank + 0.5 * BM25Rank, Doc);
             }
-            CosSimRankDOWN = Math.sqrt(CosSimRankDOWNdoc * CosSimRankDOWNquery);
-            CosSimRank = CosSimRankUP/CosSimRankDOWN;
-            RankerResult.put(0.5*CosSimRank+0.5*BM25Rank,Doc);
+            else{
+                continue;
+            }
+            RankDocs(RankerResult);
         }
-        RankDocs(RankerResult);
+
     }
 
 
     public void RankDocs(HashMap<Double,String> RankedQuery){ //HashMap<Rank,DocID> return only max 50 docs  ...final rank = 0.5 cosim + 0.5 BM25
         ArrayList<Double> SortedRank = new ArrayList<>(RankedQuery.keySet());
-        Collections.sort(SortedRank);
-
-        for(int i = 0 ; i < SortedRank.size() || i < 50 ;i++){
-            System.out.println(SortedRank.get(i) + RankedQuery.get(SortedRank.get(i)));
+        Collections.sort(SortedRank, Collections.reverseOrder());
+        for(int i = 0 ; i < SortedRank.size() && i < 50 ;i++){
+            System.out.println(SortedRank.get(i) + "<->" +RankedQuery.get(SortedRank.get(i)));
         }
-
+        System.out.println("finish query!");
     }
 
 
@@ -164,26 +169,5 @@ public class Ranker {
         }
         return PostingResult;
     }
-
-    //        System.out.println("CosMatrix:");
-//        for (String CosKey: CosSim_Matrix.keySet()){
-//
-//            String key =CosKey.toString();
-//            String value = CosSim_Matrix.get(CosKey).toString();
-//            System.out.println(key + " " + value);
-//
-//
-//        }
-//        System.out.println("BM25Matrix:");
-//        for (String BMkey: BM25_Matrix.keySet()){
-//
-//            String key = BMkey.toString();
-//            String value = BM25_Matrix.get(BMkey).toString();
-//            System.out.println(key + " " + value);
-//
-//
-//        }
-//        System.out.println("finish query!");
-    // AVGdl = AVGdl/NumOdDocs;
 
 }
