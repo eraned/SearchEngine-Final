@@ -6,82 +6,128 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 public class Ranker {
 
     public String PostingPath;
+    public double AVGdl;
+    HashMap<String, Double> DocsResultDL;
+    HashMap<String, Double> DocsResultMAX;
 
     public Ranker(String pathforFindposting) {
         PostingPath =  pathforFindposting;
+        AVGdl = 0;
+        DocsResultDL = new HashMap<>();
+        DocsResultMAX = new HashMap<>();
     }
 
     public void InitializScores(HashMap<String, TermDetailes> QueryAfterParse) throws IOException { //Matrix of columns: d1,d2,d3....q     rows: t1,t2,t3....
         HashMap<String, HashMap<String, Double>> CosSim_Matrix = new HashMap<>(); //new--- <Docid,<term ,CosSim Score>>
         HashMap<String, HashMap<String, Double>> BM25_Matrix = new HashMap<>();  //new--- <Docid,<term ,BM25 score>>
-        HashMap<String,Double> QueryTF = QueryCountTF(QueryAfterParse);
         HashMap<String, Double> CosSimtmp = new HashMap<>();//for Docid
         HashMap<String, Double> BM25tmp = new HashMap<>();//for Docid
-        int NumOdDocs = Searcher.LoadedDocs.size()+1;
+        GetfromAllDocs(Searcher.LoadedDocs);
+        double NumOdDocs = Searcher.LoadedDocs.size()+1;
         int Pointer;
-        double doclength;
         double Wij;
         double Cij;
         double Wiq;
+        double Ciq;
         double querylength = QueryAfterParse.size();
-        double AVGdl = 0;
-        double CosSimRank;
-        double BM25Rank;
-        double b = 0.75;
-        double k = 2;
-        double CosSimRankUP = 0;
-        double CosSimRankDOWN = 0;
-        double BM25RankUP = 0;
-        double BM25DOWN = 0;
+        double CosSimRank = 0;
         double CosSimRankDOWNd = 0;
         double CosSimRankDOWNq = 0;
+        double CosSimRankUP = 0;
+        double CosSimRankDOWN = 0;
+        double BM25Rank = 0;
+        double b = 0.75;
+        double k = 2;
+        double BM25UP = 0;
+        double BM25DOWN = 0;
+        double BM25Log = 0;
+
+
 
 
         for (String term : QueryAfterParse.keySet()) {
             //if term not in corpus
             if (Searcher.LoadedDictionary.get(term) == null) {
                 CosSim_Matrix.put(null, null);
-                BM25_Matrix.put(null,null);
+                BM25_Matrix.put(null, null);
             }
             //term in corpus
             else {
                 Pointer = Searcher.LoadedDictionary.get(term).getPointer();
-                HashMap<String, Double> tmp = GetTFfromPosting(Pointer, term);// <docid,tf> from posting
-                for (String docid : tmp.keySet()) {
-                    try {
-                        String length = Searcher.LoadedDocs.get(docid).substring(0, Searcher.LoadedDocs.get(docid).indexOf(';'));
-                        doclength = Integer.parseInt(length);
-                        Wij = (tmp.get(docid) / doclength) * (Math.log(NumOdDocs / Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN()) / Math.log(2));
-                        Cij = tmp.get(docid);
-                        Wiq = (QueryTF.get(term) / querylength) * (Math.log(NumOdDocs / Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN()+1) / Math.log(2)); //todo - how to get q tf??
-                        AVGdl += doclength;
-
-
-                        //calc CosSim
-                        CosSimRankUP += Wij * Wiq;
-                        CosSimRankDOWNd += Math.pow(Wij,2);
-                        CosSimRankDOWNq += Math.pow(Wiq,2);
-
-
-                        //calc BM25
-                        BM25RankUP = (k+1)*Cij;
-
-
-              //          BM25DOWN  = Cij + (k(1-b+b*(doclength/AVGdl)));
-
-
-                    }
-                    catch (NullPointerException e){
-                        continue;
-                    }
+                HashMap<String, Double> tmpTF = GetTFfromPosting(Pointer, term);// <docid,tf> from posting
+                for (String docid : tmpTF.keySet()) {
+                    CosSimtmp.put(term,0.0);
+                    BM25tmp.put(term,0.0);
+                    CosSim_Matrix.put(docid,CosSimtmp);
+                    BM25_Matrix.put(docid,BM25tmp);
                 }
             }
+        }
+
+
+
+        for (String Doc : CosSim_Matrix.keySet()){
+            for(Map.Entry<String, HashMap<String, Double>> term : CosSim_Matrix.entrySet(){
+
+            }
+
+            Wij = (tmpTF.get(docid) /tmpDL.get(docid)) * (Math.log(NumOdDocs / Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN()+1) / Math.log(2));
+            Cij = tmpTF.get(docid);
+            Ciq = QueryTF.get(term);
+            Wiq = (QueryTF.get(term) / querylength) * (Math.log(NumOdDocs / Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN()+1) / Math.log(2)); //todo - how to get q tf??
+
+            //calc CosSim
+            CosSimRankUP += Wij * Wiq;
+            CosSimRankDOWNd += Math.pow(Wij,2);
+            CosSimRankDOWNq += Math.pow(Wiq,2);
+
+
+            //calc BM25
+            BM25UP = Cij*(k+1)*Ciq;
+            BM25DOWN  = Cij + (k*(1-b+b*(tmpDL.get(docid)/AVGdl)));
+            BM25Log = (Math.log(NumOdDocs / Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN()+1) / Math.log(2));
+            BM25Rank += BM25UP*BM25DOWN*BM25Log;
+
+
+
 
         }
+        //term in corpus
+//            else {
+//                Pointer = Searcher.LoadedDictionary.get(term).getPointer();
+//                HashMap<String, Double> tmpTF = GetTFfromPosting(Pointer, term);// <docid,tf> from posting
+//                for (String docid : tmpTF.keySet()) {
+//                    try {
+//                        Wij = (tmpTF.get(docid) /tmpDL.get(docid)) * (Math.log(NumOdDocs / Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN()+1) / Math.log(2));
+//                        Cij = tmpTF.get(docid);
+//                        Ciq = QueryTF.get(term);
+//                        Wiq = (QueryTF.get(term) / querylength) * (Math.log(NumOdDocs / Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN()+1) / Math.log(2)); //todo - how to get q tf??
+//
+//                        //calc CosSim
+//                        CosSimRankUP += Wij * Wiq;
+//                        CosSimRankDOWNd += Math.pow(Wij,2);
+//                        CosSimRankDOWNq += Math.pow(Wiq,2);
+//
+//
+//                        //calc BM25
+//                        BM25UP = Cij*(k+1)*Ciq;
+//                        BM25DOWN  = Cij + (k*(1-b+b*(tmpDL.get(docid)/AVGdl)));
+//                        BM25Log = (Math.log(NumOdDocs / Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN()+1) / Math.log(2));
+//                        BM25Rank += BM25UP*BM25DOWN*BM25Log;
+//
+//                    }
+//                    catch (NullPointerException e){
+//                        continue;
+//                    }
+//                }
+//            }
+
+
 //        System.out.println("CosMatrix:");
 //        for (String CosKey: CosSim_Matrix.keySet()){
 //
@@ -118,6 +164,25 @@ public class Ranker {
 
     public void PrintRankedResults(){
 
+    }
+
+    private void GetfromAllDocs(HashMap<String,String> loadedDocs) {
+        double Doclength;double Docmax_tf;
+        for(String doc : loadedDocs.keySet()){
+            try {
+                String length = loadedDocs.get(doc).substring(0, loadedDocs.get(doc).indexOf(';'));
+                String max_tf = loadedDocs.get(doc).substring(0, loadedDocs.get(doc).indexOf(';'));
+                Docmax_tf = Integer.parseInt(max_tf);
+                Doclength = Integer.parseInt(length);
+                AVGdl += Doclength;
+                DocsResultDL.put(doc, Doclength);
+                DocsResultMAX.put(doc, Docmax_tf);
+            }
+            catch (Exception e){
+                continue;
+            }
+        }
+        AVGdl = AVGdl/loadedDocs.size();
     }
 
     public HashMap<String, Double> GetTFfromPosting(int pointer, String term) throws IOException {
@@ -164,20 +229,20 @@ public class Ranker {
         }
         return PostingResult;
     }
-
-    private HashMap<String,Double>  QueryCountTF(HashMap<String, TermDetailes> QueryAfterParse) {
-        HashMap<String,Double> QueryTF = new HashMap<>();
-        for (String term : QueryAfterParse.keySet()) {  // count TF for Query Matrix
-            //in query matrix
-            if (QueryTF.containsKey(term)) {
-                QueryTF.put(term, QueryTF.get(term) + 1);
-            }
-            //not in query matrix
-            else {
-                QueryTF.put(term,1.0);
-            }
-        }
-        return QueryTF;
-    }
+//
+//    private HashMap<String,Double>  QueryCountTF(HashMap<String, TermDetailes> QueryAfterParse) {
+//        HashMap<String,Double> QueryTF = new HashMap<>();
+//        for (String term : QueryAfterParse.keySet()) {  // count TF for Query Matrix
+//            //in query matrix
+//            if (QueryTF.containsKey(term)) {
+//                QueryTF.put(term, QueryTF.get(term) + 1);
+//            }
+//            //not in query matrix
+//            else {
+//                QueryTF.put(term,1.0);
+//            }
+//        }
+//        return QueryTF;
+//    }
 
 }
