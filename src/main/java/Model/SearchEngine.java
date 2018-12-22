@@ -180,7 +180,7 @@ public class SearchEngine {
             FileWriter FW = new FileWriter(AllDocsFile);
             BufferedWriter BW = new BufferedWriter(FW);
             for(String doc : SortedDocs){
-                BW.write(  doc + ": " + "DocLength:"+All_Docs.get(doc).getDocLength() + "; MaxTermFrequency:" + All_Docs.get(doc).getMaxTermFrequency());
+                BW.write(  doc + ": " + "DocLength:"+All_Docs.get(doc).getDocLength() + "; MaxTermFrequency:" + All_Docs.get(doc).getMaxTermFrequency() + "; City:" + All_Docs.get(doc).getDocCity());
                 BW.newLine();
             }
             BW.close();
@@ -190,34 +190,83 @@ public class SearchEngine {
         }
     }
 
-    public static HashMap<String,String> ItsTimeToLoadAllDocs(String Path){
-        HashMap<String, String> LoadedDocs = new HashMap<>();
-        StringBuilder stb = new StringBuilder();
+    /**
+     * reading line by line from disk and create new data structue that represent the Dictionary.
+     * @param Path - where from to load the Dictionary from disk to memory
+     * @return
+     */
+    public static HashMap<String,DictionaryDetailes> ItsTimeToLoadDictionary(String Path){
+        HashMap<String,DictionaryDetailes> LoadedDic = new HashMap<>();
         try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
             String line = br.readLine();
-            int doclength = 0,max_tf = 0;
+            int totalfreq = 0,df = 0,pointer = 0;
+            while (line != null ){
+                int index = line.indexOf(':');
+                String term = line.substring(0,index);
+                line = line.substring(index + 1);
+                if (!term.isEmpty()){
+                    String TFreq = line.substring(12, line.indexOf(';'));
+                    totalfreq = Integer.parseInt(TFreq);
+                    line = line.substring(line.indexOf(';') + 1);
+                    index = line.indexOf("DF:");
+                    String DF = line.substring(index + 3, line.indexOf(';'));
+                    df = Integer.parseInt(DF);
+                    line = line.substring(line.indexOf(';') + 1);
+                    index = line.indexOf("Pointer:");
+                    String point = line.substring(index + 8);
+                    pointer = Integer.parseInt(point);
+                    DictionaryDetailes DD = new DictionaryDetailes();
+                    DD.setNumOfTermInCorpus(totalfreq);
+                    DD.setNumOfDocsTermIN(df);
+                    DD.setPointer(pointer);
+                    LoadedDic.put(term,DD);
+                }
+                line = br.readLine();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return LoadedDic;
+    }
+
+    public static void ItsTimeToLoadAllDocs(String Path){
+        double Doclength;String DocCity;double tmp = 0;double counter = 0;
+        //HashMap<String, String> LoadedDocs = new HashMap<>();
+        // StringBuilder stb = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
+            String line = br.readLine();
+            // int doclength = 0,max_tf = 0;
             while (line != null ){
                 int index = line.indexOf(':');
                 String doc = line.substring(0,index);
                 line = line.substring(index + 1);
                 if (!doc.isEmpty()){
                     String Length = line.substring(11, line.indexOf(';'));
-                    doclength = Integer.parseInt(Length);
+                    Doclength = Double.parseDouble(Length);
                     line = line.substring(line.indexOf(';') + 1);
-                    index = line.indexOf("MaxTermFrequency:");
-                    String Maxtf = line.substring(index + 17);
-                    max_tf = Integer.parseInt(Maxtf);
-                    stb.append(doclength + ";" + max_tf);
-                    LoadedDocs.put(doc,stb.toString());
-                    stb.setLength(0);
+                    // index = line.indexOf("MaxTermFrequency:");
+                    // String Maxtf = line.substring(index + 17);
+                    // max_tf = Integer.parseInt(Maxtf);
+                    // line = line.substring(line.indexOf(';') + 1);
+                    index = line.indexOf("City:");
+                    DocCity = line.substring(index + 5);
+                    tmp += Doclength;
+                    counter++;
+                    Searcher.DocsResultDL.put(doc,Doclength);
+                    Searcher.DocsResultCITY.put(doc,DocCity);
+                    // stb.append(doclength + ";" + max_tf + ";" + City);
+                    // LoadedDocs.put(doc,stb.toString());
+                    //  stb.setLength(0);
                 }
                 line = br.readLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return LoadedDocs;
+        Searcher.AVGdl = tmp/counter;
+        Searcher.NumOdDocs = counter;
     }
-
 }
 

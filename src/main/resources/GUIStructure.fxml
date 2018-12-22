@@ -7,16 +7,17 @@
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import org.controlsfx.control.CheckListView?>
 
-<GridPane alignment="CENTER" hgap="10" prefHeight="700.0" prefWidth="500.0" vgap="10" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.Controller" stylesheets="@GUIStyle.css">
+<GridPane alignment="CENTER" hgap="10" prefHeight="700.0" prefWidth="500.0" stylesheets="@GUIStyle.css" vgap="10" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.Controller">
     <columnConstraints>
         <ColumnConstraints />
     </columnConstraints>
@@ -74,9 +75,9 @@
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
-                                        <Button fx:id="resetEngine" disable="true" mnemonicParsing="false" onAction="#resetAll" prefHeight="27.0" prefWidth="150.0" text="Reset All"  GridPane.columnIndex="0"  />
-                                        <Button fx:id="LoadDic" disable="true" mnemonicParsing="false" onAction="#LoadDicToMemory" prefHeight="27.0" prefWidth="150.0" text="Load Dictionary"  GridPane.columnIndex="1" />
-                                        <Button fx:id="ShoewDic" disable="true" mnemonicParsing="false" onAction="#ShowDictionary" prefHeight="27.0" prefWidth="150.0" text="Show Dictionary"  GridPane.columnIndex="2" />
+                                        <Button fx:id="resetEngine" disable="true" mnemonicParsing="false" onAction="#resetAll" prefHeight="27.0" prefWidth="150.0" text="Reset All" GridPane.columnIndex="0" />
+                                        <Button fx:id="LoadDic" disable="true" mnemonicParsing="false" onAction="#LoadDicToMemory" prefHeight="27.0" prefWidth="150.0" text="Load Dictionary" GridPane.columnIndex="1" />
+                                        <Button fx:id="ShoewDic" disable="true" mnemonicParsing="false" onAction="#ShowDictionary" prefHeight="27.0" prefWidth="150.0" text="Show Dictionary" GridPane.columnIndex="2" />
                                     </children>
                                 </GridPane>
                             </children>
@@ -89,14 +90,14 @@
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                             <children>
                                 <Label text="Search by City:" />
-                                <ChoiceBox fx:id="CitySelctor"  layoutX="396" layoutY="66" maxWidth="200" prefHeight="24" prefWidth="61">
+                                <CheckListView fx:id="CitySelctor" layoutX="396" layoutY="66" maxWidth="200" prefHeight="55.0" prefWidth="190.0">
                                     <items>
                                         <FXCollections fx:factory="observableArrayList">
                                             <String fx:value="None" />
                                         </FXCollections>
                                     </items>
-                                </ChoiceBox>
-                                <CheckBox fx:id="Semantic"  mnemonicParsing="false" prefHeight="36.0" prefWidth="200.0" text="Include Semantic" />
+                                </CheckListView>
+                                <CheckBox fx:id="Semantic" mnemonicParsing="false" prefHeight="36.0" prefWidth="200.0" text="Include Semantic" />
                             </children>
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">

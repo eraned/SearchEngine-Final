@@ -149,7 +149,7 @@ public class Indexer {
             for(String term : SortedPost){
                 BW.write(term + ":");
                 for(TermDetailes TD : Posting.get(term)) {
-                    BW.write("(Docid :" + TD.getDocId() + " , TF  :" + TD.getTF() + ")->");
+                    BW.write("(Docid :" + TD.getDocId() + " , TF  :" + TD.getTF() +" , InTitle  :" + TD.getInTitle() +  ")->");
                 }
                 BW.newLine();
             }
@@ -422,47 +422,5 @@ public class Indexer {
         catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-
-    /**
-     * reading line by line from disk and create new data structue that represent the Dictionary.
-     * @param Path - where from to load the Dictionary from disk to memory
-     * @return
-     */
-    public HashMap<String,DictionaryDetailes> ItsTimeToLoadDictionary(String Path){
-        HashMap<String,DictionaryDetailes> LoadedDic = new HashMap<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
-            String line = br.readLine();
-            int totalfreq = 0,df = 0,pointer = 0;
-            while (line != null ){
-                int index = line.indexOf(':');
-                String term = line.substring(0,index);
-                line = line.substring(index + 1);
-                if (!term.isEmpty()){
-                    String TFreq = line.substring(12, line.indexOf(';'));
-                    totalfreq = Integer.parseInt(TFreq);
-                    line = line.substring(line.indexOf(';') + 1);
-                    index = line.indexOf("DF:");
-                    String DF = line.substring(index + 3, line.indexOf(';'));
-                    df = Integer.parseInt(DF);
-                    line = line.substring(line.indexOf(';') + 1);
-                    index = line.indexOf("Pointer:");
-                    String point = line.substring(index + 8);
-                    pointer = Integer.parseInt(point);
-                    DictionaryDetailes DD = new DictionaryDetailes();
-                    DD.setNumOfTermInCorpus(totalfreq);
-                    DD.setNumOfDocsTermIN(df);
-                    DD.setPointer(pointer);
-                    LoadedDic.put(term,DD);
-                }
-                line = br.readLine();
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return LoadedDic;
     }
 }

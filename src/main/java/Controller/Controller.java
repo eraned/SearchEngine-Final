@@ -8,12 +8,14 @@ import javafx.scene.control.Alert;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.util.Pair;
-
+import org.controlsfx.control.CheckListView;
 import java.awt.*;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.io.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 /**
  * This class manages all the interaction between the View package and  Model package,
@@ -38,12 +40,12 @@ public class Controller{
     public javafx.scene.control.Button BrowseQueryButton;
     public javafx.scene.control.Button runQueryFileButton;
     public javafx.scene.control.Button newSearchButton;
-    public javafx.scene.control.ChoiceBox CitySelctor;
     public javafx.scene.control.ChoiceBox DocSelctor;
     public javafx.scene.control.TextField PathForResults;
     public javafx.scene.control.Button BrowseSaveResults;
     public javafx.scene.control.Button SaveResults;
     public javafx.scene.control.Button ShowIdentityForDoc;
+    public CheckListView CitySelctor;
 
 
     private SearchEngine searchEngine;
@@ -189,11 +191,11 @@ public class Controller{
     public void LoadDicToMemory() throws IOException { //todo - to move to the function in the indexer!!
         if(!Stemmer.isSelected()) {
             HashMap<String, DictionaryDetailes> LoadedDictionary = new HashMap<>();
-            LoadedDictionary = SearchEngine.indexer.ItsTimeToLoadDictionary(  PathOUT.getText() + "/EngineOut/Dictionary.txt");
+            LoadedDictionary = SearchEngine.ItsTimeToLoadDictionary(  PathOUT.getText() + "/EngineOut/Dictionary.txt");
         }
         else{
             HashMap<String, DictionaryDetailes> LoadedDictionary = new HashMap<>();
-            LoadedDictionary = SearchEngine.indexer.ItsTimeToLoadDictionary( PathOUT.getText()+ "/EngineOut_WithStemmer/Dictionary.txt");
+            LoadedDictionary = SearchEngine.ItsTimeToLoadDictionary( PathOUT.getText()+ "/EngineOut_WithStemmer/Dictionary.txt");
         }
         if (LoadDic != null) {
             showAlert("Dictionary successfully loaded to Memory!");
@@ -217,7 +219,14 @@ public class Controller{
     }
 
     public void RunSingle() throws IOException {
-        searcher = new Searcher(searchEngine.indexer,searchEngine.parser,Semantic.isSelected(),CitySelctor.isShowing(),Stemmer.isSelected());
+        if(CitySelctor.getCheckModel().getCheckedItems().size() > 1 || (CitySelctor.getCheckModel().getCheckedItems().size() == 1 && !CitySelctor.getCheckModel().getCheckedItems().equals("None"))) {
+            ObservableList<String> cities = FXCollections.observableArrayList();
+            cities.addAll(CitySelctor.getCheckModel().getCheckedItems());
+            searcher = new Searcher(searchEngine.indexer,searchEngine.parser,Semantic.isSelected(),Stemmer.isSelected(),cities);
+        }
+        else {
+            searcher = new Searcher(searchEngine.indexer, searchEngine.parser, Semantic.isSelected(), Stemmer.isSelected(),null);
+        }
         searcher.ProccesSingleQuery(SingleQuery.getText());
         searcher.EntityIdentification();
         LoadDocsToScroll();
@@ -231,7 +240,14 @@ public class Controller{
 
 
     public void RunAll() throws IOException {
-        searcher = new Searcher(searchEngine.indexer,searchEngine.parser,Semantic.isSelected(),CitySelctor.isShowing(),Stemmer.isSelected());
+        if(CitySelctor.getCheckModel().getCheckedItems().size() > 1 || (CitySelctor.getCheckModel().getCheckedItems().size() == 1 && !CitySelctor.getCheckModel().getCheckedItems().equals("None"))) {
+            ObservableList<String> cities = FXCollections.observableArrayList();
+            cities.addAll(CitySelctor.getCheckModel().getCheckedItems());
+            searcher = new Searcher(searchEngine.indexer,searchEngine.parser,Semantic.isSelected(),Stemmer.isSelected(),cities);
+        }
+        else {
+            searcher = new Searcher(searchEngine.indexer, searchEngine.parser, Semantic.isSelected(), Stemmer.isSelected(),null);
+        }
         searcher.ProccesQueryFile(PathQueriesFile.getText());
         searcher.EntityIdentification();
         LoadDocsToScroll();

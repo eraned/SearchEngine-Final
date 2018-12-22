@@ -7,7 +7,7 @@ package Model;
 public class TermDetailes {
     public String DocId;
     public int TF;
-    public Boolean IsInTitle;
+    public boolean IsInTitle;
 
     /**
      * @param docid - constructor
@@ -32,9 +32,7 @@ public class TermDetailes {
         this.TF = TF;
     }
     public void SumTF(int toAdd){ this.TF = this.TF + toAdd; }
-    public Boolean getInTitle() {
-        return IsInTitle;
-    }
+    public boolean getInTitle() { return IsInTitle; }
     public void setInTitle(Boolean inTitle) {
         IsInTitle = inTitle;
     }

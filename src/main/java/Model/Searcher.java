@@ -1,6 +1,7 @@
 package Model;
 
 
+import javafx.collections.ObservableList;
 import javafx.util.Pair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -18,24 +19,32 @@ public class Searcher {
     public Indexer SearcherIndexer;
     public Parse SearcherParser;
     public boolean SemanticNeeded;
-    public boolean ResultByCityNeeded;
     public boolean StemmerNeeded;
     public StringBuilder stbResult;
     public static HashMap<String, DictionaryDetailes> LoadedDictionary;
-    public static HashMap<String, String> LoadedDocs;
+    public static double AVGdl;
+    public static double NumOdDocs;
+    public static HashMap<String, Double> DocsResultDL;
+    public static HashMap<String, String> DocsResultCITY;
+    public static ObservableList<String> citiesToFilter;
     public static ArrayList<Pair> Results; //<<queryid,Docid>>
 
 
-    public Searcher(Indexer indexer, Parse parser, boolean semanticNeeded, boolean resultByCityNeeded, boolean stemmerNeeded) throws IOException {
+    public Searcher(Indexer indexer, Parse parser, boolean semanticNeeded,boolean stemmerNeeded,ObservableList<String> cities) throws IOException {
         SearcherIndexer = indexer;
         SearcherParser = parser;
         SemanticNeeded = semanticNeeded;
-        ResultByCityNeeded = resultByCityNeeded;
         StemmerNeeded = stemmerNeeded;
+        AVGdl = 0;
+        NumOdDocs = 0;
+        if(cities != null)
+            citiesToFilter = cities;
+        DocsResultDL = new HashMap<>();
+        DocsResultCITY = new HashMap<>();
         stbResult = new StringBuilder();
         Results = new ArrayList<>();
-        LoadedDictionary = LoadDicToMemory();
-        LoadedDocs = LoadDocsToMemory();
+        LoadedDictionary = SearchEngine.ItsTimeToLoadDictionary(SearcherIndexer.stbOUT.toString() + "Dictionary.txt");
+        SearchEngine.ItsTimeToLoadAllDocs(  SearcherIndexer.stbOUT.toString() + "Docs.txt");
         ranker = new Ranker(SearcherIndexer.stbOUT.toString());
     }
 
@@ -52,7 +61,6 @@ public class Searcher {
         HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(Query,"","","");
         ranker.InitializScores(tmpQuery,"000");
     }
-
 
 
     public void EntityIdentification(){
@@ -84,14 +92,6 @@ public class Searcher {
         return Result;
     }
 
-    public HashMap<String, DictionaryDetailes> LoadDicToMemory() throws IOException {
-        return SearchEngine.indexer.ItsTimeToLoadDictionary(  SearcherIndexer.stbOUT.toString() + "Dictionary.txt");
-    }
-
-    public HashMap<String, String> LoadDocsToMemory() throws IOException {
-        return SearchEngine.ItsTimeToLoadAllDocs(  SearcherIndexer.stbOUT.toString() + "Docs.txt");
-    }
-
     public static void WriteResults(File FileToSaveIn) throws IOException {
         FileWriter FW = new FileWriter(FileToSaveIn.getAbsolutePath()+"/results.txt");
         for(int i = 0 ; i < Results.size();i++) {
@@ -101,37 +101,4 @@ public class Searcher {
     }
 
 }
-
-
-//    public static String ItsTimeFor_Results() {
-//        StringBuilder stb = new StringBuilder();
-//        stb.append("##############  Final Results  ##############.\n");
-//        for(int i = 0 ; i < Results.size();i++) {
-//            //  System.out.println(SortedRank.get(i) + "<->" +RankedQuery.get(SortedRank.get(i)));
-//            stb.append(Results.get(i)+"\n");
-//        }
-//        stb.append("##############  Finished  ##############.\n");
-//        return stb.toString();
-//    }
-
-
-//        if(semanticNeeded){
-//            stbResult.append(SearcherIndexer.CorpusPathOUT + "/Results_WithSemantic/");
-//        }
-//        else
-//            stbResult.append(SearcherIndexer.CorpusPathOUT + "/Results/");
-//
-//        File folder = new File(stbResult.toString());
-//        File[] listOfFiles = folder.listFiles();
-//        if (listOfFiles!=null) {
-//            for (int i = 0; i < listOfFiles.length; i++)
-//                try {
-//                    Files.deleteIfExists(listOfFiles[i].toPath());
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//        }
-//        else{s
-//            folder.mkdir();
-//        }
 
