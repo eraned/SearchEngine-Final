@@ -64,35 +64,39 @@ public class Ranker {
             }
         }
 
+
         for (String Doc : CosSim_Matrix.keySet()) {
             if (Doc != null) {
                 for (String term : CosSim_Matrix.get(Doc).keySet()) {
-                    double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
-                    Wij = (CosSim_Matrix.get(Doc).get(term) / DocsResultDL.get(Doc)) * (Math.log(NumOdDocs / idf) / Math.log(2));
-                    Cij = BM25_Matrix.get(Doc).get(term);
-                    Ciq = QueryAfterParse.get(term).getTF();
-                    Wiq = (QueryAfterParse.get(term).getTF() / querylength) * (Math.log(NumOdDocs / idf / Math.log(2)));
+                    try {
+                        double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
+                        Wij = (CosSim_Matrix.get(Doc).get(term) / DocsResultDL.get(Doc)) * (Math.log(NumOdDocs / idf) / Math.log(2));
+                        Cij = BM25_Matrix.get(Doc).get(term);
+                        Ciq = QueryAfterParse.get(term).getTF();
+                        Wiq = (QueryAfterParse.get(term).getTF() / querylength) * (Math.log(NumOdDocs / idf / Math.log(2)));
 
-                    //calc CosSim
-                    CosSimRankUP += Wij * Wiq;
-                    CosSimRankDOWNdoc += Math.pow(Wij, 2);
-                    CosSimRankDOWNquery += Math.pow(Wiq, 2);
-                    //calc BM25
-                    BM25UP = Cij * (k + 1) * Ciq;
-                    BM25DOWN = Cij + (k * ((1 - b) + (b * (DocsResultDL.get(Doc) / AVGdl))));
-                    BM25Log = (Math.log(NumOdDocs / idf) / Math.log(2));
-                    BM25Rank += BM25UP * BM25DOWN * BM25Log;
+                        //calc CosSim
+                        CosSimRankUP += Wij * Wiq;
+                        CosSimRankDOWNdoc += Math.pow(Wij, 2);
+                        CosSimRankDOWNquery += Math.pow(Wiq, 2);
+                        //calc BM25
+                        BM25UP = Cij * (k + 1) * Ciq;
+                        BM25DOWN = Cij + (k * ((1 - b) + (b * (DocsResultDL.get(Doc) / AVGdl))));
+                        BM25Log = (Math.log(NumOdDocs / idf) / Math.log(2));
+                        BM25Rank += BM25UP * BM25DOWN * BM25Log;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.out.println(Doc);
+                        System.out.println();
+                    }
                 }
                 CosSimRankDOWN = Math.sqrt(CosSimRankDOWNdoc * CosSimRankDOWNquery);
                 CosSimRank = CosSimRankUP / CosSimRankDOWN;
                 RankerResult.put(0.5 * CosSimRank + 0.5 * BM25Rank, Doc);
             }
-            else{
-                continue;
-            }
-            RankDocs(RankerResult,Queryid);
+            else {continue;}
+            RankDocs(RankerResult, Queryid);
         }
-
     }
 
 

@@ -188,8 +188,9 @@ public class Indexer {
             }
             //todo - corpus even posting files
             if(FilestoMerge.length == 2){
-                EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],tmpPath);
                 ItsTimeForFLUSH_POSTING();
+                FilestoMerge = file.listFiles();
+                EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],tmpPath);
                 FilestoMerge = file.listFiles();
                 EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],FinalePath);
                 FilestoMerge = file.listFiles();

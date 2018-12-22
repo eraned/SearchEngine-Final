@@ -100,6 +100,9 @@ public class Searcher {
         FW.close();
     }
 
+}
+
+
 //    public static String ItsTimeFor_Results() {
 //        StringBuilder stb = new StringBuilder();
 //        stb.append("##############  Final Results  ##############.\n");
@@ -112,7 +115,7 @@ public class Searcher {
 //    }
 
 
-    //        if(semanticNeeded){
+//        if(semanticNeeded){
 //            stbResult.append(SearcherIndexer.CorpusPathOUT + "/Results_WithSemantic/");
 //        }
 //        else
@@ -132,5 +135,3 @@ public class Searcher {
 //            folder.mkdir();
 //        }
 
-
-}
