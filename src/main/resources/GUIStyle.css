@@ -6,7 +6,7 @@ Button {
     -fx-text-fill: white;
     -fx-font-family: "Arial";
     -fx-font-weight: bold;
-    -fx-background-color: green;
+    -fx-background-color: #b87f27;
     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
 }
 
@@ -21,10 +21,17 @@ Button:hover{
 }
 
 VBox{
+    -fx-background-image: url("1.jpg");
     -fx-background-radius: 5px, 5px, 5px, 5px;
     -fx-background-color: lightsteelblue;
 }
-label{
+Label{
+    -fx-text-fill: black;
+    -fx-font-family: "Arial";
+    -fx-font-weight: bold;
+}
+CheckBox{
+    -fx-text-fill: black;
     -fx-font-family: "Arial";
     -fx-font-weight: bold;
 }
@@ -49,7 +56,6 @@ MyModel{
 .tab-pane .tab
 {
     -fx-background-color: #e6e6e6;
-
 }
 
 .tab-pane .tab:selected

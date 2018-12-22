@@ -113,7 +113,7 @@ public class Ranker {
         for(String doc : loadedDocs.keySet()){
             try {
                 String length = loadedDocs.get(doc).substring(0, loadedDocs.get(doc).indexOf(';'));
-                String max_tf = loadedDocs.get(doc).substring(0, loadedDocs.get(doc).indexOf(';'));
+                String max_tf = loadedDocs.get(doc).substring(loadedDocs.get(doc).indexOf(';')+1);
                 Docmax_tf = Integer.parseInt(max_tf);
                 Doclength = Integer.parseInt(length);
                 AVGdl += Doclength;

@@ -65,15 +65,15 @@ public class Searcher {
 
 
     public void ProccesQueryFile(String QueryPath) throws IOException {
-        ArrayList<String> Queries = SplitQueriesFile(QueryPath);
-        for(String query : Queries) {
-            HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(query,"Q","","");
+        HashMap<String,String> Queries = SplitQueriesFile(QueryPath);
+        for(String query : Queries.keySet()) {
+            HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(Queries.get(query),query,"","");
             ranker.InitializScores(tmpQuery);
         }
     }
 
     public void ProccesSingleQuery(String Query) throws IOException {
-        HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(Query,"Q","","");
+        HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(Query,"000","","");
         ranker.InitializScores(tmpQuery);
     }
 
@@ -86,9 +86,9 @@ public class Searcher {
 
     }
 
-    public ArrayList<String> SplitQueriesFile(String QueriesDirectory)throws IOException {
+    public HashMap<String,String> SplitQueriesFile(String QueriesDirectory)throws IOException {
         BufferedReader bfr = new BufferedReader(new FileReader(QueriesDirectory));
-        ArrayList<String> Result = new ArrayList<>();
+        HashMap<String,String> Result = new HashMap<>(); // <Queryid,Query>
         StringBuilder stb = new StringBuilder();
         String line = bfr.readLine();
         while (line != null) {
@@ -99,9 +99,11 @@ public class Searcher {
         Document d = Jsoup.parse(content);
         Elements elements = d.getElementsByTag("top");
         for (Element element : elements) {
-            //     String QueryID = element.getElementsByTag("num").text(); //todo - check how to get Query id only..dont have </num>
+            String QueryID = element.getElementsByTag("num").toString(); //todo - check how to get Query id only..dont have </num>
+            QueryID = QueryID.substring(QueryID.indexOf("Number:")+7,QueryID.indexOf("<title>"));
+            QueryID = QueryID.trim();
             String QueryContent = element.getElementsByTag("title").text();
-            Result.add(QueryContent);
+            Result.put(QueryID,QueryContent);
         }
         return Result;
     }
