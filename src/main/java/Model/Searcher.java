@@ -1,14 +1,13 @@
 package Model;
 
 
+import javafx.util.Pair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+
+import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,46 +17,23 @@ public class Searcher {
     public Ranker ranker;
     public Indexer SearcherIndexer;
     public Parse SearcherParser;
-    // public ReadFile RankerReadfile;
     public boolean SemanticNeeded;
     public boolean ResultByCityNeeded;
     public boolean StemmerNeeded;
     public StringBuilder stbResult;
     public static HashMap<String, DictionaryDetailes> LoadedDictionary;
     public static HashMap<String, String> LoadedDocs;
-    public static ArrayList<String> Results;
+    public static ArrayList<Pair> Results; //<<queryid,Docid>>
 
 
-    public Searcher(Indexer indexer, Parse parser, ReadFile readFile, boolean semanticNeeded, boolean resultByCityNeeded, boolean stemmerNeeded) throws IOException {
+    public Searcher(Indexer indexer, Parse parser, boolean semanticNeeded, boolean resultByCityNeeded, boolean stemmerNeeded) throws IOException {
         SearcherIndexer = indexer;
         SearcherParser = parser;
-        //RankerReadfile = readFile;
         SemanticNeeded = semanticNeeded;
         ResultByCityNeeded = resultByCityNeeded;
         StemmerNeeded = stemmerNeeded;
         stbResult = new StringBuilder();
         Results = new ArrayList<>();
-
-        if(semanticNeeded){
-            stbResult.append(SearcherIndexer.stbOUT.toString() + "/Results_WithSemantic/");
-        }
-        else
-            stbResult.append(SearcherIndexer.stbOUT.toString() + "/Results/");
-
-        File folder = new File(stbResult.toString());
-        File[] listOfFiles = folder.listFiles();
-        if (listOfFiles!=null) {
-            for (int i = 0; i < listOfFiles.length; i++)
-                try {
-                    Files.deleteIfExists(listOfFiles[i].toPath());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-        }
-        else{
-            folder.mkdir();
-        }
-
         LoadedDictionary = LoadDicToMemory();
         LoadedDocs = LoadDocsToMemory();
         ranker = new Ranker(SearcherIndexer.stbOUT.toString());
@@ -67,14 +43,14 @@ public class Searcher {
     public void ProccesQueryFile(String QueryPath) throws IOException {
         HashMap<String,String> Queries = SplitQueriesFile(QueryPath);
         for(String query : Queries.keySet()) {
-            HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(Queries.get(query),query,"","");
-            ranker.InitializScores(tmpQuery);
+            HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(Queries.get(query),"","","");
+            ranker.InitializScores(tmpQuery,query);
         }
     }
 
     public void ProccesSingleQuery(String Query) throws IOException {
-        HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(Query,"000","","");
-        ranker.InitializScores(tmpQuery);
+        HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(Query,"","","");
+        ranker.InitializScores(tmpQuery,"000");
     }
 
 
@@ -116,17 +92,45 @@ public class Searcher {
         return SearchEngine.ItsTimeToLoadAllDocs(  SearcherIndexer.stbOUT.toString() + "Docs.txt");
     }
 
-
-    public static String ItsTimeFor_Results() {
-
-        StringBuilder stb = new StringBuilder();
-        stb.append("##############  Final Results  ##############.\n");
+    public static void WriteResults(File FileToSaveIn) throws IOException {
+        FileWriter FW = new FileWriter(FileToSaveIn.getAbsolutePath()+"/results.txt");
         for(int i = 0 ; i < Results.size();i++) {
-            //  System.out.println(SortedRank.get(i) + "<->" +RankedQuery.get(SortedRank.get(i)));
-            stb.append(Results.get(i)+"\n");
+            FW.write( Results.get(i).getKey()+ " 0" + " " + Results.get(i).getValue() + " 1" + " 00.00" + " test\n");
         }
-        stb.append("##############  Finished  ##############.\n");
-        return stb.toString();
+        FW.close();
     }
+
+//    public static String ItsTimeFor_Results() {
+//        StringBuilder stb = new StringBuilder();
+//        stb.append("##############  Final Results  ##############.\n");
+//        for(int i = 0 ; i < Results.size();i++) {
+//            //  System.out.println(SortedRank.get(i) + "<->" +RankedQuery.get(SortedRank.get(i)));
+//            stb.append(Results.get(i)+"\n");
+//        }
+//        stb.append("##############  Finished  ##############.\n");
+//        return stb.toString();
+//    }
+
+
+    //        if(semanticNeeded){
+//            stbResult.append(SearcherIndexer.CorpusPathOUT + "/Results_WithSemantic/");
+//        }
+//        else
+//            stbResult.append(SearcherIndexer.CorpusPathOUT + "/Results/");
+//
+//        File folder = new File(stbResult.toString());
+//        File[] listOfFiles = folder.listFiles();
+//        if (listOfFiles!=null) {
+//            for (int i = 0; i < listOfFiles.length; i++)
+//                try {
+//                    Files.deleteIfExists(listOfFiles[i].toPath());
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//        }
+//        else{s
+//            folder.mkdir();
+//        }
+
 
 }

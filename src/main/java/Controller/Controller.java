@@ -7,6 +7,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.util.Pair;
 
 import java.awt.*;
 import java.io.File;
@@ -40,7 +41,6 @@ public class Controller{
     public javafx.scene.control.ChoiceBox CitySelctor;
     public javafx.scene.control.ChoiceBox DocSelctor;
     public javafx.scene.control.TextField PathForResults;
-    public javafx.scene.control.TextField NameForResults;
     public javafx.scene.control.Button BrowseSaveResults;
     public javafx.scene.control.Button SaveResults;
     public javafx.scene.control.Button ShowIdentityForDoc;
@@ -208,28 +208,40 @@ public class Controller{
         }
     }
 
-    private String getResults() {  return Searcher.ItsTimeFor_Results();}
+    // private String getResults() {  return Searcher.ItsTimeFor_Results();}
 
     public void LoadDocsToScroll(){
-        for(String Doc : Searcher.Results) {
-            DocSelctor.getItems().add(Doc);
+        for(Pair pair : Searcher.Results) {
+            DocSelctor.getItems().add(pair.getValue());
         }
     }
 
     public void RunSingle() throws IOException {
-        searcher = new Searcher(searchEngine.indexer,searchEngine.parser,searchEngine.readFile,Semantic.isSelected(),CitySelctor.isShowing(),Stemmer.isSelected());
+        searcher = new Searcher(searchEngine.indexer,searchEngine.parser,Semantic.isSelected(),CitySelctor.isShowing(),Stemmer.isSelected());
         searcher.ProccesSingleQuery(SingleQuery.getText());
         searcher.EntityIdentification();
         LoadDocsToScroll();
         ShowIdentityForDoc.setDisable(false);
-        NameForResults.setDisable(false);
         BrowseSaveResults.setDisable(false);
         SaveResults.setDisable(false);
         PathForResults.setDisable(false);
-        showAlert(getResults());
+        showAlert("Query search completed successfully! , The search results you'll see in Returned Documents.");
         newSearchButton.setDisable(false);
     }
 
+
+    public void RunAll() throws IOException {
+        searcher = new Searcher(searchEngine.indexer,searchEngine.parser,Semantic.isSelected(),CitySelctor.isShowing(),Stemmer.isSelected());
+        searcher.ProccesQueryFile(PathQueriesFile.getText());
+        searcher.EntityIdentification();
+        LoadDocsToScroll();
+        ShowIdentityForDoc.setDisable(false);
+        BrowseSaveResults.setDisable(false);
+        SaveResults.setDisable(false);
+        PathForResults.setDisable(false);
+        showAlert("Query search completed successfully! , The search results you'll see in Returned Documents.");
+        newSearchButton.setDisable(false);
+    }
 
     public void QueriesInput() {
         FileChooser FC = new FileChooser();
@@ -241,24 +253,10 @@ public class Controller{
         }
     }
 
-    public void RunAll() throws IOException {
-        searcher = new Searcher(searchEngine.indexer,searchEngine.parser,searchEngine.readFile,Semantic.isSelected(),CitySelctor.isShowing(),Stemmer.isSelected());
-        searcher.ProccesQueryFile(PathQueriesFile.getText());
-        searcher.EntityIdentification();
-        LoadDocsToScroll();
-        ShowIdentityForDoc.setDisable(false);
-        NameForResults.setDisable(false);
-        BrowseSaveResults.setDisable(false);
-        SaveResults.setDisable(false);
-        PathForResults.setDisable(false);
-        showAlert(getResults());
-        newSearchButton.setDisable(false);
-    }
-
     public void NewSearch() {
         File ResultsToReset;
-        String ResultPath = searcher.stbResult.toString();
-        ResultsToReset = new File(ResultPath); //lab path - "\\EngineOut_WithStemmer\\"
+        String ResultPath = PathForResults.getText() + "/Results";
+        ResultsToReset = new File(ResultPath);
         if (ResultsToReset.exists()) {
             File[] fileList = ResultsToReset.listFiles();
             for (int i = 0; i < fileList.length; i++) {
@@ -281,11 +279,11 @@ public class Controller{
         }
     }
 
-    public void SaveResults() {
-        File SavedResultsFile = new File(PathForResults.getText() + "/"+NameForResults.getText());
+    public void SaveResults() throws IOException {
+        File SavedResultsFile = new File(PathForResults.getText() + "/Results");
         SavedResultsFile.mkdir();
-
-
+        Searcher.WriteResults(SavedResultsFile);
+        showAlert("Results Saved successfully!");
     }
 
     public void RunSearchIdentitis(ActionEvent actionEvent) {

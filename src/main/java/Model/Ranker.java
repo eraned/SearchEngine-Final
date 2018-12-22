@@ -19,7 +19,7 @@ public class Ranker {
         DocsResultMAX = new HashMap<>();
     }
 
-    public void InitializScores(HashMap<String, TermDetailes> QueryAfterParse) throws IOException { //Matrix of columns: d1,d2,d3....q     rows: t1,t2,t3....
+    public void InitializScores(HashMap<String, TermDetailes> QueryAfterParse,String Queryid) throws IOException { //Matrix of columns: d1,d2,d3....q     rows: t1,t2,t3....
         HashMap<Double,String> RankerResult = new HashMap<>();//HashMap<Rank,DocID>
         HashMap<String, HashMap<String, Double>> CosSim_Matrix = new HashMap<>(); //new--- <Docid,<term ,CosSim Score>>
         HashMap<String, HashMap<String, Double>> BM25_Matrix = new HashMap<>();  //new--- <Docid,<term ,BM25 score>>
@@ -90,21 +90,18 @@ public class Ranker {
             else{
                 continue;
             }
-            RankDocs(RankerResult);
+            RankDocs(RankerResult,Queryid);
         }
 
     }
 
 
-    public void RankDocs(HashMap<Double,String> RankedQuery){ //HashMap<Rank,DocID> return only max 50 docs  ...final rank = 0.5 cosim + 0.5 BM25
+    public void RankDocs(HashMap<Double,String> RankedQuery,String queryID){ //HashMap<Rank,DocID> return only max 50 docs  ...final rank = 0.5 cosim + 0.5 BM25
         ArrayList<Double> SortedRank = new ArrayList<>(RankedQuery.keySet());
         Collections.sort(SortedRank, Collections.reverseOrder());
-
         for(int i = 0 ; i < SortedRank.size() && i < 50 ;i++){
-          //  System.out.println(SortedRank.get(i) + "<->" +RankedQuery.get(SortedRank.get(i)));
-            Searcher.Results.add(RankedQuery.get(SortedRank.get(i)));
+            Searcher.Results.add(new Pair(queryID,RankedQuery.get(SortedRank.get(i)))); //Hashmap<queryid,Docid>
         }
-      //  System.out.println("finish query!");
     }
 
 

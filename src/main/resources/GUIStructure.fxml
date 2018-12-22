@@ -13,7 +13,6 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 
@@ -90,14 +89,14 @@
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                             <children>
                                 <Label text="Search by City:" />
-                                <ChoiceBox fx:id="CitySelctor" layoutX="396" layoutY="66" maxWidth="200" prefHeight="24" prefWidth="61">
+                                <ChoiceBox fx:id="CitySelctor"  layoutX="396" layoutY="66" maxWidth="200" prefHeight="24" prefWidth="61">
                                     <items>
                                         <FXCollections fx:factory="observableArrayList">
                                             <String fx:value="None" />
                                         </FXCollections>
                                     </items>
                                 </ChoiceBox>
-                                <CheckBox fx:id="Semantic" mnemonicParsing="false" prefHeight="36.0" prefWidth="200.0" text="Include Semantic" />
+                                <CheckBox fx:id="Semantic"  mnemonicParsing="false" prefHeight="36.0" prefWidth="200.0" text="Include Semantic" />
                             </children>
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
@@ -130,9 +129,8 @@
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                             <children>
-                                <Label text="Save Results:" />
+                                <Label text="Choose directory for Results:" />
                                 <TextField fx:id="PathForResults" disable="true" prefHeight="25.0" prefWidth="100.0" />
-                                <TextField fx:id="NameForResults" disable="true" prefHeight="25.0" prefWidth="100.0" />
                                 <Button fx:id="BrowseSaveResults" disable="true" mnemonicParsing="false" onAction="#ResultsInput" text="Browse" />
                                 <Button fx:id="SaveResults" disable="true" mnemonicParsing="false" onAction="#SaveResults" text="Save" />
                             </children>
