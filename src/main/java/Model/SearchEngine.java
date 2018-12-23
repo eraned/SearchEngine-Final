@@ -233,11 +233,8 @@ public class SearchEngine {
 
     public static void ItsTimeToLoadAllDocs(String Path){
         double Doclength;String DocCity;double tmp = 0;double counter = 0;
-        //HashMap<String, String> LoadedDocs = new HashMap<>();
-        // StringBuilder stb = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
             String line = br.readLine();
-            // int doclength = 0,max_tf = 0;
             while (line != null ){
                 int index = line.indexOf(':');
                 String doc = line.substring(0,index);
@@ -246,19 +243,12 @@ public class SearchEngine {
                     String Length = line.substring(11, line.indexOf(';'));
                     Doclength = Double.parseDouble(Length);
                     line = line.substring(line.indexOf(';') + 1);
-                    // index = line.indexOf("MaxTermFrequency:");
-                    // String Maxtf = line.substring(index + 17);
-                    // max_tf = Integer.parseInt(Maxtf);
-                    // line = line.substring(line.indexOf(';') + 1);
                     index = line.indexOf("City:");
                     DocCity = line.substring(index + 5);
                     tmp += Doclength;
                     counter++;
                     Searcher.DocsResultDL.put(doc,Doclength);
                     Searcher.DocsResultCITY.put(doc,DocCity);
-                    // stb.append(doclength + ";" + max_tf + ";" + City);
-                    // LoadedDocs.put(doc,stb.toString());
-                    //  stb.setLength(0);
                 }
                 line = br.readLine();
             }

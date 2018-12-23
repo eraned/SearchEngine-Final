@@ -210,7 +210,6 @@ public class Controller{
         }
     }
 
-    // private String getResults() {  return Searcher.ItsTimeFor_Results();}
 
     public void LoadDocsToScroll(){
         for(Pair pair : Searcher.Results) {
@@ -218,7 +217,7 @@ public class Controller{
         }
     }
 
-    public void RunSingle() throws IOException {
+    public void RunQuery() throws IOException {
         if(CitySelctor.getCheckModel().getCheckedItems().size() > 1 || (CitySelctor.getCheckModel().getCheckedItems().size() == 1 && !CitySelctor.getCheckModel().getCheckedItems().equals("None"))) {
             ObservableList<String> cities = FXCollections.observableArrayList();
             cities.addAll(CitySelctor.getCheckModel().getCheckedItems());
@@ -227,28 +226,15 @@ public class Controller{
         else {
             searcher = new Searcher(searchEngine.indexer, searchEngine.parser, Semantic.isSelected(), Stemmer.isSelected(),null);
         }
-        searcher.ProccesSingleQuery(SingleQuery.getText());
-        searcher.EntityIdentification();
-        LoadDocsToScroll();
-        ShowIdentityForDoc.setDisable(false);
-        BrowseSaveResults.setDisable(false);
-        SaveResults.setDisable(false);
-        PathForResults.setDisable(false);
-        showAlert("Query search completed successfully! , The search results you'll see in Returned Documents.");
-        newSearchButton.setDisable(false);
-    }
-
-
-    public void RunAll() throws IOException {
-        if(CitySelctor.getCheckModel().getCheckedItems().size() > 1 || (CitySelctor.getCheckModel().getCheckedItems().size() == 1 && !CitySelctor.getCheckModel().getCheckedItems().equals("None"))) {
-            ObservableList<String> cities = FXCollections.observableArrayList();
-            cities.addAll(CitySelctor.getCheckModel().getCheckedItems());
-            searcher = new Searcher(searchEngine.indexer,searchEngine.parser,Semantic.isSelected(),Stemmer.isSelected(),cities);
+        if(!SingleQuery.getText().isEmpty()){
+            searcher.ProccesSingleQuery(SingleQuery.getText());
         }
-        else {
-            searcher = new Searcher(searchEngine.indexer, searchEngine.parser, Semantic.isSelected(), Stemmer.isSelected(),null);
+        else if(!PathQueriesFile.getText().isEmpty()){
+            searcher.ProccesQueryFile(PathQueriesFile.getText());
         }
-        searcher.ProccesQueryFile(PathQueriesFile.getText());
+        else{
+            showAlert("Please enter Query!");
+        }
         searcher.EntityIdentification();
         LoadDocsToScroll();
         ShowIdentityForDoc.setDisable(false);
@@ -283,6 +269,11 @@ public class Controller{
             }
             ResultsToReset.delete();
         }
+        SingleQuery.clear();
+        PathQueriesFile.clear();
+        PathForResults.clear();
+        DocSelctor.getItems().clear();
+        CitySelctor.getCheckModel().getCheckedItems().clear();
     }
 
     public void ResultsInput() {

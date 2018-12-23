@@ -40,6 +40,7 @@ public class Ranker {
         double BM25UP = 0;
         double BM25DOWN = 0;
         double BM25Log = 0;
+        double TitleRank = 0;
 
         for (String term : QueryAfterParse.keySet()) {
             //if term not in corpus
@@ -80,22 +81,23 @@ public class Ranker {
                         BM25Log = (Math.log(Searcher.NumOdDocs / idf) / Math.log(2));
                         BM25Rank += BM25UP * BM25DOWN * BM25Log;
                     } catch (Exception e) {
-                        e.printStackTrace();
                         System.out.println(Doc);
-                        System.out.println();
+                        System.out.println(term);
                     }
                 }
                 CosSimRankDOWN = Math.sqrt(CosSimRankDOWNdoc * CosSimRankDOWNquery);
                 CosSimRank = CosSimRankUP / CosSimRankDOWN;
-                RankerResult.put(0.5 * CosSimRank + 0.5 * BM25Rank, Doc);
+                if(PostingTitelResult.get(Doc))
+                    TitleRank = 1.0;
+                RankerResult.put((0.45 * CosSimRank) + (0.45 * BM25Rank) + (0.1 * TitleRank), Doc);
             }
             else {continue;}
-            RankDocs(RankerResult, Queryid);
         }
+        RankDocs(RankerResult, Queryid);
     }
 
 
-    public void RankDocs(HashMap<Double,String> RankedQuery,String queryID){ //HashMap<Rank,DocID> return only max 50 docs  ...final rank = 0.4 cosim + 0.4 BM25 + 0.2 InTitle
+    public void RankDocs(HashMap<Double,String> RankedQuery,String queryID){ //HashMap<Rank,DocID> return only max 50 docs  ...final rank = 0.45 cosim + 0.45 BM25 + 0.1 InTitle
         ArrayList<Double> SortedRank = new ArrayList<>(RankedQuery.keySet());
         Collections.sort(SortedRank, Collections.reverseOrder());
         for(int i = 0 ; i < SortedRank.size() && i < 50 ;i++){
@@ -132,11 +134,12 @@ public class Ranker {
         int index =  TermLIne.indexOf(':');
         TermLIne = TermLIne.substring(index + 1);
         while (TermLIne.length() > 0 ){
-            docID = TermLIne.substring(8, TermLIne.indexOf(',')-1);
+            docID = TermLIne.substring(TermLIne.indexOf(':')+1, TermLIne.indexOf(',')-1);
             TermLIne = TermLIne.substring(TermLIne.indexOf(',') + 1);
-            String TF = TermLIne.substring(6, TermLIne.indexOf(')'));
+            String TF = TermLIne.substring(TermLIne.indexOf(':')+1, TermLIne.indexOf(',')-1);
             tf = Double.parseDouble(TF);
-            String Title = TermLIne.substring(6, TermLIne.indexOf(')'));
+            TermLIne = TermLIne.substring(TermLIne.indexOf(',') + 1);
+            String Title = TermLIne.substring(TermLIne.indexOf(':')+1, TermLIne.indexOf(')'));
             title = Boolean.parseBoolean(Title);
             try {
                 TermLIne = TermLIne.substring(TermLIne.indexOf("("));
@@ -148,5 +151,4 @@ public class Ranker {
             PostingTitelResult.put(docID,title);
         }
     }
-
 }
