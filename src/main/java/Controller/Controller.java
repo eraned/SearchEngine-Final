@@ -273,7 +273,6 @@ public class Controller{
         PathQueriesFile.clear();
         PathForResults.clear();
         DocSelctor.getItems().clear();
-        CitySelctor.getCheckModel().getCheckedItems().clear();
     }
 
     public void ResultsInput() {

@@ -53,14 +53,26 @@ public class Ranker {
                 Pointer = Searcher.LoadedDictionary.get(term).getPointer();
                 GetTF_InTitelFromPosting(Pointer, term);// <docid,tf> from posting
                 for (String docid : PostingTFResult.keySet()) {
-                    CosSimtmp.put(term,PostingTFResult.get(docid));
-                    BM25tmp.put(term,PostingTFResult.get(docid));
-                    CosSim_Matrix.put(docid,CosSimtmp);
-                    BM25_Matrix.put(docid,BM25tmp);
+                    if(Searcher.citiesToFilter != null){
+                        if(Searcher.citiesToFilter.contains(Searcher.DocsResultCITY.get(docid))) {
+                            CosSimtmp.put(term, PostingTFResult.get(docid));
+                            BM25tmp.put(term, PostingTFResult.get(docid));
+                            CosSim_Matrix.put(docid, CosSimtmp);
+                            BM25_Matrix.put(docid, BM25tmp);
+                        }
+                        else {
+                            continue;
+                        }
+                    }
+                    else {
+                        CosSimtmp.put(term, PostingTFResult.get(docid));
+                        BM25tmp.put(term, PostingTFResult.get(docid));
+                        CosSim_Matrix.put(docid, CosSimtmp);
+                        BM25_Matrix.put(docid, BM25tmp);
+                    }
                 }
             }
         }
-
         for (String Doc : CosSim_Matrix.keySet()) {
             if (Doc != null) {
                 for (String term : CosSim_Matrix.get(Doc).keySet()) {
