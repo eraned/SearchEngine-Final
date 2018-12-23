@@ -14,6 +14,8 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.io.*;
+import java.util.HashSet;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -235,7 +237,6 @@ public class Controller{
         else{
             showAlert("Please enter Query!");
         }
-        searcher.EntityIdentification();
         LoadDocsToScroll();
         ShowIdentityForDoc.setDisable(false);
         BrowseSaveResults.setDisable(false);
@@ -292,8 +293,7 @@ public class Controller{
         showAlert("Results Saved successfully!");
     }
 
-    public void RunSearchIdentitis(ActionEvent actionEvent) {
-
-
+    public void RunSearchIdentitis() {
+        showAlert(searcher.EntityIdentification(searcher.SearcherIndexer.Entitys,DocSelctor.getSelectionModel().getSelectedItem().toString()));
     }
 }

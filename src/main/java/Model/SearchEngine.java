@@ -18,12 +18,9 @@ public class SearchEngine {
     public static String CorpusPathOUT;
     public static StringBuilder StopWordsPath;
     public static boolean StemmerNeeded;
-    //public static boolean SemanticNeeded;
-    //public static boolean ResultByCityNeeded;
     public static ReadFile readFile;
     public static Parse parser;
     public  static Indexer indexer;
-    //public static Searcher searcher;
     private HashMap<String, DocDetailes> DocsPerBlock;
     private HashMap<String, TermDetailes> TermsPerDoc;
     private NumberToken NT;
@@ -47,8 +44,6 @@ public class SearchEngine {
         CorpusPathOUT = corpusPathOUT;
         StopWordsPath = new StringBuilder(corpusPathIN + "/stop_words.txt");
         StemmerNeeded = isSteemer;
-        // SemanticNeeded = isSemantic;
-        // ResultByCityNeeded = isResultByCity;
         readFile = new ReadFile(CorpusPathIN);
         parser = new Parse(StemmerNeeded, StopWordsPath.toString());
         indexer = new Indexer(CorpusPathOUT, StemmerNeeded);
@@ -60,7 +55,6 @@ public class SearchEngine {
         NumOfCitysNotCapital = 0;
         TotalTime = 0;
         System.out.println("Start your Engines!!!");
-        // Starts threads
         readFile.ReadCorpus();
         for (int i = 0; i < readFile.GetSubFilesSize(); i++) {
             DocsPerBlock = readFile.ProccessSubFileToDocs(readFile.GetSubFilesPath(i));
@@ -76,7 +70,6 @@ public class SearchEngine {
                 }
             }
         }
-        //finish threads
         indexer.ItsTimeForMERGE_All_Postings();
         ItsTimeToWriteAllDocs();
         long FinishTime = System.nanoTime();
@@ -232,7 +225,7 @@ public class SearchEngine {
     }
 
     public static void ItsTimeToLoadAllDocs(String Path){
-        double Doclength;String DocCity;double tmp = 0;double counter = 0;
+        double Doclength;String DocCity;double tmp = 0;double counter = 0;double max_tf;
         try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
             String line = br.readLine();
             while (line != null ){
@@ -240,15 +233,18 @@ public class SearchEngine {
                 String doc = line.substring(0,index);
                 line = line.substring(index + 1);
                 if (!doc.isEmpty()){
-                    String Length = line.substring(11, line.indexOf(';'));
+                    String Length = line.substring(line.indexOf("DocLength:")+10, line.indexOf(';'));
                     Doclength = Double.parseDouble(Length);
                     line = line.substring(line.indexOf(';') + 1);
+                    String max =line.substring(line.indexOf("MaxTermFrequency:")+17, line.indexOf(';'));
+                    max_tf = Double.parseDouble(max);
                     index = line.indexOf("City:");
                     DocCity = line.substring(index + 5);
                     tmp += Doclength;
                     counter++;
                     Searcher.DocsResultDL.put(doc,Doclength);
                     Searcher.DocsResultCITY.put(doc,DocCity);
+                    Searcher.DocsResultMax.put(doc,max_tf);
                 }
                 line = br.readLine();
             }

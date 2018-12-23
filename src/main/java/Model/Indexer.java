@@ -31,6 +31,7 @@ public class Indexer {
     public  int NumOfTermsAfterStemming;
     public  int NumOfTerms_Numbers;
     public String DocMaxCity;
+    public static HashSet<String> Entitys;
 
 
     /**
@@ -51,6 +52,7 @@ public class Indexer {
         NumOfTermsAfterStemming = 0;
         NumOfTerms_Numbers = 0;
         DocMaxCity = "";
+        Entitys = new HashSet<>();
 
         if(StemmerNeeded){
             stbOUT.append(CorpusPathOUT + "/EngineOut_WithStemmer/");
@@ -414,6 +416,9 @@ public class Indexer {
             FileWriter FW = new FileWriter(DictionaryDoc);
             BufferedWriter BW = new BufferedWriter(FW);
             for(String term : SortedDic){
+                if((term.equals(term.toUpperCase()) && (!Character.isDigit(term.charAt(0))))){
+                    Entitys.add(term);
+                }
                 BW.write(  term + ": " + "Total Freq:"+Dictionary.get(term).getNumOfTermInCorpus() + "; DF:" + Dictionary.get(term).getNumOfDocsTermIN() + "; Pointer:" + Dictionary.get(term).getPointer());
                 BW.newLine();
             }
@@ -422,5 +427,9 @@ public class Indexer {
         catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void ParserBooster(String term){
+
     }
 }

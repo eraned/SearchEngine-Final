@@ -12,12 +12,15 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.*;
+
 
 public class Searcher {
 
     public Ranker ranker;
-    public Indexer SearcherIndexer;
-    public Parse SearcherParser;
+    public static Indexer SearcherIndexer;
+    public static Parse SearcherParser;
     public boolean SemanticNeeded;
     public boolean StemmerNeeded;
     public StringBuilder stbResult;
@@ -25,9 +28,11 @@ public class Searcher {
     public static double AVGdl;
     public static double NumOdDocs;
     public static HashMap<String, Double> DocsResultDL;
+    public static HashMap<String, Double> DocsResultMax;
     public static HashMap<String, String> DocsResultCITY;
     public static ObservableList<String> citiesToFilter;
     public static ArrayList<Pair> Results; //<<queryid,Docid>>
+
 
 
     public Searcher(Indexer indexer, Parse parser, boolean semanticNeeded,boolean stemmerNeeded,ObservableList<String> cities) throws IOException {
@@ -41,6 +46,7 @@ public class Searcher {
             citiesToFilter = cities;
         DocsResultDL = new HashMap<>();
         DocsResultCITY = new HashMap<>();
+        DocsResultMax = new HashMap<>();
         stbResult = new StringBuilder();
         Results = new ArrayList<>();
         LoadedDictionary = SearchEngine.ItsTimeToLoadDictionary(SearcherIndexer.stbOUT.toString() + "Dictionary.txt");
@@ -63,12 +69,28 @@ public class Searcher {
     }
 
 
-    public void EntityIdentification(){
-
-
-
-
+    public static String EntityIdentification(HashSet<String> Entitys,String DocToSearch){
+        HashMap<String,Double> tmp = new HashMap<>();
+        HashMap<Double,String> ans = new HashMap<>();
+        StringBuilder stb = new StringBuilder().append("#### Entitys Result ####\n");
+        HashMap<String, TermDetailes> tmpParse = SearcherParser.ParseDoc(SearchEngine.All_Docs.get(DocToSearch).getDocText(),DocToSearch,"","");
+        for(String term : tmpParse.keySet()){
+            if(Entitys.contains(term.toUpperCase())){
+                tmp.put(term.toUpperCase(),(double)tmpParse.get(term).getTF());
+            }
+        }
+        for(String term : tmp.keySet()){
+            ans.put(tmp.get(term)/DocsResultMax.get(DocToSearch),term);
+        }
+        ArrayList<Double> SortedEntitys = new ArrayList<>(ans.keySet());
+        Collections.sort(SortedEntitys, Collections.reverseOrder());
+        for(int i = 0 ; i < SortedEntitys.size() && i < 5  ;i++){
+            stb.append(ans.get(SortedEntitys.get(i))+"\n");
+        }
+        stb.append("###################\n");
+        return stb.toString();
     }
+
 
     public HashMap<String,String> SplitQueriesFile(String QueriesDirectory)throws IOException {
         BufferedReader bfr = new BufferedReader(new FileReader(QueriesDirectory));
