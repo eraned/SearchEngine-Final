@@ -3,6 +3,9 @@ package Model;
 import javafx.util.Pair;
 import org.apache.commons.io.FileUtils;
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
 
 public class Ranker {
@@ -17,12 +20,13 @@ public class Ranker {
         PostingTitelResult = new HashMap<>();
     }
 
-    public void InitializScores(HashMap<String, TermDetailes> QueryAfterParse,String Queryid) throws IOException { //Matrix of columns: d1,d2,d3....q     rows: t1,t2,t3....
+    public void InitializScores(HashMap<String, TermDetailes> QueryAfterParse,String Queryid,boolean semanticNeeded) throws IOException, URISyntaxException { //Matrix of columns: d1,d2,d3....q     rows: t1,t2,t3....
         HashMap<Double,String> RankerResult = new HashMap<>();//HashMap<Rank,DocID>
         HashMap<String, HashMap<String, Double>> CosSim_Matrix = new HashMap<>(); //new--- <Docid,<term ,CosSim Score>>
         HashMap<String, HashMap<String, Double>> BM25_Matrix = new HashMap<>();  //new--- <Docid,<term ,BM25 score>>
         HashMap<String, Double> CosSimtmp = new HashMap<>();//for Docid
         HashMap<String, Double> BM25tmp = new HashMap<>();//for Docid
+        HashSet<String> SemanticsWord;
         int Pointer;
         double Wij;
         double Cij;
@@ -42,6 +46,17 @@ public class Ranker {
         double BM25Log = 0;
         double TitleRank = 0;
 
+        if (semanticNeeded) {
+            for (String term : QueryAfterParse.keySet()) {
+                SemanticsWord = GetSemanticFromAPI(term);
+                for (String word : SemanticsWord) {
+                    TermDetailes tmp = new TermDetailes("API");
+                    tmp.setTF(1);
+                    tmp.setInTitle(false);
+                    QueryAfterParse.put(word,tmp);
+                }
+            }
+        }
         for (String term : QueryAfterParse.keySet()) {
             //if term not in corpus
             if (Searcher.LoadedDictionary.get(term) == null) {
@@ -60,9 +75,7 @@ public class Ranker {
                             CosSim_Matrix.put(docid, CosSimtmp);
                             BM25_Matrix.put(docid, BM25tmp);
                         }
-                        else {
-                            continue;
-                        }
+                        else { continue;}
                     }
                     else {
                         CosSimtmp.put(term, PostingTFResult.get(docid));
@@ -163,4 +176,26 @@ public class Ranker {
             PostingTitelResult.put(docID,title);
         }
     }
+
+
+    public HashSet<String> GetSemanticFromAPI(String term)throws IOException, URISyntaxException {
+        HashSet<String> result = new HashSet<>();
+        try {
+            URI CityUrl = new URI("https://api.datamuse.com/words?ml=" + term);
+            URL AfterCheck = CityUrl.toURL();
+            BufferedReader Input = new BufferedReader(new InputStreamReader(AfterCheck.openStream()));
+            String Line = Input.readLine(); int counter = 0;
+            while (counter < 5){
+                    String WordToAdd = Line.substring(Line.indexOf("\"word\"") + 8, Line.indexOf("\"score\"") - 2);
+                    result.add(WordToAdd);
+                    counter++;
+            }
+            Input.close();
+            return result;
+        }
+        catch (URISyntaxException e) {
+            return result;
+        }
+    }
 }
+

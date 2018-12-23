@@ -9,6 +9,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,17 +58,17 @@ public class Searcher {
     }
 
 
-    public void ProccesQueryFile(String QueryPath) throws IOException {
+    public void ProccesQueryFile(String QueryPath) throws IOException, URISyntaxException {
         HashMap<String,String> Queries = SplitQueriesFile(QueryPath);
         for(String query : Queries.keySet()) {
             HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(Queries.get(query),"","","");
-            ranker.InitializScores(tmpQuery,query);
+            ranker.InitializScores(tmpQuery,query,SemanticNeeded);
         }
     }
 
-    public void ProccesSingleQuery(String Query) throws IOException {
+    public void ProccesSingleQuery(String Query) throws IOException, URISyntaxException {
         HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(Query,"","","");
-        ranker.InitializScores(tmpQuery,"000");
+        ranker.InitializScores(tmpQuery,"000",SemanticNeeded);
     }
 
 
@@ -105,7 +108,7 @@ public class Searcher {
         Document d = Jsoup.parse(content);
         Elements elements = d.getElementsByTag("top");
         for (Element element : elements) {
-            String QueryID = element.getElementsByTag("num").toString(); //todo - check how to get Query id only..dont have </num>
+            String QueryID = element.getElementsByTag("num").toString();
             QueryID = QueryID.substring(QueryID.indexOf("Number:")+7,QueryID.indexOf("<title>"));
             QueryID = QueryID.trim();
             String QueryContent = element.getElementsByTag("title").text();

@@ -219,7 +219,7 @@ public class Controller{
         }
     }
 
-    public void RunQuery() throws IOException {
+    public void RunQuery() throws IOException, URISyntaxException {
         if(CitySelctor.getCheckModel().getCheckedItems().size() > 1 || (CitySelctor.getCheckModel().getCheckedItems().size() == 1 && !CitySelctor.getCheckModel().getCheckedItems().equals("None"))) {
             ObservableList<String> cities = FXCollections.observableArrayList();
             cities.addAll(CitySelctor.getCheckModel().getCheckedItems());
