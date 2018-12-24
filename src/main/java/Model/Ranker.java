@@ -26,7 +26,7 @@ public class Ranker {
         HashMap<String, HashMap<String, Double>> BM25_Matrix = new HashMap<>();  //new--- <Docid,<term ,BM25 score>>
         HashMap<String, Double> CosSimtmp = new HashMap<>();//for Docid
         HashMap<String, Double> BM25tmp = new HashMap<>();//for Docid
-        HashSet<String> SemanticsWord;
+        HashSet<String> SemanticsWords;
         int Pointer;
         double Wij;
         double Cij;
@@ -47,13 +47,15 @@ public class Ranker {
         double TitleRank = 0;
 
         if (semanticNeeded) {
-            for (String term : QueryAfterParse.keySet()) {
-                SemanticsWord = GetSemanticFromAPI(term);
-                for (String word : SemanticsWord) {
-                    TermDetailes tmp = new TermDetailes("API");
-                    tmp.setTF(1);
-                    tmp.setInTitle(false);
-                    QueryAfterParse.put(word,tmp);
+            HashSet<String> tmp = new HashSet<>();
+            tmp.addAll(QueryAfterParse.keySet());
+            for(String term : tmp) {
+                SemanticsWords = GetSemanticFromAPI(term);
+                for (String word : SemanticsWords) {
+                    TermDetailes tmpTD = new TermDetailes("API");
+                    tmpTD.setTF(1);
+                    tmpTD.setInTitle(false);
+                    QueryAfterParse.put(word, tmpTD);
                 }
             }
         }
@@ -184,13 +186,15 @@ public class Ranker {
             URI CityUrl = new URI("https://api.datamuse.com/words?ml=" + term);
             URL AfterCheck = CityUrl.toURL();
             BufferedReader Input = new BufferedReader(new InputStreamReader(AfterCheck.openStream()));
-            String Line = Input.readLine(); int counter = 0;
-            while (counter < 5){
-                    String WordToAdd = Line.substring(Line.indexOf("\"word\"") + 8, Line.indexOf("\"score\"") - 2);
-                    result.add(WordToAdd);
-                    counter++;
-            }
+            String Line = Input.readLine();
             Input.close();
+            int counter = 0;
+            while (counter < 3){
+                String WordToAdd = Line.substring(Line.indexOf("\"word\"") + 8, Line.indexOf("\"score\"") - 2);
+                Line = Line.substring(Line.indexOf("}")+1);
+                result.add(WordToAdd);
+                counter++;
+            }
             return result;
         }
         catch (URISyntaxException e) {
