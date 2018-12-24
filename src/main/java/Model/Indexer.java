@@ -171,6 +171,7 @@ public class Indexer {
         File[] FilestoMerge = file.listFiles();
         String tmpPath = stbOUT + "tmpMerge" + ".txt";
         String FinalePath = stbOUT + "FinaleMerge" + ".txt";
+        String tmpPath_odd = stbOUT + "tmpMerge-odd" + ".txt";
         //todo - corpus more then one block
         if(FilestoMerge.length >= 1) {
             while (FilestoMerge.length > 2) {
@@ -179,7 +180,7 @@ public class Indexer {
                 }
                 FilestoMerge = file.listFiles();
             }
-            //todo - corpus odd posting files
+            //todo - corpus even posting files
             if(FilestoMerge.length == 1){
                 ItsTimeForFLUSH_POSTING();
                 FilestoMerge = file.listFiles();
@@ -188,11 +189,10 @@ public class Indexer {
                 PostingSize = FilestoMerge[0].length()/1024;
                 ItsTimeForSPLIT_Final_Posting();
             }
-            //todo - corpus even posting files
+            //todo - corpus odd posting files
             if(FilestoMerge.length == 2){
+                EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],tmpPath_odd);
                 ItsTimeForFLUSH_POSTING();
-                FilestoMerge = file.listFiles();
-                EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],tmpPath);
                 FilestoMerge = file.listFiles();
                 EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],FinalePath);
                 FilestoMerge = file.listFiles();
@@ -429,7 +429,10 @@ public class Indexer {
         }
     }
 
-    public void ParserBooster(String term){
+    public String ParserBooster(String term){
+        String ans = "";
+        HashSet<String> Marks = new HashSet<>(Arrays.asList("K","M","B","%","Dollars","M Dollars","-"));
 
+        return ans;
     }
 }

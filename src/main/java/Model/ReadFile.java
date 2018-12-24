@@ -72,6 +72,7 @@ public class ReadFile {
         Document d = Jsoup.parse(content);
         Elements elements = d.getElementsByTag("DOC"); //process doc
         for (Element element : elements) {
+            boolean flag = false;
             String DocID = element.getElementsByTag("DOCNO").text();
             String DocText = element.getElementsByTag("TEXT").text();
             String DocDate = element.getElementsByTag("DATE1").text();
@@ -83,9 +84,20 @@ public class ReadFile {
                     if (splited[i].equals("104")) {
                         String[] finaleCity = StringUtils.splitString(splited[i + 1], " ");
                         if(finaleCity.length > 1) {
+                            flag = true;
                             CitySection = finaleCity[1].toUpperCase();
+                            if(CitySection.equals("BUENOS"))CitySection = "BUENOS AIRES";
+                            if(CitySection.equals("TEL"))CitySection = "TEL AVIV";
+                            if(CitySection.equals("HONG"))CitySection = "HONG KONG";
+                            if(CitySection.equals("NEW"))CitySection = "NEW YORK";
+                            if(CitySection.equals("RIO"))CitySection = "RIO DE JANEIRO";
+                            if(CitySection.equals("MEXICO"))CitySection = "MEXICO CITY";
+                            if(CitySection.equals("SAO"))CitySection = "SAO PAULO";
+                            if(CitySection.equals("SANTIAGO"))CitySection = "SANTIAGO DE CHILE";
+                            if(CitySection.equals("--"))CitySection = "";
                         }
                         else{
+                            flag = true;
                             CitySection = "";
                         }
                     }
@@ -101,6 +113,8 @@ public class ReadFile {
                     }
 
                 }
+                if(!flag)
+                    CitySection = "";
             }
             tmpDocs.put(DocID, new DocDetailes(DocText, DocDate, DocTitle, CitySection));
         }

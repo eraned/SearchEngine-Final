@@ -62,7 +62,7 @@ public class NumberToken implements IToken {
             }
             //Thousand
             else if (num >= 1000.0 && num < 1000000.0){
-                result.append(FinallyParse (num ,second, 'k' ,NumberByNumber.get("Thousand")));
+                result.append(FinallyParse (num ,second, 'K' ,NumberByNumber.get("Thousand")));
             }
             //Million
             else if (num >= 1000000.0 && num < 1000000000.0){

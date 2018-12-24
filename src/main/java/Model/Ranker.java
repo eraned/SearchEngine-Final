@@ -110,6 +110,8 @@ public class Ranker {
                     } catch (Exception e) {
                         System.out.println(Doc);
                         System.out.println(term);
+                        System.out.println(Searcher.DocsResultDL.get(Doc));
+                        break;
                     }
                 }
                 CosSimRankDOWN = Math.sqrt(CosSimRankDOWNdoc * CosSimRankDOWNquery);
@@ -160,22 +162,27 @@ public class Ranker {
         String docID; double tf = 0;boolean title;
         int index =  TermLIne.indexOf(':');
         TermLIne = TermLIne.substring(index + 1);
-        while (TermLIne.length() > 0 ){
-            docID = TermLIne.substring(TermLIne.indexOf(':')+1, TermLIne.indexOf(',')-1);
-            TermLIne = TermLIne.substring(TermLIne.indexOf(',') + 1);
-            String TF = TermLIne.substring(TermLIne.indexOf(':')+1, TermLIne.indexOf(',')-1);
-            tf = Double.parseDouble(TF);
-            TermLIne = TermLIne.substring(TermLIne.indexOf(',') + 1);
-            String Title = TermLIne.substring(TermLIne.indexOf(':')+1, TermLIne.indexOf(')'));
-            title = Boolean.parseBoolean(Title);
+        while (TermLIne.length() > 0 ) {
             try {
-                TermLIne = TermLIne.substring(TermLIne.indexOf("("));
+                docID = TermLIne.substring(TermLIne.indexOf(':') + 1, TermLIne.indexOf(',') - 1);
+                TermLIne = TermLIne.substring(TermLIne.indexOf(',') + 1);
+                String TF = TermLIne.substring(TermLIne.indexOf(':') + 1, TermLIne.indexOf(',') - 1);
+                tf = Double.parseDouble(TF);
+                TermLIne = TermLIne.substring(TermLIne.indexOf(',') + 1);
+                String Title = TermLIne.substring(TermLIne.indexOf(':') + 1, TermLIne.indexOf(')'));
+                title = Boolean.parseBoolean(Title);
+                try {
+                    TermLIne = TermLIne.substring(TermLIne.indexOf("("));
+                } catch (Exception e) {
+                    break;
+                }
+                PostingTFResult.put(docID, tf);
+                PostingTitelResult.put(docID, title);
             }
             catch (Exception e){
+                System.out.println("problem!");
                 break;
             }
-            PostingTFResult.put(docID,tf);
-            PostingTitelResult.put(docID,title);
         }
     }
 
@@ -190,10 +197,16 @@ public class Ranker {
             Input.close();
             int counter = 0;
             while (counter < 3){
-                String WordToAdd = Line.substring(Line.indexOf("\"word\"") + 8, Line.indexOf("\"score\"") - 2);
-                Line = Line.substring(Line.indexOf("}")+1);
-                result.add(WordToAdd);
-                counter++;
+                try {
+                    String WordToAdd = Line.substring(Line.indexOf("\"word\"") + 8, Line.indexOf("\"score\"") - 2);
+                    Line = Line.substring(Line.indexOf("}") + 1);
+                    result.add(WordToAdd);
+                    counter++;
+                }
+                catch (Exception e){
+                    System.out.println("problem!");
+                    break;
+                }
             }
             return result;
         }

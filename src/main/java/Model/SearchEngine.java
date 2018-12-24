@@ -229,32 +229,38 @@ public class SearchEngine {
         try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
             String line = br.readLine();
             int totalfreq = 0,df = 0,pointer = 0;
-            while (line != null ){
-                int index = line.indexOf(':');
-                String term = line.substring(0,index);
-                line = line.substring(index + 1);
-                if (!term.isEmpty()){
-                    String TFreq = line.substring(12, line.indexOf(';'));
-                    totalfreq = Integer.parseInt(TFreq);
-                    line = line.substring(line.indexOf(';') + 1);
-                    index = line.indexOf("DF:");
-                    String DF = line.substring(index + 3, line.indexOf(';'));
-                    df = Integer.parseInt(DF);
-                    line = line.substring(line.indexOf(';') + 1);
-                    index = line.indexOf("Pointer:");
-                    String point = line.substring(index + 8);
-                    pointer = Integer.parseInt(point);
-                    DictionaryDetailes DD = new DictionaryDetailes();
-                    DD.setNumOfTermInCorpus(totalfreq);
-                    DD.setNumOfDocsTermIN(df);
-                    DD.setPointer(pointer);
-                    LoadedDic.put(term,DD);
+            while (line != null ) {
+                try{
+                    int index = line.indexOf(':');
+                    String term = line.substring(0, index);
+                    line = line.substring(index + 1);
+                    if (!term.isEmpty()) {
+                        String TFreq = line.substring(12, line.indexOf(';'));
+                        totalfreq = Integer.parseInt(TFreq);
+                        line = line.substring(line.indexOf(';') + 1);
+                        index = line.indexOf("DF:");
+                        String DF = line.substring(index + 3, line.indexOf(';'));
+                        df = Integer.parseInt(DF);
+                        line = line.substring(line.indexOf(';') + 1);
+                        index = line.indexOf("Pointer:");
+                        String point = line.substring(index + 8);
+                        pointer = Integer.parseInt(point);
+                        DictionaryDetailes DD = new DictionaryDetailes();
+                        DD.setNumOfTermInCorpus(totalfreq);
+                        DD.setNumOfDocsTermIN(df);
+                        DD.setPointer(pointer);
+                        LoadedDic.put(term, DD);
+                    }
+                    line = br.readLine();
                 }
-                line = br.readLine();
+                catch (Exception e){
+                    System.out.println("problem!");
+                    break;
+                }
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
         return LoadedDic;
@@ -264,25 +270,31 @@ public class SearchEngine {
         double Doclength;String DocCity;double tmp = 0;double counter = 0;double max_tf;
         try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
             String line = br.readLine();
-            while (line != null ){
+            while (line != null ) {
+                 try{
                 int index = line.indexOf(':');
-                String doc = line.substring(0,index);
+                String doc = line.substring(0, index);
                 line = line.substring(index + 1);
-                if (!doc.isEmpty()){
-                    String Length = line.substring(line.indexOf("DocLength:")+10, line.indexOf(';'));
+                if (!doc.isEmpty()) {
+                    String Length = line.substring(line.indexOf("DocLength:") + 10, line.indexOf(';'));
                     Doclength = Double.parseDouble(Length);
                     line = line.substring(line.indexOf(';') + 1);
-                    String max =line.substring(line.indexOf("MaxTermFrequency:")+17, line.indexOf(';'));
+                    String max = line.substring(line.indexOf("MaxTermFrequency:") + 17, line.indexOf(';'));
                     max_tf = Double.parseDouble(max);
                     index = line.indexOf("City:");
                     DocCity = line.substring(index + 5);
                     tmp += Doclength;
                     counter++;
-                    Searcher.DocsResultDL.put(doc,Doclength);
-                    Searcher.DocsResultCITY.put(doc,DocCity);
-                    Searcher.DocsResultMax.put(doc,max_tf);
+                    Searcher.DocsResultDL.put(doc, Doclength);
+                    Searcher.DocsResultCITY.put(doc, DocCity);
+                    Searcher.DocsResultMax.put(doc, max_tf);
                 }
                 line = br.readLine();
+            }
+            catch (Exception e){
+                System.out.println("problem!");
+                     break;
+            }
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -4,6 +4,7 @@ import Model.SearchEngine;
 import Model.DictionaryDetailes;
 import Model.Searcher;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceDialog;
 import javafx.stage.DirectoryChooser;
@@ -244,30 +245,28 @@ public class Controller{
     }
 
     public void RunQuery() throws IOException, URISyntaxException {
-        if(CitySelctor.getCheckModel().getCheckedItems().size() > 1 || (CitySelctor.getCheckModel().getCheckedItems().size() == 1 && !CitySelctor.getCheckModel().getCheckedItems().equals("None"))) {
-            ObservableList<String> cities = FXCollections.observableArrayList();
-            cities.addAll(CitySelctor.getCheckModel().getCheckedItems());
-            searcher = new Searcher(searchEngine.indexer,searchEngine.parser,Semantic.isSelected(),Stemmer.isSelected(),cities);
-        }
-        else {
-            searcher = new Searcher(searchEngine.indexer, searchEngine.parser, Semantic.isSelected(), Stemmer.isSelected(),null);
-        }
-        if(!SingleQuery.getText().isEmpty()){
-            searcher.ProccesSingleQuery(SingleQuery.getText());
-        }
-        else if(!PathQueriesFile.getText().isEmpty()){
-            searcher.ProccesQueryFile(PathQueriesFile.getText());
-        }
-        else{
-            showAlert("Please enter Query!");
-        }
-        LoadDocsToScroll();
-        ShowIdentityForDoc.setDisable(false);
-        BrowseSaveResults.setDisable(false);
-        SaveResults.setDisable(false);
-        PathForResults.setDisable(false);
-        showAlert("Query search completed successfully! , The search results you'll see in Returned Documents. for new Search first click on the 'new Search' Button! " );
-        newSearchButton.setDisable(false);
+            if (CitySelctor.getCheckModel().getCheckedItems().size() > 1 || (CitySelctor.getCheckModel().getCheckedItems().size() == 1 && !CitySelctor.getCheckModel().getCheckedItems().equals("None"))) {
+                ObservableList<String> cities = FXCollections.observableArrayList();
+                cities.addAll(CitySelctor.getCheckModel().getCheckedItems());
+                searcher = new Searcher(searchEngine.indexer, searchEngine.parser, Semantic.isSelected(), Stemmer.isSelected(), cities);
+            }
+            else
+                searcher = new Searcher(searchEngine.indexer, searchEngine.parser, Semantic.isSelected(), Stemmer.isSelected(), null);
+            if(!SingleQuery.getText().isEmpty())
+                searcher.ProccesSingleQuery(SingleQuery.getText());
+            else if(!PathQueriesFile.getText().isEmpty())
+                searcher.ProccesQueryFile(PathQueriesFile.getText());
+            else {
+                showAlert("You must enter a Querry in the right place!");
+                return;
+            }
+            LoadDocsToScroll();
+            ShowIdentityForDoc.setDisable(false);
+            BrowseSaveResults.setDisable(false);
+            SaveResults.setDisable(false);
+            PathForResults.setDisable(false);
+            showAlert("Query search completed successfully! , The search results you'll see in Returned Documents. for new Search first click on the 'new Search' Button! " );
+            newSearchButton.setDisable(false);
     }
 
     public void QueriesInput() {
