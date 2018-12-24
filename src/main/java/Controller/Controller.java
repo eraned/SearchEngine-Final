@@ -5,6 +5,7 @@ import Model.DictionaryDetailes;
 import Model.Searcher;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ChoiceDialog;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.util.Pair;
@@ -12,9 +13,12 @@ import org.controlsfx.control.CheckListView;
 import java.awt.*;
 import java.io.File;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.*;
 import java.util.HashSet;
+import java.util.List;
+
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -94,7 +98,7 @@ public class Controller{
             searchEngine = new SearchEngine(Pathin, Pathout,Stemmer.isSelected());
             LoadLangugesToScroll();
             LoadCitiesToScroll();
-            showAlert(getFinalDoc());
+            showFirstRunMessage(getFinalDoc(),getFinalPositions());
             PathIN.setDisable(false);
             PathOUT.setDisable(false);
             resetEngine.setDisable(false);
@@ -110,6 +114,10 @@ public class Controller{
         }
     }
 
+    private ArrayList<Integer> getFinalPositions() {
+        return SearchEngine.ItsTimeFor_FinalPos();
+    }
+
     /**
      * return from the search engine the finale doc to show in new GUI Window.
      */
@@ -123,9 +131,25 @@ public class Controller{
      * @param str - String to pop
      */
     public static void showAlert(String str) {
-        Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setContentText(str);
-        a.show();
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Message");
+        alert.setHeaderText(null);
+        alert.setContentText(str);
+        alert.show();
+    }
+
+    public static void showFirstRunMessage(String str,ArrayList<Integer> Pos) {
+        List<String> ans = new ArrayList<>();
+        if(Pos != null) {
+            for (Integer P : Pos) {
+                ans.add(P.toString());
+            }
+        }
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(null,ans);
+        dialog.setTitle("Search Engine Finished!");
+        dialog.setHeaderText(str);
+        dialog.setContentText("City Positions:");
+        dialog.show();
     }
 
 
@@ -242,7 +266,7 @@ public class Controller{
         BrowseSaveResults.setDisable(false);
         SaveResults.setDisable(false);
         PathForResults.setDisable(false);
-        showAlert("Query search completed successfully! , The search results you'll see in Returned Documents.");
+        showAlert("Query search completed successfully! , The search results you'll see in Returned Documents. for new Search first click on the 'new Search' Button! " );
         newSearchButton.setDisable(false);
     }
 
