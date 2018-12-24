@@ -1,5 +1,6 @@
 package Model;
 
+import com.sun.deploy.util.StringUtils;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.File;
@@ -86,7 +87,10 @@ public class Indexer {
     public void CreateMINI_Posting(HashMap<String, TermDetailes> DocAfterParse,String Docid) throws IOException {
         int MaxTermFreq = 0;
         for (String tmpTerm : DocAfterParse.keySet()) {
-            if(!Character.isLetterOrDigit(tmpTerm.charAt(0))){
+//            if(!Character.isLetterOrDigit(tmpTerm.charAt(0))){
+//                continue;
+//            }
+            if(!ParserBooster(tmpTerm)){
                 continue;
             }
             // not in Post
@@ -429,10 +433,36 @@ public class Indexer {
         }
     }
 
-    public String ParserBooster(String term){
-        String ans = "";
-        HashSet<String> Marks = new HashSet<>(Arrays.asList("K","M","B","%","Dollars","M Dollars","-"));
-
-        return ans;
+    public boolean ParserBooster(String term){
+        boolean IsTerm = true;
+        //HashSet<String> Marks = new HashSet<>(Arrays.asList("K","M","B","%","Dollars","M Dollars"));
+        if(term.contains("-")){
+            String[] splited = StringUtils.splitString(term, "-");
+            for(int i = 0 ; i< splited.length;i++){
+                if(!org.apache.commons.lang3.StringUtils.isAlphanumeric(splited[i])) {
+                    IsTerm = false;
+                    break;
+                }
+            }
+        }
+        else{
+            if(term.endsWith("K") || term.endsWith("M") || term.endsWith("B") || term.endsWith("%")){
+                if(!Character.isDigit(term.charAt(term.length()-1)))
+                    IsTerm = false;
+            }
+            else if(term.endsWith("Dollars")){
+                if(!Character.isDigit(term.indexOf("Dollars")-1))
+                    IsTerm = false;
+            }
+            else if(term.endsWith("M Dollars")){
+                if(!Character.isDigit(term.indexOf("M Dollars")-1))
+                    IsTerm = false;
+            }
+            else{
+                if(!org.apache.commons.lang3.StringUtils.isAlpha(term) || !org.apache.commons.lang3.StringUtils.isNumeric(term) || !term.contains("."))
+                    IsTerm = false;
+            }
+        }
+        return IsTerm;
     }
 }
