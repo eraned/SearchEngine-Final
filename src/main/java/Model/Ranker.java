@@ -8,18 +8,34 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 
+
+/**
+ *
+ */
 public class Ranker {
 
     public String PostingPath;
     public HashMap<String, Double> PostingTFResult;
     public HashMap<String, Boolean> PostingTitelResult;
 
+
+    /**
+     * Constructor
+     * @param pathforFindposting
+     */
     public Ranker(String pathforFindposting) {
         PostingPath =  pathforFindposting;
         PostingTFResult = new HashMap<>();
         PostingTitelResult = new HashMap<>();
     }
 
+    /**
+     * @param QueryAfterParse
+     * @param Queryid
+     * @param semanticNeeded
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     public void InitializScores(HashMap<String, TermDetailes> QueryAfterParse,String Queryid,boolean semanticNeeded) throws IOException, URISyntaxException { //Matrix of columns: d1,d2,d3....q     rows: t1,t2,t3....
         HashMap<Double,String> RankerResult = new HashMap<>();//HashMap<Rank,DocID>
         HashMap<String, HashMap<String, Double>> CosSim_Matrix = new HashMap<>(); //new--- <Docid,<term ,CosSim Score>>
@@ -126,6 +142,10 @@ public class Ranker {
     }
 
 
+    /**
+     * @param RankedQuery
+     * @param queryID
+     */
     public void RankDocs(HashMap<Double,String> RankedQuery,String queryID){ //HashMap<Rank,DocID> return only max 50 docs  ...final rank = 0.45 cosim + 0.45 BM25 + 0.1 InTitle
         ArrayList<Double> SortedRank = new ArrayList<>(RankedQuery.keySet());
         Collections.sort(SortedRank, Collections.reverseOrder());
@@ -134,6 +154,11 @@ public class Ranker {
         }
     }
 
+    /**
+     * @param pointer
+     * @param term
+     * @throws IOException
+     */
     public void GetTF_InTitelFromPosting(int pointer, String term) throws IOException {
         char tmpFirst = term.charAt(0);
         tmpFirst = Character.toLowerCase(tmpFirst);
@@ -180,13 +205,19 @@ public class Ranker {
                 PostingTitelResult.put(docID, title);
             }
             catch (Exception e){
-                System.out.println("problem!");
+                System.out.println("problem get tf!");
                 break;
             }
         }
     }
 
 
+    /**
+     * @param term
+     * @return
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     public HashSet<String> GetSemanticFromAPI(String term)throws IOException, URISyntaxException {
         HashSet<String> result = new HashSet<>();
         try {
@@ -204,7 +235,7 @@ public class Ranker {
                     counter++;
                 }
                 catch (Exception e){
-                    System.out.println("problem!");
+                    System.out.println("problem API!");
                     break;
                 }
             }

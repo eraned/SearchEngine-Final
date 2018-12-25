@@ -1,4 +1,5 @@
 package Model;
+
 import java.util.List;
 
 /**
@@ -13,12 +14,9 @@ public class PercentageToken implements IToken {
      * @return - An object that returns values ​​for the word we have parse.
      */
     public ParsedResult TryParse(List<String> sentence) {
-//        long startTime = System.nanoTime();
         int size = sentence.size();
         String first = sentence.get(0);
-        //if size>1 so second = sentence.get(1) else second = ""
         String second = size > 1 ? sentence.get(1) : "";
-        //String third = sentence.get(2); //todo- maybe fraction
         StringBuilder result = new StringBuilder();
         Integer index = 1;
         // it's not percent

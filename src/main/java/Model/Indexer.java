@@ -38,6 +38,7 @@ public class Indexer {
 
 
     /**
+     * Constructor
      * @param corpusPathOUT - where to save all the output of the indexer
      * @param isStemmer - get from the user
      */
@@ -86,9 +87,7 @@ public class Indexer {
      * @throws IOException
      *
      */
-//            if(!Character.isLetterOrDigit(tmpTerm.charAt(0))){
-//                continue;
-//            }
+
     public void CreateMINI_Posting(HashMap<String, TermDetailes> DocAfterParse,String Docid) throws IOException {
         int MaxTermFreq = 0;
         for (String tmpTerm : DocAfterParse.keySet()) {
@@ -107,11 +106,9 @@ public class Indexer {
                 else if (!ParserBooster(tmpTerm))
                     continue;
             }
-            catch (Exception e){
+            catch (Exception e){ //todo - delete before
                 System.out.println(tmpTerm);
             }
-
-
             // not in Post
             if (!Posting.containsKey(tmpTerm)) {
                 Posting.put(tmpTerm,new ArrayList<TermDetailes>());
@@ -162,7 +159,6 @@ public class Indexer {
      * when you get the memory full its write all the hashmap of the posting to txt file for later use.
      * @throws IOException
      */
-    //copy to disk
     public void ItsTimeForFLUSH_POSTING()throws IOException{
         File tmpPost = new File(stbOUT.toString() + PostingNumber + ".txt");
         ArrayList<String> SortedPost = new ArrayList<>(Posting.keySet());
@@ -294,7 +290,6 @@ public class Indexer {
     /**
      * split the final posting file to 6 ranges to improve to find doc for query
      */
-    //for showing the dic sorted
     public void ItsTimeForSPLIT_Final_Posting(){
         File Numbers = new File(stbOUT+"/Numbers.txt");
         File A_E = new File(stbOUT+"/A_E.txt");
@@ -454,14 +449,10 @@ public class Indexer {
     }
 
 
-    // p-e-t-r-o-l-e-u-m: Total Freq:1; DF:1; Pointer:0
-    //p-X-2: Total Freq:1; DF:1; Pointer:0
-    //own--from: Total Freq:1; DF:1; Pointer:0
-    //--------------: Total Freq:11; DF:1; Pointer:0
-    //-a
-
-
-
+    /**
+     * @param term
+     * @return
+     */
     public boolean ParserBooster(String term){
         if(term.contains("-")){
             String[] splited = StringUtils.split(term, "-");
@@ -497,3 +488,8 @@ public class Indexer {
     }
 }
 
+
+
+//            if(!Character.isLetterOrDigit(tmpTerm.charAt(0))){
+//                continue;
+//            }

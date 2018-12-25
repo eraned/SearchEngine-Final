@@ -9,7 +9,7 @@ public class DictionaryDetailes {
     public int Pointer;
 
     /**
-     * constructor
+     * Constructor
      */
     public DictionaryDetailes() {
         NumOfTermInCorpus = 0;
@@ -17,9 +17,7 @@ public class DictionaryDetailes {
         Pointer = 0;
     }
 
-    public int getNumOfDocsTermIN() {
-        return NumOfDocsTermIN;
-    }
+    public int getNumOfDocsTermIN() {return NumOfDocsTermIN; }
     public void setNumOfDocsTermIN(int numOfDocsTermIN) {NumOfDocsTermIN = numOfDocsTermIN; }
     public int getNumOfTermInCorpus() {return NumOfTermInCorpus;}
     public void setNumOfTermInCorpus(int numOfTermInCorpus) {NumOfTermInCorpus = numOfTermInCorpus; }

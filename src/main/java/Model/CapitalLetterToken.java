@@ -1,10 +1,5 @@
 package Model;
 
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -18,7 +13,7 @@ public class CapitalLetterToken implements IToken {
     private HashSet<String> stopWords;
 
     /**
-     * constructor
+     * Constructor
      * @param stopWords - hash set of all the stop word we need ignore of them
      */
     public CapitalLetterToken( HashSet<String> stopWords)

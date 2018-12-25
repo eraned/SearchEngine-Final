@@ -3,8 +3,6 @@ package Controller;
 import Model.SearchEngine;
 import Model.DictionaryDetailes;
 import Model.Searcher;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceDialog;
 import javafx.stage.DirectoryChooser;
@@ -17,10 +15,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.*;
-import java.util.HashSet;
 import java.util.List;
-
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -231,6 +226,9 @@ public class Controller{
         }
     }
 
+    /**
+     *
+     */
     public void LoadCitiesToScroll(){
         for(String city : SearchEngine.Cities.keySet()) {
             CitySelctor.getItems().add(city);
@@ -238,37 +236,47 @@ public class Controller{
     }
 
 
+    /**
+     *
+     */
     public void LoadDocsToScroll(){
         for(Pair pair : Searcher.Results) {
             DocSelctor.getItems().add(pair.getValue());
         }
     }
 
+    /**
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     public void RunQuery() throws IOException, URISyntaxException {
-            if (CitySelctor.getCheckModel().getCheckedItems().size() > 1 || (CitySelctor.getCheckModel().getCheckedItems().size() == 1 && !CitySelctor.getCheckModel().getCheckedItems().equals("None"))) {
-                ObservableList<String> cities = FXCollections.observableArrayList();
-                cities.addAll(CitySelctor.getCheckModel().getCheckedItems());
-                searcher = new Searcher(searchEngine.indexer, searchEngine.parser, Semantic.isSelected(), Stemmer.isSelected(), cities);
-            }
-            else
-                searcher = new Searcher(searchEngine.indexer, searchEngine.parser, Semantic.isSelected(), Stemmer.isSelected(), null);
-            if(!SingleQuery.getText().isEmpty())
-                searcher.ProccesSingleQuery(SingleQuery.getText());
-            else if(!PathQueriesFile.getText().isEmpty())
-                searcher.ProccesQueryFile(PathQueriesFile.getText());
-            else {
-                showAlert("You must enter a Querry in the right place!");
-                return;
-            }
-            LoadDocsToScroll();
-            ShowIdentityForDoc.setDisable(false);
-            BrowseSaveResults.setDisable(false);
-            SaveResults.setDisable(false);
-            PathForResults.setDisable(false);
-            showAlert("Query search completed successfully! , The search results you'll see in Returned Documents. for new Search first click on the 'new Search' Button! " );
-            newSearchButton.setDisable(false);
+        if (CitySelctor.getCheckModel().getCheckedItems().size() > 1 || (CitySelctor.getCheckModel().getCheckedItems().size() == 1 && !CitySelctor.getCheckModel().getCheckedItems().equals("None"))) {
+            ObservableList<String> cities = FXCollections.observableArrayList();
+            cities.addAll(CitySelctor.getCheckModel().getCheckedItems());
+            searcher = new Searcher(searchEngine.indexer, searchEngine.parser, Semantic.isSelected(), Stemmer.isSelected(), cities);
+        }
+        else
+            searcher = new Searcher(searchEngine.indexer, searchEngine.parser, Semantic.isSelected(), Stemmer.isSelected(), null);
+        if(!SingleQuery.getText().isEmpty())
+            searcher.ProccesSingleQuery(SingleQuery.getText());
+        else if(!PathQueriesFile.getText().isEmpty())
+            searcher.ProccesQueryFile(PathQueriesFile.getText());
+        else {
+            showAlert("You must enter a Querry in the right place!");
+            return;
+        }
+        LoadDocsToScroll();
+        ShowIdentityForDoc.setDisable(false);
+        BrowseSaveResults.setDisable(false);
+        SaveResults.setDisable(false);
+        PathForResults.setDisable(false);
+        showAlert("Query search completed successfully! , The search results you'll see in Returned Documents. for new Search first click on the 'new Search' Button! " );
+        newSearchButton.setDisable(false);
     }
 
+    /**
+     *
+     */
     public void QueriesInput() {
         FileChooser FC = new FileChooser();
         FC.setTitle("Pick Directory for Queries!");
@@ -279,6 +287,9 @@ public class Controller{
         }
     }
 
+    /**
+     *
+     */
     public void NewSearch() {
         File ResultsToReset;
         String ResultPath = PathForResults.getText() + "/Results";
@@ -299,6 +310,9 @@ public class Controller{
         DocSelctor.getItems().clear();
     }
 
+    /**
+     *
+     */
     public void ResultsInput() {
         DirectoryChooser DC = new DirectoryChooser();
         DC.setTitle("Pick Directory For saving Results!");
@@ -309,6 +323,9 @@ public class Controller{
         }
     }
 
+    /**
+     * @throws IOException
+     */
     public void SaveResults() throws IOException {
         File SavedResultsFile = new File(PathForResults.getText() + "/Results");
         SavedResultsFile.mkdir();
@@ -316,6 +333,9 @@ public class Controller{
         showAlert("Results Saved successfully!");
     }
 
+    /**
+     *
+     */
     public void RunSearchIdentitis() {
         showAlert(searcher.EntityIdentification(searcher.SearcherIndexer.Entitys,DocSelctor.getSelectionModel().getSelectedItem().toString()));
     }

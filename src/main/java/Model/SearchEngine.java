@@ -1,8 +1,5 @@
 package Model;
 
-
-import javafx.util.Pair;
-
 import java.io.*;
 import java.net.URL;
 import java.util.*;
@@ -32,6 +29,7 @@ public class SearchEngine {
     public static long TotalTime;
 
     /**
+     * Constructor
      * @param corpusPathIN - path in that the user enter
      * @param corpusPathOUT - path out that the user enter
      * @param isSteemer - user choise
@@ -74,7 +72,6 @@ public class SearchEngine {
         ItsTimeToWriteAllDocs();
         long FinishTime = System.nanoTime();
         TotalTime = FinishTime - StartTime;
-
     }
 
 
@@ -85,7 +82,6 @@ public class SearchEngine {
      * @throws IOException
      * @throws URISyntaxException
      */
-    //if term not in Cities database
     public void ProcessCity(String CitySection) throws IOException, URISyntaxException {  // API brings :String cityName, String country, String crrency, String populationSize
         Cities.put(CitySection, CityDetailesAPI(CitySection));
     }
@@ -95,8 +91,8 @@ public class SearchEngine {
      * @return - new City detailes for the cities data structure
      * @throws IOException
      * @throws URISyntaxException
+     * https://docs.oracle.com/javase/tutorial/networking/urls/readingURL.html
      */
-    //https://docs.oracle.com/javase/tutorial/networking/urls/readingURL.html
     public CityDetailes CityDetailesAPI(String city) throws IOException, URISyntaxException {
         try {
             URI CityUrl = new URI("http://getcitydetails.geobytes.com/GetCityDetails?fqcn=" + city);
@@ -129,43 +125,9 @@ public class SearchEngine {
         }
     }
 
-
-
-//    public static StringBuilder Prepare_DocMaxCity_ToFinalDoc(){
-//        StringBuilder Final = new StringBuilder();
-//        CityDetailes tmpD = Cities.get(All_Docs.get(indexer.DocMaxCity).getDocCity());
-//        ArrayList<Integer> tmpP = tmpD.getCityInDoc().get(indexer.DocMaxCity);
-//        Final.append(" Doc with Max City Freq :" + indexer.DocMaxCity);
-//        Final.append(" City :" + All_Docs.get(indexer.DocMaxCity).getDocCity());
-//        Final.append(" Positiones :" + Arrays.toString(tmpP.toArray()));
-//        return Final;
-//    }
-
     /**
-     * print all the detailes that needed by the work Requirements.
+     * @return
      */
-//    public static String ItsTimeFor_FinalDoc(){
-//        StringBuilder stb = new StringBuilder();
-//        stb.append("##############  Final Doc  ##############.\n");
-//        stb.append(" Nummber of Terms Without Stamming :" + indexer.NumOfTermsBeforeStemming + "\n");
-//        stb.append(" Nummber of Terms With Stamming :" + indexer.NumOfTermsAfterStemming + "\n");
-//        stb.append(" Nummber of Terms Only Numbers :" + indexer.NumOfTerms_Numbers + "\n");
-//        stb.append(" Nummber of Different Countries :" + Countries.size() + "\n");
-//        stb.append(" Nummber of Different Cities :" + Cities.size() +"\n");
-//        stb.append(" Nummber of Different Cities not Capital :" + SearchEngine.NumOfCitysNotCapital + "\n");
-//        if(!indexer.DocMaxCity.isEmpty()) {
-//            stb.append(Prepare_DocMaxCity_ToFinalDoc() + "\n");
-//        }
-//        else {
-//            stb.append("No Cities where found!\n");
-//        }
-//        stb.append(" Posting Size :" + indexer.PostingSize + "KBs.\n");
-//        stb.append(" Total time foe engine : " + (double)SearchEngine.TotalTime / 1000000.0 +" Seconds.\n");
-//        stb.append("##############  Finished  ##############.\n");
-//        return stb.toString();
-//    }
-
-
     public static ArrayList<Integer> ItsTimeFor_FinalPos() {
         if(!indexer.DocMaxCity.isEmpty()) {
             CityDetailes tmpD = Cities.get(All_Docs.get(indexer.DocMaxCity).getDocCity());
@@ -177,6 +139,9 @@ public class SearchEngine {
         }
     }
 
+    /**
+     * print all the detailes that needed by the work Requirements.
+     */
     public static String ItsTimeFor_FinalDoc(){
         StringBuilder stb = new StringBuilder();
         stb.append("##############  Final Doc  ##############.\n");
@@ -187,7 +152,6 @@ public class SearchEngine {
         stb.append(" Nummber of Different Cities :" + Cities.size() +"\n");
         stb.append(" Nummber of Different Cities not Capital :" + SearchEngine.NumOfCitysNotCapital + "\n");
         if(!indexer.DocMaxCity.isEmpty()) {
-            //  stb.append(Prepare_DocMaxCity_ToFinalDoc() + "\n");
             stb.append(" Doc with Max City Freq :" + indexer.DocMaxCity + "\n");
             stb.append(" City :" + All_Docs.get(indexer.DocMaxCity).getDocCity() + "\n");
         }
@@ -200,11 +164,13 @@ public class SearchEngine {
         return stb.toString();
     }
 
+    /**
+     *
+     */
     public void ItsTimeToWriteAllDocs(){
         File AllDocsFile = new File(indexer.stbOUT + "/Docs" + ".txt");
         ArrayList<String> SortedDocs = new ArrayList<>(All_Docs.keySet());
         Collections.sort(SortedDocs);
-
         try {
             FileWriter FW = new FileWriter(AllDocsFile);
             BufferedWriter BW = new BufferedWriter(FW);
@@ -266,6 +232,9 @@ public class SearchEngine {
         return LoadedDic;
     }
 
+    /**
+     * @param Path
+     */
     public static void ItsTimeToLoadAllDocs(String Path){
         double Doclength;String DocCity;double tmp = 0;double counter = 0;double max_tf;
         try (BufferedReader br = new BufferedReader(new FileReader(Path))) {

@@ -11,7 +11,7 @@ public class NumberToken implements IToken {
     private HashMap< String ,  Double > NumberByNumber;
 
     /**
-     * constructor
+     * Constructor
      */
     public NumberToken(){
         this.NumberByNumber = new HashMap<>();
@@ -35,7 +35,6 @@ public class NumberToken implements IToken {
         String third = size > 2 ? sentence.get(2) : "";
         StringBuilder result = new StringBuilder();
         Integer index = 1;
-
         String firstWithoutComma = first.replaceAll("," , "");
         //if the first token is not number
         if(!isNumeric(firstWithoutComma)){

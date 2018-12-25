@@ -9,8 +9,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Objects;
 
-
-
+/**
+ *
+ */
 public class GUI extends Application {
     public static Stage SearchEngineStage;
     @Override

@@ -1,4 +1,5 @@
 package Model;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -10,7 +11,7 @@ public class PriceToken extends NumberToken implements IToken {
     private HashMap<String, Double> NumberByNumber;
 
     /**
-     * constructor
+     * Constructor
      */
     public PriceToken() {
         this.NumberByNumber = new HashMap<>();
@@ -20,7 +21,6 @@ public class PriceToken extends NumberToken implements IToken {
     /**
      * A function that converts all strings to be real numbers.
      * multiply each number by its value according to the dictionary
-     *
      * @param sentence - list to parse with 8 words or less
      * @return - arsedResult result after parse
      */
@@ -89,14 +89,12 @@ public class PriceToken extends NumberToken implements IToken {
             index = 1;
             result.append(FinallyParse(numPrice));
         }
-
         //it's number with fraction and dollar - 22 3/4 Dollars
         return new ParsedResult(true, result, index);
     }
 
     /**
      * Generic function that parse to words that are from the class of prices
-     *
      * @param num - A number to parse
      * @return - String after parse
      */
@@ -109,7 +107,6 @@ public class PriceToken extends NumberToken implements IToken {
 
     /**
      * Checks if the string is a number
-     *
      * @param s - String to check whether it is a number
      * @return - Boolean If the word is a number, return true if so
      */

@@ -13,12 +13,10 @@ public class RangeToken extends PercentageToken implements IToken {
      * @return - ParsedResult result after parse
      */
     public ParsedResult TryParse(List<String> sentence) {
-//        long startTime = System.nanoTime();
         String first = sentence.get(0);
         StringBuilder result = new StringBuilder();
         Integer index = 0;
         int size = sentence.size();
-        //todo : handle numbers
         if ((!first.equals("Between") && !first.equals("between")) || (!first.equals("form") && !first.equals("Form"))) {
             return null;
         }

@@ -1,6 +1,5 @@
 package Model;
 
-
 import java.util.HashMap;
 import java.util.List;
 
@@ -12,7 +11,7 @@ public class DateToken implements IToken {
     private HashMap<String, String> datesByNumber;
 
     /**
-     * constructor
+     * Constructor
      */
     public DateToken() {
         datesByNumber = new HashMap<>();
@@ -29,7 +28,6 @@ public class DateToken implements IToken {
         if (sentence.size() < 2) {
             return null;
         }
-
         String first = sentence.get(0);
         String second = sentence.get(1);
         StringBuilder parsedSentence = new StringBuilder();
@@ -59,7 +57,6 @@ public class DateToken implements IToken {
 
     /**
      * Checks if the string is a number
-     *
      * @param str - String to check whether it is a number
      * @return - Boolean If the word is a number, return true if so
      */

@@ -1,4 +1,5 @@
 package Model;
+
 import java.io.*;
 import java.util.*;
 
@@ -9,7 +10,7 @@ import java.util.*;
 public class Parse {
     public boolean SteemerNeeded;
     public static Stemmer stemmer;
-    private HashSet<String> stopWords; //array of all stop word
+    private HashSet<String> stopWords;
     private ArrayList<IToken> departments;
     public static ArrayList<Integer> LocationOfCity;
     public static HashMap<String, TermDetailes> resultForIndex;
@@ -17,7 +18,6 @@ public class Parse {
 
     /**
      * Constructor
-     *
      * @param isStemmer     - a boolean variable that determines whether to perform stemming on the corpus
      * @param stopwordsPath accepts all words defined as stop word
      * @throws FileNotFoundException
@@ -41,7 +41,6 @@ public class Parse {
 
     /**
      * The main function that manages the entire parse process
-     *
      * @param DocText - Text of a single document we will parse
      * @param DocId  - Document ID of the text
      * @param DocTitle -The title of the document
@@ -100,7 +99,6 @@ public class Parse {
      * Function in updating words with new values ​​of term.
      * first we checks if the word exists in the dictionary, if it exists we will update her fields
      * otherwise, we'll create a new key for the word in our dictionary.
-     *
      * @param wordToAdd - a word passed parse and we check whether it exists in the dictionary or we need to create a new value for her
      * @param docId     - document name, words can appear in different documents
      * @param index     - saves the location of the word in the document
@@ -136,7 +134,6 @@ public class Parse {
 
     /**
      * A function that removes the characters that are not relevant to the word.
-     *
      * @param sentenceToCheck - The function accepts a sentence containing different characters and removes them.
      */
     public void removeSpecialChars(List<String> sentenceToCheck) {
@@ -204,6 +201,11 @@ public class Parse {
         return null;
     }
 
+    /**
+     * @param StopWordspath
+     * @return
+     * @throws FileNotFoundException
+     */
     public static HashSet<String> InitiateStopWords(String StopWordspath) throws FileNotFoundException {
         HashSet<String> stopWords = new HashSet<String>();
         File f = new File(StopWordspath);

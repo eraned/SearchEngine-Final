@@ -12,7 +12,6 @@ public class RelevanceToken implements IToken {
      * @return -ParsedResult result after parse
      */
     public ParsedResult TryParse(List<String> sentence) {
-//        long startTime = System.nanoTime();
         String first = sentence.get(0);
         int size = first.length();
         Integer index = 1;

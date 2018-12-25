@@ -1,24 +1,22 @@
 package Model;
 
-
 import javafx.collections.ObservableList;
 import javafx.util.Pair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
 import java.io.*;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.*;
 
 
+/**
+ *
+ */
 public class Searcher {
 
     public Ranker ranker;
@@ -37,7 +35,15 @@ public class Searcher {
     public static ArrayList<Pair> Results; //<<queryid,Docid>>
 
 
-
+    /**
+     * Constructor
+     * @param indexer
+     * @param parser
+     * @param semanticNeeded
+     * @param stemmerNeeded
+     * @param cities
+     * @throws IOException
+     */
     public Searcher(Indexer indexer, Parse parser, boolean semanticNeeded,boolean stemmerNeeded,ObservableList<String> cities) throws IOException {
         SearcherIndexer = indexer;
         SearcherParser = parser;
@@ -58,6 +64,11 @@ public class Searcher {
     }
 
 
+    /**
+     * @param QueryPath
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     public void ProccesQueryFile(String QueryPath) throws IOException, URISyntaxException {
         HashMap<String,String> Queries = SplitQueriesFile(QueryPath);
         for(String query : Queries.keySet()) {
@@ -66,12 +77,22 @@ public class Searcher {
         }
     }
 
+    /**
+     * @param Query
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     public void ProccesSingleQuery(String Query) throws IOException, URISyntaxException {
         HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(Query,"","","");
         ranker.InitializScores(tmpQuery,"000",SemanticNeeded);
     }
 
 
+    /**
+     * @param Entitys
+     * @param DocToSearch
+     * @return
+     */
     public static String EntityIdentification(HashSet<String> Entitys,String DocToSearch){
         HashMap<String,Double> tmp = new HashMap<>();
         HashMap<Double,String> ans = new HashMap<>();
@@ -95,6 +116,11 @@ public class Searcher {
     }
 
 
+    /**
+     * @param QueriesDirectory
+     * @return
+     * @throws IOException
+     */
     public HashMap<String,String> SplitQueriesFile(String QueriesDirectory)throws IOException {
         BufferedReader bfr = new BufferedReader(new FileReader(QueriesDirectory));
         HashMap<String,String> Result = new HashMap<>(); // <Queryid,Query>
@@ -117,6 +143,10 @@ public class Searcher {
         return Result;
     }
 
+    /**
+     * @param FileToSaveIn
+     * @throws IOException
+     */
     public static void WriteResults(File FileToSaveIn) throws IOException {
         FileWriter FW = new FileWriter(FileToSaveIn.getAbsolutePath()+"/results.txt");
         for(int i = 0 ; i < Results.size();i++) {

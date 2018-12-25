@@ -20,6 +20,7 @@ public class ReadFile {
     public StringBuilder stb;
 
     /**
+     * Constructor
      * @param path - to the corpuse directory
      */
     public ReadFile(String path) {
