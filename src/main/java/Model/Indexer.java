@@ -1,6 +1,8 @@
 package Model;
 
-import com.sun.deploy.util.StringUtils;
+import org.apache.commons.lang3.RegExUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.File;
@@ -84,23 +86,41 @@ public class Indexer {
      * @throws IOException
      *
      */
-    public void CreateMINI_Posting(HashMap<String, TermDetailes> DocAfterParse,String Docid) throws IOException {
-        int MaxTermFreq = 0;
-        for (String tmpTerm : DocAfterParse.keySet()) {
 //            if(!Character.isLetterOrDigit(tmpTerm.charAt(0))){
 //                continue;
 //            }
-            if(!ParserBooster(tmpTerm)){
-                continue;
+    public void CreateMINI_Posting(HashMap<String, TermDetailes> DocAfterParse,String Docid) throws IOException {
+        int MaxTermFreq = 0;
+        for (String tmpTerm : DocAfterParse.keySet()) {
+            TermDetailes tmpTermDetailes = DocAfterParse.get(tmpTerm);
+            try {
+                if(tmpTerm.charAt(0) == '-'){
+                    if(StringUtils.containsOnly(tmpTerm,'-')){
+                        continue;
+                    }
+                    else {
+                     tmpTerm = RegExUtils.removeAll(tmpTerm,"-");
+                    }
+                }
+                if(tmpTerm.length() <= 1)
+                    continue;
+                else if (!ParserBooster(tmpTerm))
+                    continue;
             }
+            catch (Exception e){
+                System.out.println(tmpTerm);
+            }
+
+
             // not in Post
             if (!Posting.containsKey(tmpTerm)) {
                 Posting.put(tmpTerm,new ArrayList<TermDetailes>());
-                Posting.get(tmpTerm).add(DocAfterParse.get(tmpTerm));
+               // Posting.get(tmpTerm).add(DocAfterParse.get(tmpTerm));
+                Posting.get(tmpTerm).add(tmpTermDetailes);
             }
             // in Post
             else {
-                Posting.get(tmpTerm).add(DocAfterParse.get(tmpTerm));
+                Posting.get(tmpTerm).add(tmpTermDetailes);
             }
             //in dic
             if (Dictionary.containsKey(tmpTerm)) {
@@ -108,22 +128,22 @@ public class Indexer {
                     Dictionary.put(tmpTerm.toLowerCase(), Dictionary.get(tmpTerm.toUpperCase()));
                     Dictionary.remove(tmpTerm.toUpperCase());
                     Dictionary.get(tmpTerm.toLowerCase()).setNumOfDocsTermIN(Posting.get(tmpTerm).size());
-                    Dictionary.get(tmpTerm.toLowerCase()).UpdateNumOfTermInCorpus(DocAfterParse.get(tmpTerm).getTF());
+                    Dictionary.get(tmpTerm.toLowerCase()).UpdateNumOfTermInCorpus(tmpTermDetailes.getTF());
                 }
                 else{
                     Dictionary.get(tmpTerm).setNumOfDocsTermIN(Posting.get(tmpTerm).size());
-                    Dictionary.get(tmpTerm).UpdateNumOfTermInCorpus(DocAfterParse.get(tmpTerm).getTF());
+                    Dictionary.get(tmpTerm).UpdateNumOfTermInCorpus(tmpTermDetailes.getTF());
                 }
             }
             // not in Dic
             else {
                 DictionaryDetailes tmpDictionaryDetailes = new DictionaryDetailes();
-                tmpDictionaryDetailes.UpdateNumOfTermInCorpus(DocAfterParse.get(tmpTerm).getTF());
+                tmpDictionaryDetailes.UpdateNumOfTermInCorpus(tmpTermDetailes.getTF());
                 tmpDictionaryDetailes.setNumOfDocsTermIN(Posting.get(tmpTerm).size());
                 Dictionary.put(tmpTerm, tmpDictionaryDetailes);
             }
-            if (DocAfterParse.get(tmpTerm).getTF() > MaxTermFreq) {
-                MaxTermFreq = DocAfterParse.get(tmpTerm).getTF();
+            if (tmpTermDetailes.getTF() > MaxTermFreq) {
+                MaxTermFreq = tmpTermDetailes.getTF();
             }
         }
         SearchEngine.All_Docs.get(Docid).setMaxTermFrequency(MaxTermFreq);
@@ -433,36 +453,47 @@ public class Indexer {
         }
     }
 
+
+    // p-e-t-r-o-l-e-u-m: Total Freq:1; DF:1; Pointer:0
+    //p-X-2: Total Freq:1; DF:1; Pointer:0
+    //own--from: Total Freq:1; DF:1; Pointer:0
+    //--------------: Total Freq:11; DF:1; Pointer:0
+    //-a
+
+
+
     public boolean ParserBooster(String term){
-        boolean IsTerm = true;
-        //HashSet<String> Marks = new HashSet<>(Arrays.asList("K","M","B","%","Dollars","M Dollars"));
         if(term.contains("-")){
-            String[] splited = StringUtils.splitString(term, "-");
-            for(int i = 0 ; i< splited.length;i++){
-                if(!org.apache.commons.lang3.StringUtils.isAlphanumeric(splited[i])) {
-                    IsTerm = false;
-                    break;
+            String[] splited = StringUtils.split(term, "-");
+            for (int i = 0; i < splited.length; i++) {
+                if (!StringUtils.isAlphanumeric(splited[i])) {
+                    return false;
                 }
             }
         }
         else{
-            if(term.endsWith("K") || term.endsWith("M") || term.endsWith("B") || term.endsWith("%")){
-                if(!Character.isDigit(term.charAt(term.length()-1)))
-                    IsTerm = false;
+            if((term.endsWith("K") || term.endsWith("M") || term.endsWith("B") || term.endsWith("%")) && (!StringUtils.isAlpha(term))){
+                if(!StringUtils.isNumeric(term.substring(0,term.length()-1)) && !NumberUtils.isParsable(term.substring(0,term.length()-1)))
+                    return false;
             }
-            else if(term.endsWith("Dollars")){
-                if(!Character.isDigit(term.indexOf("Dollars")-1))
-                    IsTerm = false;
+            else if(term.endsWith("Dollars") && term.length() > 8){
+                int index = term.indexOf("Dollars");
+                char c = term.charAt(index-2);
+                if(!Character.isDigit(c) && (c != 'M'))
+                    return false;
+                if(term.length() > 10 && (c == 'M')) {
+                    char w = term.charAt(index - 4);
+                    if (!Character.isDigit(w))
+                        return false;
+                }
             }
-            else if(term.endsWith("M Dollars")){
-                if(!Character.isDigit(term.indexOf("M Dollars")-1))
-                    IsTerm = false;
-            }
-            else{
-                if(!org.apache.commons.lang3.StringUtils.isAlpha(term) || !org.apache.commons.lang3.StringUtils.isNumeric(term) || !term.contains("."))
-                    IsTerm = false;
-            }
+            else if(!StringUtils.isAlpha(term) && !StringUtils.isNumeric(term))
+                return false;
+
+            else if(!NumberUtils.isParsable(term) && StringUtils.isNumeric(term))
+                return false;
         }
-        return IsTerm;
+        return true;
     }
 }
+

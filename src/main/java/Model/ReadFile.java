@@ -1,9 +1,9 @@
 package Model;
 
+import org.apache.commons.lang3.StringUtils;
 import java.io.*;
 import java.util.*;
 import java.util.HashMap;
-import com.sun.deploy.util.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -79,10 +79,10 @@ public class ReadFile {
             String DocTitle = element.getElementsByTag("TI").text();
             String CitySection = element.getElementsByTag("F").toString();
             if (!CitySection.isEmpty()){
-                String[] splited = StringUtils.splitString(CitySection, "[]}{(),<>%/:\"");
+                String[] splited = StringUtils.split(CitySection, "[]}{(),<>%/:\"");
                 for (int i = 0; i < splited.length; i++) {
                     if (splited[i].equals("104")) {
-                        String[] finaleCity = StringUtils.splitString(splited[i + 1], " ");
+                        String[] finaleCity = StringUtils.split(splited[i + 1], " ");
                         if(finaleCity.length > 1) {
                             flag = true;
                             CitySection = finaleCity[1].toUpperCase();
@@ -102,7 +102,7 @@ public class ReadFile {
                         }
                     }
                     if(splited[i].equals("105")){
-                        String[] finaleLanguage = StringUtils.splitString(splited[i + 1], " ");
+                        String[] finaleLanguage = StringUtils.split(splited[i + 1], " ");
                         if(finaleLanguage.length > 1) {
                             String Lang = finaleLanguage[1].toUpperCase();
                             if(!SearchEngine.Languages.contains(Lang)) {
