@@ -1,5 +1,6 @@
 package Model;
 
+import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
 /**
@@ -26,7 +27,7 @@ public class PercentageToken implements IToken {
         // last char is percent -'%' and the first token is number
         else if (first.endsWith("%")) {
             first = first.substring(0, first.length() - 1);
-            if (isNumeric(first)) {
+            if (StringUtils.isNumeric(first)) {
                 index = 1;
             }
             else
@@ -34,7 +35,7 @@ public class PercentageToken implements IToken {
         }
 
         // the second token is 'percent' or 'percentage' anf the first token is number
-        else if (isNumeric(first) && (second.equals("percent") || second.equals("percentage"))) {
+        else if (StringUtils.isNumeric(first) && (second.equals("percent") || second.equals("percentage"))) {
             index = 2;
         }
         return new ParsedResult(true, result.append(first).append('%'), index);
@@ -46,9 +47,9 @@ public class PercentageToken implements IToken {
      * @param s - String to check whether it is a number
      * @return - Boolean If the word is a number, return true if so
      */
-    public Boolean isNumeric(String s) {
-        Boolean res;
-        res = (s != null && s.matches("[-+]?\\d*\\.?\\d+"));
-        return res;
-    }
+//    public Boolean isNumeric(String s) {
+//        Boolean res;
+//        res = (s != null && s.matches("[-+]?\\d*\\.?\\d+"));
+//        return res;
+//    }
 }

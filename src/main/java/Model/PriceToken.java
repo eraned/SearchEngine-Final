@@ -1,5 +1,6 @@
 package Model;
 
+import org.apache.commons.lang3.StringUtils;
 import java.util.HashMap;
 import java.util.List;
 
@@ -52,7 +53,7 @@ public class PriceToken extends NumberToken implements IToken {
         String firstWithoutCommaAndDollar = withoutDollar.replaceAll(",", "");
 
         //if the first token is not number
-        if (!isNumeric(firstWithoutCommaAndDollar)) {
+        if (!StringUtils.isNumeric(firstWithoutCommaAndDollar)) {
             return null;
         }
 
@@ -110,11 +111,11 @@ public class PriceToken extends NumberToken implements IToken {
      * @param s - String to check whether it is a number
      * @return - Boolean If the word is a number, return true if so
      */
-    public Boolean isNumeric(String s) {
-        Boolean res;
-        res = (s != null && s.matches("[-+]?\\d*\\.?\\d+"));
-        return res;
-    }
+//    public Boolean isNumeric(String s) {
+//        Boolean res;
+//        res = (s != null && s.matches("[-+]?\\d*\\.?\\d+"));
+//        return res;
+//    }
 
     /**
      * a dictionary that links the name of the digit with its numerical value
