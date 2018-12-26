@@ -100,17 +100,6 @@ public class NumberToken implements IToken {
     }
 
     /**
-     * Checks if the string is a number
-     * @param s - String to check whether it is a number
-     * @return - Boolean If the word is a number, return true if so
-     */
-//    public Boolean isNumeric (String s){
-//        Boolean res;
-//        res = (s != null && s.matches("[-+]?\\d*\\.?\\d+"));
-//        return res;
-//    }
-
-    /**
      * a dictionary that links the name of the digit with its numerical value
      */
     private void InitiateNumber() {

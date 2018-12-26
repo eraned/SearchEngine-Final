@@ -41,15 +41,4 @@ public class PercentageToken implements IToken {
         return new ParsedResult(true, result.append(first).append('%'), index);
     }
 
-    /**
-     * Checks if the string is a number
-     *
-     * @param s - String to check whether it is a number
-     * @return - Boolean If the word is a number, return true if so
-     */
-//    public Boolean isNumeric(String s) {
-//        Boolean res;
-//        res = (s != null && s.matches("[-+]?\\d*\\.?\\d+"));
-//        return res;
-//    }
 }
