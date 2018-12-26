@@ -31,7 +31,7 @@ public class Searcher {
     public static HashMap<String, Double> DocsResultDL;
     public static HashMap<String, Double> DocsResultMax;
     public static HashMap<String, String> DocsResultCITY;
-    public static HashMap<String, Double> DocsResultEntitys;
+    public static HashMap<String,HashMap<String, Double>> DocsResultEntitys;
     public static ObservableList<String> citiesToFilter;
 
     public static ArrayList<Pair> Results; //<<queryid,Docid>>
@@ -105,18 +105,18 @@ public class Searcher {
         StringBuilder stb = new StringBuilder().append("#### Entitys Result ####\n");
       //  HashMap<String, TermDetailes> tmpParse = SearcherParser.ParseDoc(SearchEngine.All_Docs.get(DocToSearch).getDocText(),DocToSearch,"","");
       //  HashMap<String, TermTF> tmp = DocsResultEntitys
-        for(String term : DocsResultEntitys.keySet()){
+        for(String term : DocsResultEntitys.get(DocToSearch).keySet()){
             if(Entitys.contains(term.toUpperCase())){
-                tmp.put(term.toUpperCase(),DocsResultEntitys.get(term));
+                tmp.put(term.toUpperCase(),DocsResultEntitys.get(DocToSearch).get(term));
             }
         }
         for(String term : tmp.keySet()){
-            ans.put(tmp.get(term)/DocsResultMax.get(DocToSearch),term);
+            ans.put(tmp.get(term),term);
         }
         ArrayList<Double> SortedEntitys = new ArrayList<>(ans.keySet());
         Collections.sort(SortedEntitys, Collections.reverseOrder());
         for(int i = 0 ; i < SortedEntitys.size() && i < 5  ;i++){
-            stb.append(ans.get(SortedEntitys.get(i))+"\n");
+            stb.append(ans.get(SortedEntitys.get(i)) + " " + SortedEntitys.get(i) +"\n");
         }
         stb.append("###################\n");
         return stb.toString();

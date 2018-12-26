@@ -71,7 +71,7 @@ public class SearchEngine {
         }
         indexer.ItsTimeForMERGE_All_Postings();
         ItsTimeToWriteAllDocs();
-      //  All_Docs.clear();
+        All_Docs.clear();
         long FinishTime = System.nanoTime();
         TotalTime = FinishTime - StartTime;
     }
@@ -256,22 +256,27 @@ public class SearchEngine {
                         line = line.substring(line.indexOf(';') + 1);
                         String max = line.substring(line.indexOf("MaxTermFrequency:") + 17, line.indexOf(';'));
                         max_tf = Double.parseDouble(max);
-                       // index = line.indexOf("City:");
-                        DocCity = line.substring(line.indexOf("City:") + 5,line.indexOf(';'));
+                        line = line.substring(line.indexOf(';') + 1);
+                        DocCity = line.substring(line.indexOf("City:") + 5,line.indexOf(';')+1);
+                        line = line.substring(line.indexOf("DocEntitys:") + 11);
+                        if(DocCity.length() == 1)
+                            DocCity = "";
                         tmp += Doclength;
                         counter++;
                         Searcher.DocsResultDL.put(doc, Doclength);
                         Searcher.DocsResultCITY.put(doc, DocCity);
                         Searcher.DocsResultMax.put(doc, max_tf);
+                        HashMap<String,Double> tmpHash = new HashMap<>();
                         while(line.length() > 0) {
                             term = line.substring(0, line.indexOf(":"));
-                            tf = line.substring(line.indexOf(":"), line.indexOf(";"));
+                            tf = line.substring(line.indexOf(":")+1, line.indexOf(";"));
                             double TF = Double.parseDouble(tf);
-                            Searcher.DocsResultEntitys.put(term, TF);
+                            tmpHash.put(term, TF);
                             line = line.substring(line.indexOf(";") + 1);
                             if(line.charAt(0) == '#')
                                 break;
                         }
+                        Searcher.DocsResultEntitys.put(doc,tmpHash);
                     }
                     line = br.readLine();
                 } catch (Exception e) {

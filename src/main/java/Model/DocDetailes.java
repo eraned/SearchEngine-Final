@@ -68,5 +68,4 @@ public class DocDetailes {
     public void setDocCity(String docCity) {DocCity = docCity; }
     public StringBuilder getDocSuspectedEntitys() {return DocSuspectedEntitys;}
     public void setDocSuspectedEntitys(StringBuilder ent) {DocSuspectedEntitys = ent;}
-
 }

@@ -111,7 +111,7 @@ public class Indexer {
                 System.out.println(tmpTerm);
             }
             // ches("^[a-zA-Z]+$");
-            if(StringUtils.containsAny("^[A-Z]+$",tmpTerm)){
+            if(StringUtils.isAlpha(tmpTerm)){
                 Ent.append(tmpTerm + ":" + tmpTermDetailes.getTF() + ";");
             }
             // not in Post
