@@ -89,7 +89,7 @@ public class Indexer {
      */
 
     public void CreateMINI_Posting(HashMap<String, TermDetailes> DocAfterParse,String Docid) throws IOException {
-        int MaxTermFreq = 0;StringBuilder Ent = new StringBuilder();
+        int MaxTermFreq = 0;StringBuilder Ent = new StringBuilder();//HashSet<String> EntHash = new HashSet<>();
         //improve parser
         for (String tmpTerm : DocAfterParse.keySet()) {
             TermDetailes tmpTermDetailes = DocAfterParse.get(tmpTerm);
@@ -110,8 +110,7 @@ public class Indexer {
             catch (Exception e){ //todo - delete before
                 System.out.println(tmpTerm);
             }
-            // ches("^[a-zA-Z]+$");
-            if(StringUtils.isAlpha(tmpTerm)){
+            if(StringUtils.isAlpha(tmpTerm) && StringUtils.isAllUpperCase(tmpTerm)){
                 Ent.append(tmpTerm + ":" + tmpTermDetailes.getTF() + ";");
             }
             // not in Post
@@ -444,7 +443,8 @@ public class Indexer {
             FileWriter FW = new FileWriter(DictionaryDoc);
             BufferedWriter BW = new BufferedWriter(FW);
             for(String term : SortedDic){
-                if((term.equals(term.toUpperCase()) && (!Character.isDigit(term.charAt(0))))){
+          //      if((term.equals(term.toUpperCase()) && (!Character.isDigit(term.charAt(0))))){
+                if((StringUtils.isAlpha(term)) && (StringUtils.isAllUpperCase(term))){
                     Entitys.add(term);
                 }
                 BW.write(  term + ": " + "Total Freq:"+Dictionary.get(term).getNumOfTermInCorpus() + "; DF:" + Dictionary.get(term).getNumOfDocsTermIN() + "; Pointer:" + Dictionary.get(term).getPointer());

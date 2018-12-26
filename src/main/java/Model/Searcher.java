@@ -103,10 +103,8 @@ public class Searcher {
         HashMap<String,Double> tmp = new HashMap<>();
         HashMap<Double,String> ans = new HashMap<>();
         StringBuilder stb = new StringBuilder().append("#### Entitys Result ####\n");
-      //  HashMap<String, TermDetailes> tmpParse = SearcherParser.ParseDoc(SearchEngine.All_Docs.get(DocToSearch).getDocText(),DocToSearch,"","");
-      //  HashMap<String, TermTF> tmp = DocsResultEntitys
         for(String term : DocsResultEntitys.get(DocToSearch).keySet()){
-            if(Entitys.contains(term.toUpperCase())){
+            if(Entitys.contains(term)){
                 tmp.put(term.toUpperCase(),DocsResultEntitys.get(DocToSearch).get(term));
             }
         }
