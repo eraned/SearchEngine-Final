@@ -94,6 +94,7 @@ public class Controller{
             LoadLangugesToScroll();
             LoadCitiesToScroll();
             showFirstRunMessage(getFinalDoc(),getFinalPositions());
+            searchEngine.GetAllDocs().clear();
             PathIN.setDisable(false);
             PathOUT.setDisable(false);
             resetEngine.setDisable(false);

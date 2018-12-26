@@ -18,14 +18,16 @@ public class ReadFile {
     protected File MainPath;
     public static ArrayList<File> SubFilesPath;
     public StringBuilder stb;
+    boolean SteemerNeeded;
 
     /**
      * Constructor
      * @param path - to the corpuse directory
      */
-    public ReadFile(String path) {
+    public ReadFile(String path,boolean steemer) {
         this.MainPath = new File(path);
         SubFilesPath = new ArrayList<>();
+        SteemerNeeded = steemer;
     }
 
     /**
@@ -45,9 +47,14 @@ public class ReadFile {
     public void ProccessSubFilesDirectories(String path) throws IOException {
         File file = new File(path);
         File[] SubDirectories = file.listFiles();
+        StringBuilder out = new StringBuilder();
         for (File tmp : SubDirectories) {
             StringBuilder stop =new StringBuilder( MainPath.toString() + "\\stop_words.txt");
-            if (tmp.isFile() && !(tmp.toString().equals(stop.toString()))) {
+            if(SteemerNeeded)
+                 out.append( MainPath.toString() + "\\EngineOut_WithStemmer\\");
+            else
+               out.append( MainPath.toString() + "\\EngineOut\\");
+            if (tmp.isFile() && !(tmp.toString().equals(stop.toString())) && !(tmp.toString().equals(out.toString()))) {
                 SubFilesPath.add(tmp);
             } else if (tmp != null && tmp.isDirectory()) {
                 ProccessSubFilesDirectories(tmp.getAbsolutePath());

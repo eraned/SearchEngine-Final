@@ -44,7 +44,7 @@ public class SearchEngine {
         StopWordsPath = new StringBuilder(CorpusPathIN + "\\stop_words.txt");
      //    StopWordsPath = new StringBuilder();
         StemmerNeeded = isSteemer;
-        readFile = new ReadFile(CorpusPathIN);
+        readFile = new ReadFile(CorpusPathIN,StemmerNeeded);
         parser = new Parse(StemmerNeeded, StopWordsPath.toString());
         indexer = new Indexer(CorpusPathOUT, StemmerNeeded);
         NT = new NumberToken();
@@ -72,7 +72,6 @@ public class SearchEngine {
         }
         indexer.ItsTimeForMERGE_All_Postings();
         ItsTimeToWriteAllDocs();
-        All_Docs.clear();
         long FinishTime = System.nanoTime();
         TotalTime = FinishTime - StartTime;
     }
@@ -80,6 +79,7 @@ public class SearchEngine {
     public Indexer GetIndexer() {
         return indexer;
     }
+    public HashMap<String, DocDetailes> GetAllDocs(){return All_Docs;}
 
     /**
      * This function gets the city from each document and adds its to the data structure of the cities.
@@ -268,14 +268,12 @@ public class SearchEngine {
                         Searcher.DocsResultCITY.put(doc, DocCity);
                         Searcher.DocsResultMax.put(doc, max_tf);
                         HashMap<String,Double> tmpHash = new HashMap<>();
-                        while(line.length() > 0) {
+                        while(line.length() > 1) {
                             term = line.substring(0, line.indexOf(":"));
                             tf = line.substring(line.indexOf(":")+1, line.indexOf(";"));
                             double TF = Double.parseDouble(tf);
                             tmpHash.put(term, TF);
                             line = line.substring(line.indexOf(";") + 1);
-                            if(line.charAt(0) == '#')
-                                break;
                         }
                         Searcher.DocsResultEntitys.put(doc,tmpHash);
                     }
