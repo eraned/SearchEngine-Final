@@ -31,7 +31,9 @@ public class Searcher {
     public static HashMap<String, Double> DocsResultDL;
     public static HashMap<String, Double> DocsResultMax;
     public static HashMap<String, String> DocsResultCITY;
+    public static HashMap<String, Double> DocsResultEntitys;
     public static ObservableList<String> citiesToFilter;
+
     public static ArrayList<Pair> Results; //<<queryid,Docid>>
 
 
@@ -56,9 +58,13 @@ public class Searcher {
         DocsResultDL = new HashMap<>();
         DocsResultCITY = new HashMap<>();
         DocsResultMax = new HashMap<>();
+        DocsResultEntitys = new HashMap<>();
         stbResult = new StringBuilder();
         Results = new ArrayList<>();
+        if(indexer.Dictionary.isEmpty())
         LoadedDictionary = SearchEngine.ItsTimeToLoadDictionary(SearcherIndexer.stbOUT.toString() + "Dictionary.txt");
+        else
+            LoadedDictionary = indexer.Dictionary;
         SearchEngine.ItsTimeToLoadAllDocs(  SearcherIndexer.stbOUT.toString() + "Docs.txt");
         ranker = new Ranker(SearcherIndexer.stbOUT.toString());
     }
@@ -97,10 +103,11 @@ public class Searcher {
         HashMap<String,Double> tmp = new HashMap<>();
         HashMap<Double,String> ans = new HashMap<>();
         StringBuilder stb = new StringBuilder().append("#### Entitys Result ####\n");
-        HashMap<String, TermDetailes> tmpParse = SearcherParser.ParseDoc(SearchEngine.All_Docs.get(DocToSearch).getDocText(),DocToSearch,"","");
-        for(String term : tmpParse.keySet()){
+      //  HashMap<String, TermDetailes> tmpParse = SearcherParser.ParseDoc(SearchEngine.All_Docs.get(DocToSearch).getDocText(),DocToSearch,"","");
+      //  HashMap<String, TermTF> tmp = DocsResultEntitys
+        for(String term : DocsResultEntitys.keySet()){
             if(Entitys.contains(term.toUpperCase())){
-                tmp.put(term.toUpperCase(),(double)tmpParse.get(term).getTF());
+                tmp.put(term.toUpperCase(),DocsResultEntitys.get(term));
             }
         }
         for(String term : tmp.keySet()){
@@ -148,7 +155,7 @@ public class Searcher {
      * @throws IOException
      */
     public static void WriteResults(File FileToSaveIn) throws IOException {
-        FileWriter FW = new FileWriter(FileToSaveIn.getAbsolutePath()+"/results.txt");
+        FileWriter FW = new FileWriter(FileToSaveIn.getAbsolutePath()+"\\results.txt");
         for(int i = 0 ; i < Results.size();i++) {
             FW.write( Results.get(i).getKey()+ " 0" + " " + Results.get(i).getValue() + " 1" + " 00.00" + " test\n");
         }

@@ -59,10 +59,10 @@ public class Indexer {
         Entitys = new HashSet<>();
 
         if(StemmerNeeded){
-            stbOUT.append(CorpusPathOUT + "/EngineOut_WithStemmer/");
+            stbOUT.append(CorpusPathOUT + "\\EngineOut_WithStemmer\\");
         }
         else
-            stbOUT.append(CorpusPathOUT + "/EngineOut/");
+            stbOUT.append(CorpusPathOUT + "\\EngineOut\\");
 
         File folder = new File(stbOUT.toString());
         File[] listOfFiles = folder.listFiles();
@@ -89,7 +89,8 @@ public class Indexer {
      */
 
     public void CreateMINI_Posting(HashMap<String, TermDetailes> DocAfterParse,String Docid) throws IOException {
-        int MaxTermFreq = 0;
+        int MaxTermFreq = 0;StringBuilder Ent = new StringBuilder();
+        //improve parser
         for (String tmpTerm : DocAfterParse.keySet()) {
             TermDetailes tmpTermDetailes = DocAfterParse.get(tmpTerm);
             try {
@@ -109,10 +110,13 @@ public class Indexer {
             catch (Exception e){ //todo - delete before
                 System.out.println(tmpTerm);
             }
+            // ches("^[a-zA-Z]+$");
+            if(StringUtils.containsAny("^[A-Z]+$",tmpTerm)){
+                Ent.append(tmpTerm + ":" + tmpTermDetailes.getTF() + ";");
+            }
             // not in Post
             if (!Posting.containsKey(tmpTerm)) {
                 Posting.put(tmpTerm,new ArrayList<TermDetailes>());
-               // Posting.get(tmpTerm).add(DocAfterParse.get(tmpTerm));
                 Posting.get(tmpTerm).add(tmpTermDetailes);
             }
             // in Post
@@ -145,6 +149,8 @@ public class Indexer {
         }
         SearchEngine.All_Docs.get(Docid).setMaxTermFrequency(MaxTermFreq);
         SearchEngine.All_Docs.get(Docid).setDocLength(DocAfterParse.size());
+        Ent.append("#");
+        SearchEngine.All_Docs.get(Docid).setDocSuspectedEntitys(Ent);
         if(BlockCounter == 5000) {
             ItsTimeForFLUSH_POSTING();
             Posting.clear();
@@ -207,6 +213,7 @@ public class Indexer {
                 EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],FinalePath);
                 FilestoMerge = file.listFiles();
                 PostingSize = FilestoMerge[0].length()/1024;
+                Posting.clear();
                 ItsTimeForSPLIT_Final_Posting();
             }
             //todo - corpus odd posting files
@@ -217,6 +224,7 @@ public class Indexer {
                 EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],FinalePath);
                 FilestoMerge = file.listFiles();
                 PostingSize = FilestoMerge[0].length()/1024;
+                Posting.clear();
                 ItsTimeForSPLIT_Final_Posting();
             }
         }
@@ -228,6 +236,7 @@ public class Indexer {
             FilestoMerge[0].renameTo(filenewName);
             FilestoMerge = file.listFiles();
             PostingSize = FilestoMerge[0].length()/1024;
+            Posting.clear();
             ItsTimeForSPLIT_Final_Posting();
         }
     }
@@ -291,13 +300,13 @@ public class Indexer {
      * split the final posting file to 6 ranges to improve to find doc for query
      */
     public void ItsTimeForSPLIT_Final_Posting(){
-        File Numbers = new File(stbOUT+"/Numbers.txt");
-        File A_E = new File(stbOUT+"/A_E.txt");
-        File F_J = new File(stbOUT+"/F_J.txt");
-        File K_P= new File(stbOUT+"/K_P.txt" );
-        File Q_U = new File(stbOUT+"/Q_U.txt");
-        File V_Z = new File(stbOUT+"/V_Z.txt");
-        File Final_Posting =  new File(stbOUT + "/FinaleMerge" + ".txt");
+        File Numbers = new File(stbOUT+"\\Numbers.txt");
+        File A_E = new File(stbOUT+"\\A_E.txt");
+        File F_J = new File(stbOUT+"\\F_J.txt");
+        File K_P= new File(stbOUT+"\\K_P.txt" );
+        File Q_U = new File(stbOUT+"\\Q_U.txt");
+        File V_Z = new File(stbOUT+"\\V_Z.txt");
+        File Final_Posting =  new File(stbOUT + "\\FinaleMerge" + ".txt");
         int countNumber = 0 ;
         int countA_E = 0 ;
         int countF_J = 0 ;
@@ -427,7 +436,7 @@ public class Indexer {
      * after the inverted index was created write the Dictionary to the disk
      */
     public void ItsTimeToWriteDictionary(){
-        File DictionaryDoc = new File(stbOUT + "/Dictionary" + ".txt");
+        File DictionaryDoc = new File(stbOUT + "\\Dictionary" + ".txt");
         ArrayList<String> SortedDic = new ArrayList<>(Dictionary.keySet());
         Collections.sort(SortedDic);
 

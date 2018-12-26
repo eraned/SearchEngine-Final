@@ -11,6 +11,7 @@ public class DocDetailes {
     private String DocDate;
     private String DocTitle;
     private String DocCity;
+    private StringBuilder DocSuspectedEntitys;
 
 
     /**
@@ -27,6 +28,7 @@ public class DocDetailes {
         DocCity = city;
         DocLength = 0;
         MaxTermFrequency = 0;
+        DocSuspectedEntitys = new StringBuilder();
     }
 
 
@@ -64,5 +66,7 @@ public class DocDetailes {
     }
     public String getDocCity() {return DocCity;}
     public void setDocCity(String docCity) {DocCity = docCity; }
+    public StringBuilder getDocSuspectedEntitys() {return DocSuspectedEntitys;}
+    public void setDocSuspectedEntitys(StringBuilder ent) {DocSuspectedEntitys = ent;}
 
 }

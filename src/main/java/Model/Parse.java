@@ -1,5 +1,7 @@
 package Model;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.*;
 import java.util.*;
 
@@ -166,7 +168,7 @@ public class Parse {
                     sentenceToCheck.set(i, sentenceToCheck.get(i).substring(0, wordSize - 1)); //todo-there is problem here
                 }
 
-                if (!isNumeric(current)) {
+                if (!StringUtils.isNumeric(current)) {
                     if (isRemoved) {
                         sentenceToCheck.set(i, currentMiddle.replaceAll("[^a-zA-Z0-9\\-\\'\\/']+", " "));
                     } else {
@@ -178,11 +180,11 @@ public class Parse {
         }
     }
 
-    public Boolean isNumeric(String s) {
-        Boolean res;
-        res = (s != null && s.matches("[-+]?\\d*\\.?\\d+"));
-        return res;
-    }
+//    public Boolean isNumeric(String s) {
+//        Boolean res;
+//        res = (s != null && s.matches("[-+]?\\d*\\.?\\d+"));
+//        return res;
+//    }
 
     /**
      * A function that is checked for a particular word or a collection of words for which department they belongs

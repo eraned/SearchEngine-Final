@@ -17,7 +17,7 @@ public class SearchEngine {
     public static boolean StemmerNeeded;
     public static ReadFile readFile;
     public static Parse parser;
-    public  static Indexer indexer;
+    public static Indexer indexer;
     private HashMap<String, DocDetailes> DocsPerBlock;
     private HashMap<String, TermDetailes> TermsPerDoc;
     private NumberToken NT;
@@ -30,17 +30,18 @@ public class SearchEngine {
 
     /**
      * Constructor
-     * @param corpusPathIN - path in that the user enter
+     *
+     * @param corpusPathIN  - path in that the user enter
      * @param corpusPathOUT - path out that the user enter
-     * @param isSteemer - user choise
+     * @param isSteemer     - user choise
      * @throws IOException
      * @throws URISyntaxException
      */
-    public SearchEngine(String corpusPathIN, String corpusPathOUT,boolean isSteemer) throws IOException, URISyntaxException {
+    public SearchEngine(String corpusPathIN, String corpusPathOUT, boolean isSteemer) throws IOException, URISyntaxException {
         long StartTime = System.nanoTime();
         CorpusPathIN = corpusPathIN;
         CorpusPathOUT = corpusPathOUT;
-        StopWordsPath = new StringBuilder(corpusPathIN + "/stop_words.txt");
+        StopWordsPath = new StringBuilder(corpusPathIN + "\\stop_words.txt");
         StemmerNeeded = isSteemer;
         readFile = new ReadFile(CorpusPathIN);
         parser = new Parse(StemmerNeeded, StopWordsPath.toString());
@@ -70,14 +71,19 @@ public class SearchEngine {
         }
         indexer.ItsTimeForMERGE_All_Postings();
         ItsTimeToWriteAllDocs();
+      //  All_Docs.clear();
         long FinishTime = System.nanoTime();
         TotalTime = FinishTime - StartTime;
     }
 
+    public Indexer GetIndexer() {
+        return indexer;
+    }
 
     /**
      * This function gets the city from each document and adds its to the data structure of the cities.
      * all the information that required get it from the API by the requirements of the work.
+     *
      * @param CitySection - city to find detailes on her in the api
      * @throws IOException
      * @throws URISyntaxException
@@ -90,8 +96,7 @@ public class SearchEngine {
      * @param city - city to find in the API
      * @return - new City detailes for the cities data structure
      * @throws IOException
-     * @throws URISyntaxException
-     * https://docs.oracle.com/javase/tutorial/networking/urls/readingURL.html
+     * @throws URISyntaxException https://docs.oracle.com/javase/tutorial/networking/urls/readingURL.html
      */
     public CityDetailes CityDetailesAPI(String city) throws IOException, URISyntaxException {
         try {
@@ -119,8 +124,7 @@ public class SearchEngine {
             }
             Input.close();
             return tmp;
-        }
-        catch (URISyntaxException e) {
+        } catch (URISyntaxException e) {
             return new CityDetailes();
         }
     }
@@ -129,12 +133,11 @@ public class SearchEngine {
      * @return
      */
     public static ArrayList<Integer> ItsTimeFor_FinalPos() {
-        if(!indexer.DocMaxCity.isEmpty()) {
+        if (!indexer.DocMaxCity.isEmpty()) {
             CityDetailes tmpD = Cities.get(All_Docs.get(indexer.DocMaxCity).getDocCity());
             ArrayList<Integer> tmpP = tmpD.getCityInDoc().get(indexer.DocMaxCity);
             return tmpP;
-        }
-        else{
+        } else {
             return null;
         }
     }
@@ -142,24 +145,23 @@ public class SearchEngine {
     /**
      * print all the detailes that needed by the work Requirements.
      */
-    public static String ItsTimeFor_FinalDoc(){
+    public static String ItsTimeFor_FinalDoc() {
         StringBuilder stb = new StringBuilder();
         stb.append("##############  Final Doc  ##############.\n");
         stb.append(" Nummber of Terms Without Stamming :" + indexer.NumOfTermsBeforeStemming + "\n");
         stb.append(" Nummber of Terms With Stamming :" + indexer.NumOfTermsAfterStemming + "\n");
         stb.append(" Nummber of Terms Only Numbers :" + indexer.NumOfTerms_Numbers + "\n");
         stb.append(" Nummber of Different Countries :" + Countries.size() + "\n");
-        stb.append(" Nummber of Different Cities :" + Cities.size() +"\n");
+        stb.append(" Nummber of Different Cities :" + Cities.size() + "\n");
         stb.append(" Nummber of Different Cities not Capital :" + SearchEngine.NumOfCitysNotCapital + "\n");
-        if(!indexer.DocMaxCity.isEmpty()) {
+        if (!indexer.DocMaxCity.isEmpty()) {
             stb.append(" Doc with Max City Freq :" + indexer.DocMaxCity + "\n");
             stb.append(" City :" + All_Docs.get(indexer.DocMaxCity).getDocCity() + "\n");
-        }
-        else {
+        } else {
             stb.append("No Cities where found!\n");
         }
         stb.append(" Posting Size :" + indexer.PostingSize + "KBs.\n");
-        stb.append(" Total time foe engine : " + (double)SearchEngine.TotalTime / 1000000.0 +" Seconds.\n");
+        stb.append(" Total time foe engine : " + (double) SearchEngine.TotalTime / 1000000.0 + " Seconds.\n");
         stb.append("##############  Finished  ##############.\n");
         return stb.toString();
     }
@@ -167,36 +169,36 @@ public class SearchEngine {
     /**
      *
      */
-    public void ItsTimeToWriteAllDocs(){
-        File AllDocsFile = new File(indexer.stbOUT + "/Docs" + ".txt");
+    public void ItsTimeToWriteAllDocs() {
+        File AllDocsFile = new File(indexer.stbOUT + "\\Docs" + ".txt");
         ArrayList<String> SortedDocs = new ArrayList<>(All_Docs.keySet());
         Collections.sort(SortedDocs);
         try {
             FileWriter FW = new FileWriter(AllDocsFile);
             BufferedWriter BW = new BufferedWriter(FW);
-            for(String doc : SortedDocs){
-                BW.write(  doc + ": " + "DocLength:"+All_Docs.get(doc).getDocLength() + "; MaxTermFrequency:" + All_Docs.get(doc).getMaxTermFrequency() + "; City:" + All_Docs.get(doc).getDocCity());
+            for (String doc : SortedDocs) {
+                BW.write(doc + ": " + "DocLength:" + All_Docs.get(doc).getDocLength() + "; MaxTermFrequency:" + All_Docs.get(doc).getMaxTermFrequency() + "; City:" + All_Docs.get(doc).getDocCity() + "; DocEntitys:" + All_Docs.get(doc).getDocSuspectedEntitys().toString());
                 BW.newLine();
             }
             BW.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     /**
      * reading line by line from disk and create new data structue that represent the Dictionary.
+     *
      * @param Path - where from to load the Dictionary from disk to memory
      * @return
      */
-    public static HashMap<String,DictionaryDetailes> ItsTimeToLoadDictionary(String Path){
-        HashMap<String,DictionaryDetailes> LoadedDic = new HashMap<>();
+    public static HashMap<String, DictionaryDetailes> ItsTimeToLoadDictionary(String Path) {
+        HashMap<String, DictionaryDetailes> LoadedDic = new HashMap<>();
         try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
             String line = br.readLine();
-            int totalfreq = 0,df = 0,pointer = 0;
-            while (line != null ) {
-                try{
+            int totalfreq = 0, df = 0, pointer = 0;
+            while (line != null) {
+                try {
                     int index = line.indexOf(':');
                     String term = line.substring(0, index);
                     line = line.substring(index + 1);
@@ -218,15 +220,13 @@ public class SearchEngine {
                         LoadedDic.put(term, DD);
                     }
                     line = br.readLine();
-                }
-                catch (Exception e){
+                } catch (Exception e) {
                     System.out.println("problem!");
                     break;
                 }
             }
 
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return LoadedDic;
@@ -235,41 +235,54 @@ public class SearchEngine {
     /**
      * @param Path
      */
-    public static void ItsTimeToLoadAllDocs(String Path){
-        double Doclength;String DocCity;double tmp = 0;double counter = 0;double max_tf;
+    public static void ItsTimeToLoadAllDocs(String Path) {
+        double Doclength;
+        String DocCity;
+        double tmp = 0;
+        double counter = 0;
+        double max_tf;
+        String term;
+        String tf;
         try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
             String line = br.readLine();
-            while (line != null ) {
-                 try{
-                int index = line.indexOf(':');
-                String doc = line.substring(0, index);
-                line = line.substring(index + 1);
-                if (!doc.isEmpty()) {
-                    String Length = line.substring(line.indexOf("DocLength:") + 10, line.indexOf(';'));
-                    Doclength = Double.parseDouble(Length);
-                    line = line.substring(line.indexOf(';') + 1);
-                    String max = line.substring(line.indexOf("MaxTermFrequency:") + 17, line.indexOf(';'));
-                    max_tf = Double.parseDouble(max);
-                    index = line.indexOf("City:");
-                    DocCity = line.substring(index + 5);
-                    tmp += Doclength;
-                    counter++;
-                    Searcher.DocsResultDL.put(doc, Doclength);
-                    Searcher.DocsResultCITY.put(doc, DocCity);
-                    Searcher.DocsResultMax.put(doc, max_tf);
+            while (line != null) {
+                try {
+                    int index = line.indexOf(':');
+                    String doc = line.substring(0, index);
+                    line = line.substring(index + 1);
+                    if (!doc.isEmpty()) {
+                        String Length = line.substring(line.indexOf("DocLength:") + 10, line.indexOf(';'));
+                        Doclength = Double.parseDouble(Length);
+                        line = line.substring(line.indexOf(';') + 1);
+                        String max = line.substring(line.indexOf("MaxTermFrequency:") + 17, line.indexOf(';'));
+                        max_tf = Double.parseDouble(max);
+                       // index = line.indexOf("City:");
+                        DocCity = line.substring(line.indexOf("City:") + 5,line.indexOf(';'));
+                        tmp += Doclength;
+                        counter++;
+                        Searcher.DocsResultDL.put(doc, Doclength);
+                        Searcher.DocsResultCITY.put(doc, DocCity);
+                        Searcher.DocsResultMax.put(doc, max_tf);
+                        while(line.length() > 0) {
+                            term = line.substring(0, line.indexOf(":"));
+                            tf = line.substring(line.indexOf(":"), line.indexOf(";"));
+                            double TF = Double.parseDouble(tf);
+                            Searcher.DocsResultEntitys.put(term, TF);
+                            line = line.substring(line.indexOf(";") + 1);
+                            if(line.charAt(0) == '#')
+                                break;
+                        }
+                    }
+                    line = br.readLine();
+                } catch (Exception e) {
+                    System.out.println("problem load docs!");
+                    break;
                 }
-                line = br.readLine();
-            }
-            catch (Exception e){
-                System.out.println("problem!");
-                     break;
-            }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Searcher.AVGdl = tmp/counter;
+        Searcher.AVGdl = tmp / counter;
         Searcher.NumOdDocs = counter;
     }
 }
-

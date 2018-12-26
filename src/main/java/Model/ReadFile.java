@@ -46,7 +46,7 @@ public class ReadFile {
         File file = new File(path);
         File[] SubDirectories = file.listFiles();
         for (File tmp : SubDirectories) {
-            StringBuilder stop =new StringBuilder( MainPath.toString() + "/stop_words.txt");
+            StringBuilder stop =new StringBuilder( MainPath.toString() + "\\stop_words.txt");
             if (tmp.isFile() && !(tmp.toString().equals(stop.toString()))) {
                 SubFilesPath.add(tmp);
             } else if (tmp != null && tmp.isDirectory()) {

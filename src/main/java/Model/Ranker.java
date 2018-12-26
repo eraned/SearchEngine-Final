@@ -2,6 +2,8 @@ package Model;
 
 import javafx.util.Pair;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -64,8 +66,21 @@ public class Ranker {
 
         if (semanticNeeded) {
             HashSet<String> tmp = new HashSet<>();
-            tmp.addAll(QueryAfterParse.keySet());
-            for(String term : tmp) {
+            for(String term : QueryAfterParse.keySet()){
+                if(term.contains("-")) {
+                    String[] splited = StringUtils.split(term, "-");
+                    for (int i = 0; i < splited.length; i++) {
+                        if (StringUtils.isAlpha(splited[i])) {
+                            tmp.add(splited[i]);
+                        }
+                    }
+                }
+                else if(!StringUtils.isAlpha(term))
+                    continue;
+                else
+                    tmp.add(term);
+            }
+            for(String term : tmp){
                 SemanticsWords = GetSemanticFromAPI(term);
                 for (String word : SemanticsWords) {
                     TermDetailes tmpTD = new TermDetailes("API");
@@ -164,22 +179,22 @@ public class Ranker {
         tmpFirst = Character.toLowerCase(tmpFirst);
         StringBuilder stb = new StringBuilder();
         if (tmpFirst >= 'a' && tmpFirst <= 'e') {
-            stb.append(PostingPath + "/A_E.txt");
+            stb.append(PostingPath + "\\A_E.txt");
         }
         else if (tmpFirst >= 'f' && tmpFirst <= 'j') {
-            stb.append(PostingPath + "/F_J.txt");
+            stb.append(PostingPath + "\\F_J.txt");
         }
         else if (tmpFirst >= 'k' && tmpFirst <= 'p') {
-            stb.append(PostingPath + "/K_P.txt");
+            stb.append(PostingPath + "\\K_P.txt");
         }
         else if (tmpFirst >= 'q' && tmpFirst <= 'u') {
-            stb.append(PostingPath + "/Q_U.txt");
+            stb.append(PostingPath + "\\Q_U.txt");
         }
         else if (tmpFirst >= 'v' && tmpFirst <= 'z') {
-            stb.append(PostingPath + "/V_Z.txt");
+            stb.append(PostingPath + "\\V_Z.txt");
         }
         else {
-            stb.append(PostingPath + "/Numbers.txt");
+            stb.append(PostingPath + "\\Numbers.txt");
         }
         File SelectedPosting =  new File(stb.toString());
         String TermLIne  = (String) FileUtils.readLines(SelectedPosting).get(pointer);
@@ -235,8 +250,9 @@ public class Ranker {
                     counter++;
                 }
                 catch (Exception e){
+                    System.out.println(term);
                     System.out.println("problem API!");
-                    break;
+                    continue;
                 }
             }
             return result;

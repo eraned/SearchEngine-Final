@@ -90,7 +90,6 @@ public class Controller{
             PathOUT.setDisable(true);
             String Pathout = PathOUT.getText();
             String Pathin = PathIN.getText();
-            SearchEngine searchEngine;
             searchEngine = new SearchEngine(Pathin, Pathout,Stemmer.isSelected());
             LoadLangugesToScroll();
             LoadCitiesToScroll();
@@ -165,9 +164,9 @@ public class Controller{
         File FileToReset;
         String Pathout = PathOUT.getText();
         if (Stemmer.isSelected()) {
-            FileToReset = new File(Pathout + "/EngineOut_WithStemmer"); //lab path - "\\EngineOut_WithStemmer\\"
+            FileToReset = new File(Pathout + "\\EngineOut_WithStemmer\\"); //lab path - "\\EngineOut_WithStemmer\\"
         } else {
-            FileToReset = new File(Pathout + "/EngineOut"); //lab path - "\\EngineOut\\"
+            FileToReset = new File(Pathout + "\\EngineOut\\"); //lab path - "\\EngineOut\\"
         }
         if (FileToReset.exists()) {
             File[] fileList = FileToReset.listFiles();
@@ -194,11 +193,11 @@ public class Controller{
         if (!PathOUT.getText().trim().isEmpty()) {
             String Pathout = PathOUT.getText();
             if(!Stemmer.isSelected()) {
-                File dictionary = new File(Pathout + "/EngineOut/Dictionary.txt"); //lab path - "\\Dictionary.txt"
+                File dictionary = new File(Pathout + "\\EngineOut\\Dictionary.txt"); //lab path - "\\Dictionary.txt"
                 Desktop.getDesktop().edit(dictionary);
             }
             else{
-                File dictionary = new File(Pathout + "/EngineOut_WithStemmer/Dictionary.txt"); //lab path - "\\Dictionary.txt"
+                File dictionary = new File(Pathout + "\\EngineOut_WithStemmer\\Dictionary.txt"); //lab path - "\\Dictionary.txt"
                 Desktop.getDesktop().edit(dictionary);
             }
         }
@@ -212,12 +211,10 @@ public class Controller{
      */
     public void LoadDicToMemory() throws IOException { //todo - to move to the function in the indexer!!
         if(!Stemmer.isSelected()) {
-            HashMap<String, DictionaryDetailes> LoadedDictionary = new HashMap<>();
-            LoadedDictionary = SearchEngine.ItsTimeToLoadDictionary(  PathOUT.getText() + "/EngineOut/Dictionary.txt");
+             searchEngine.GetIndexer().Dictionary  = SearchEngine.ItsTimeToLoadDictionary(  PathOUT.getText() + "\\EngineOut\\Dictionary.txt");
         }
         else{
-            HashMap<String, DictionaryDetailes> LoadedDictionary = new HashMap<>();
-            LoadedDictionary = SearchEngine.ItsTimeToLoadDictionary( PathOUT.getText()+ "/EngineOut_WithStemmer/Dictionary.txt");
+            searchEngine.GetIndexer().Dictionary  = SearchEngine.ItsTimeToLoadDictionary( PathOUT.getText()+ "\\EngineOut_WithStemmer\\Dictionary.txt");
         }
         if (LoadDic != null) {
             showAlert("Dictionary successfully loaded to Memory!");
@@ -234,7 +231,6 @@ public class Controller{
             CitySelctor.getItems().add(city);
         }
     }
-
 
     /**
      *
@@ -292,7 +288,7 @@ public class Controller{
      */
     public void NewSearch() {
         File ResultsToReset;
-        String ResultPath = PathForResults.getText() + "/Results";
+        String ResultPath = PathForResults.getText() + "\\Results";
         ResultsToReset = new File(ResultPath);
         if (ResultsToReset.exists()) {
             File[] fileList = ResultsToReset.listFiles();
@@ -327,7 +323,7 @@ public class Controller{
      * @throws IOException
      */
     public void SaveResults() throws IOException {
-        File SavedResultsFile = new File(PathForResults.getText() + "/Results");
+        File SavedResultsFile = new File(PathForResults.getText() + "\\Results");
         SavedResultsFile.mkdir();
         Searcher.WriteResults(SavedResultsFile);
         showAlert("Results Saved successfully!");
