@@ -76,11 +76,12 @@ public class Searcher {
      * @throws URISyntaxException
      */
     public void ProccesQueryFile(String QueryPath) throws IOException, URISyntaxException {
-        HashMap<String,String> Queries = SplitQueriesFile(QueryPath);
-        for(String query : Queries.keySet()) {
-            HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(Queries.get(query),"","","");
-            ranker.InitializScores(tmpQuery,query,SemanticNeeded);
+        ArrayList<Pair> Queries = SplitQueriesFile(QueryPath);
+        for (int i = 0 ;i < Queries.size(); i++) {
+            HashMap<String, TermDetailes> tmpQuery = SearcherParser.ParseDoc(Queries.get(i).getValue().toString(), "", "", "");
+            ranker.InitializScores(tmpQuery, Queries.get(i).getKey().toString(), SemanticNeeded);
         }
+
     }
 
     /**
@@ -126,11 +127,11 @@ public class Searcher {
      * @return
      * @throws IOException
      */
-    public HashMap<String,String> SplitQueriesFile(String QueriesDirectory)throws IOException {
+    public ArrayList<Pair> SplitQueriesFile(String QueriesDirectory)throws IOException {
         BufferedReader bfr = new BufferedReader(new FileReader(QueriesDirectory));
-        HashMap<String,String> Result = new HashMap<>(); // <Queryid,Query>
+        ArrayList<Pair> Result = new ArrayList<>(); // <Queryid,Query>
         StringBuilder stb = new StringBuilder();
-        String line = bfr.readLine();
+        String line = bfr.readLine();int Q;
         while (line != null) {
             stb.append(" " + line);
             line = bfr.readLine();
@@ -143,7 +144,8 @@ public class Searcher {
             QueryID = QueryID.substring(QueryID.indexOf("Number:")+7,QueryID.indexOf("<title>"));
             QueryID = QueryID.trim();
             String QueryContent = element.getElementsByTag("title").text();
-            Result.put(QueryID,QueryContent);
+            Pair p = new Pair(QueryID,QueryContent);
+            Result.add(p);
         }
         return Result;
     }
