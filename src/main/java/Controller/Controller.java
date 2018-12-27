@@ -189,7 +189,6 @@ public class Controller{
         PathQueriesFile.clear();
         PathForResults.clear();
         DocSelctor.getItems().clear();
-
         showAlert("Deleting files is complete!");
     }
 
