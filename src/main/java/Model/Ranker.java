@@ -16,18 +16,52 @@ import java.util.*;
 public class Ranker {
 
     public String PostingPath;
-    public HashMap<String,HashMap<String,Double>> PostingTFResult;
-   // public HashMap<String, Boolean> PostingTitelResult;
+    public HashMap<String, HashMap<String, Double>> PostingTFResult;
+    // public HashMap<String, Boolean> PostingTitelResult;
+    public HashMap<Double, String> RankerResult;//HashMap<Rank,DocID>
+    public HashMap<String, HashMap<String, Double>> CosSim_Matrix; //new--- <Docid,<term ,CosSim Score>>
+    public HashMap<String, HashMap<String, Double>> BM25_Matrix;  //new--- <Docid,<term ,BM25 score>>
+    public HashMap<String, Double> CosSimtmp;//for Docid
+    public HashMap<String, Double> BM25tmp;//for Docid
+    public HashMap<String, Double> Query_BM25;
+    public HashMap<String, Double> Query_CosSim;
+    public HashSet<String> SemanticsWords;
+    public int Pointer;
+    public double Wij;
+    public double Cij;
+    public double Wiq;
+    public double Ciq;
+    public double querylength;
+    public double CosSimRank = 0;
+    public double CosSimRankDOWNdoc = 0;
+    public double CosSimRankDOWNquery = 0;
+    public double CosSimRankUP = 0;
+    public double CosSimRankDOWN = 0;
+    public double BM25Rank = 0;
+    public double b = 0.75;
+    public double k = 2;
+    public double BM25UP = 0;
+    public double BM25DOWN = 0;
+    public double BM25Log = 0;
 
 
     /**
      * Constructor
+     *
      * @param pathforFindposting
      */
     public Ranker(String pathforFindposting) {
-        PostingPath =  pathforFindposting;
+        PostingPath = pathforFindposting;
         PostingTFResult = new HashMap<>();
-     //   PostingTitelResult = new HashMap<>();
+        //   PostingTitelResult = new HashMap<>();
+        RankerResult = new HashMap<>();
+        CosSim_Matrix = new HashMap<>();
+        BM25_Matrix = new HashMap<>();
+        CosSimtmp = new HashMap<>();
+        BM25tmp = new HashMap<>();
+        Query_BM25 = new HashMap<>();
+        Query_CosSim = new HashMap<>();
+        SemanticsWords = new HashSet<>();
     }
 
     /**
@@ -37,38 +71,18 @@ public class Ranker {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public void InitializScores(HashMap<String, TermDetailes> QueryAfterParse,String Queryid,boolean semanticNeeded) throws IOException, URISyntaxException { //Matrix of columns: d1,d2,d3....q     rows: t1,t2,t3....
-        HashMap<Double, String> RankerResult = new HashMap<>();//HashMap<Rank,DocID>
-        HashMap<String, HashMap<String, Double>> CosSim_Matrix = new HashMap<>(); //new--- <Docid,<term ,CosSim Score>>
-        HashMap<String, HashMap<String, Double>> BM25_Matrix = new HashMap<>();  //new--- <Docid,<term ,BM25 score>>
-        HashMap<String, Double> CosSimtmp = new HashMap<>();//for Docid
-        HashMap<String, Double> BM25tmp = new HashMap<>();//for Docid
-        HashMap<String, Double> Query_BM25 = new HashMap<>();
-        HashMap<String, Double> Query_CosSim = new HashMap<>();
-        HashSet<String> SemanticsWords;
-        int Pointer;
-        double Wij;
-        double Cij;
-        double Wiq;
-        double Ciq;
-        double querylength = QueryAfterParse.size();
-        double CosSimRank = 0;
-        double CosSimRankDOWNdoc = 0;
-        double CosSimRankDOWNquery = 0;
-        double CosSimRankUP = 0;
-        double CosSimRankDOWN = 0;
-        double BM25Rank = 0;
-        double b = 0.75;
-        double k = 2;
-        double BM25UP = 0;
-        double BM25DOWN = 0;
-        double BM25Log = 0;
-        // double TitleRank = 0;
+    public void InitializScores(HashMap<String, TermDetailes> QueryAfterParse, String Queryid, boolean semanticNeeded) throws IOException, URISyntaxException { //Matrix of columns: d1,d2,d3....q     rows: t1,t2,t3....
+        querylength = QueryAfterParse.size();
+        if (semanticNeeded)
+            ProccesSemantic(QueryAfterParse);
+        ProccesQuery(QueryAfterParse);
+        ProccesReOrgnize(QueryAfterParse);
+        ProccesCompare(QueryAfterParse);
+        RankDocs(RankerResult, Queryid);
+    }
 
-
-        //Semantic
-        if (semanticNeeded) {
-            try{
+    public void ProccesSemantic(HashMap<String, TermDetailes> QueryAfterParse) {
+        try {
             HashSet<String> tmp = new HashSet<>();
             for (String term : QueryAfterParse.keySet()) {
                 if (term.contains("-")) {
@@ -96,20 +110,19 @@ public class Ranker {
                     continue;
                 }
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             System.out.println("Probellm in semantic ");
         }
-        }
+    }
 
-        //Query
+    public void ProccesQuery(HashMap<String, TermDetailes> QueryAfterParse) {
         for (String term : QueryAfterParse.keySet()) {
             try {
                 //term in corpus
                 if (Searcher.LoadedDictionary.get(term) != null) {
                     double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
                     Ciq = QueryAfterParse.get(term).getTF();
-                    Wiq = (QueryAfterParse.get(term).getTF() / querylength) * (Math.log((Searcher.NumOdDocs+1) / idf));
+                    Wiq = (QueryAfterParse.get(term).getTF() / querylength) * (Math.log((Searcher.NumOdDocs + 1) / idf));
                     Query_BM25.put(term, Ciq);
                     Query_CosSim.put(term, Wiq);
                 }
@@ -122,8 +135,9 @@ public class Ranker {
                 System.out.println("Probellm in Query section");
             }
         }
+    }
 
-        //ReOrgnize calc Wij,Cig
+    public void ProccesReOrgnize(HashMap<String, TermDetailes> QueryAfterParse) {
         for (String term : QueryAfterParse.keySet()) {
             try {
                 if (Searcher.LoadedDictionary.get(term) != null) {
@@ -137,35 +151,36 @@ public class Ranker {
             }
         }
         for (String docid : PostingTFResult.keySet()) {
-            for(String term : PostingTFResult.get(docid).keySet()) {
-                try{
-                if (Searcher.citiesToFilter != null) {
-                    if (Searcher.citiesToFilter.contains(Searcher.DocsResultCITY.get(docid))) {
+            for (String term : PostingTFResult.get(docid).keySet()) {
+                try {
+                    if (Searcher.citiesToFilter != null) {
+                        if (Searcher.citiesToFilter.contains(Searcher.DocsResultCITY.get(docid))) {
+                            double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
+                            Wij = (PostingTFResult.get(docid).get(term) / Searcher.DocsResultDL.get(docid)) * (Math.log((Searcher.NumOdDocs + 1) / idf) / Math.log(2));
+                            Cij = PostingTFResult.get(docid).get(term);
+                            CosSimtmp.put(term, Wij);
+                            BM25tmp.put(term, Cij);
+                        } else
+                            continue;
+                    } else {
                         double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
-                        Wij = (PostingTFResult.get(docid).get(term) / Searcher.DocsResultDL.get(docid)) * (Math.log((Searcher.NumOdDocs+1) / idf));
+                        Wij = (PostingTFResult.get(docid).get(term) / Searcher.DocsResultDL.get(docid)) * (Math.log((Searcher.NumOdDocs + 1) / idf) / Math.log(2));
                         Cij = PostingTFResult.get(docid).get(term);
                         CosSimtmp.put(term, Wij);
                         BM25tmp.put(term, Cij);
-                    } else
-                        continue;
-                } else {
-                    double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
-                    Wij = (PostingTFResult.get(docid).get(term) / Searcher.DocsResultDL.get(docid)) * (Math.log((Searcher.NumOdDocs+1) / idf));
-                    Cij = PostingTFResult.get(docid).get(term);
-                    CosSimtmp.put(term, Wij);
-                    BM25tmp.put(term, Cij);
+                    }
+                } catch (Exception e) {
+                    System.out.println("Probellm in reorgnized part 2");
                 }
             }
-            catch (Exception e){
-                    System.out.println("Probellm in reorgnized part 2");
-            }
-            }
-            CosSim_Matrix.put(docid,CosSimtmp);
-            BM25_Matrix.put(docid,BM25tmp);
+            CosSim_Matrix.put(docid, CosSimtmp);
+            BM25_Matrix.put(docid, BM25tmp);
         }
 
-        //Compare get CosSim,BM25 score
-        for(String Doc : PostingTFResult.keySet()) {
+    }
+
+    public void ProccesCompare(HashMap<String, TermDetailes> QueryAfterParse) {
+        for (String Doc : PostingTFResult.keySet()) {
             for (String term : QueryAfterParse.keySet()) {
                 try {
                     double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
@@ -175,19 +190,18 @@ public class Ranker {
                     CosSimRankDOWNquery += Math.pow(Query_CosSim.get(term), 2);
                     //calc BM25
                     BM25UP = BM25_Matrix.get(Doc).get(term) * (k + 1) * Query_BM25.get(term);
-                    BM25DOWN = BM25_Matrix.get(Doc).get(term) + k *(1 - b + b * (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl));
-                    BM25Log = Math.log((Searcher.NumOdDocs+1) / idf);
+                    BM25DOWN = BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl));
+                    BM25Log = (Math.log((Searcher.NumOdDocs + 1) / idf) / Math.log(2));
                     BM25Rank += BM25UP * BM25DOWN * BM25Log;
                     //BM25Rank  = ((((k=1)*tf)/(tf+k*(1-b+b* doclength/avg)))*Math.log((numod docs in all corpus+1)/idf))
                 } catch (Exception e) {
                     System.out.println("Problem in Compare");
                 }
             }
-                CosSimRankDOWN = Math.sqrt(CosSimRankDOWNdoc * CosSimRankDOWNquery);
-                CosSimRank = CosSimRankUP / CosSimRankDOWN;
-                RankerResult.put((0.5 * CosSimRank) + (0.5 * BM25Rank), Doc);
+            CosSimRankDOWN = Math.sqrt(CosSimRankDOWNdoc * CosSimRankDOWNquery);
+            CosSimRank = CosSimRankUP / CosSimRankDOWN;
+            RankerResult.put((0.5 * CosSimRank) + (0.5 * BM25Rank), Doc);
         }
-        RankDocs(RankerResult, Queryid);
     }
 
 
@@ -195,11 +209,11 @@ public class Ranker {
      * @param RankedQuery
      * @param queryID
      */
-    public void RankDocs(HashMap<Double,String> RankedQuery,String queryID){ //HashMap<Rank,DocID> return only max 50 docs  ...final rank = 0.45 cosim + 0.45 BM25 + 0.1 InTitle
+    public void RankDocs(HashMap<Double, String> RankedQuery, String queryID) { //HashMap<Rank,DocID> return only max 50 docs  ...final rank = 0.45 cosim + 0.45 BM25 + 0.1 InTitle
         ArrayList<Double> SortedRank = new ArrayList<>(RankedQuery.keySet());
         Collections.sort(SortedRank, Collections.reverseOrder());
-        for(int i = 0 ; i < SortedRank.size() && i < 50 ;i++){
-            Searcher.Results.add(new Pair(queryID,RankedQuery.get(SortedRank.get(i)))); //Hashmap<queryid,Docid>
+        for (int i = 0; i < SortedRank.size() && i < 50; i++) {
+            Searcher.Results.add(new Pair(queryID, RankedQuery.get(SortedRank.get(i)))); //Hashmap<queryid,Docid>
         }
     }
 
@@ -241,7 +255,7 @@ public class Ranker {
                 tf = Double.parseDouble(TF);
                 //TermLIne = TermLIne.substring(TermLIne.indexOf(',') + 1);
                 //String Title = TermLIne.substring(TermLIne.indexOf(':') + 1, TermLIne.indexOf(')'));
-               // title = Boolean.parseBoolean(Title);
+                // title = Boolean.parseBoolean(Title);
                 try {
                     TermLIne = TermLIne.substring(TermLIne.indexOf("("));
                 } catch (Exception e) {
@@ -270,7 +284,7 @@ public class Ranker {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public HashSet<String> GetSemanticFromAPI(String term)throws IOException, URISyntaxException {
+    public HashSet<String> GetSemanticFromAPI(String term) throws IOException, URISyntaxException {
         HashSet<String> result = new HashSet<>();
         try {
             URI CityUrl = new URI("https://api.datamuse.com/words?ml=" + term);
@@ -278,7 +292,7 @@ public class Ranker {
             BufferedReader Input = new BufferedReader(new InputStreamReader(AfterCheck.openStream()));
             String Line = Input.readLine();
             int counter = 0;
-            if(!Line.equals("[]")) {
+            if (!Line.equals("[]")) {
                 while (counter < 3) {
                     String WordToAdd = Line.substring(Line.indexOf("\"word\"") + 8, Line.indexOf("\"score\"") - 2);
                     Line = Line.substring(Line.indexOf("}") + 1);
@@ -287,10 +301,9 @@ public class Ranker {
                 }
                 Input.close();
                 return result;
-            }
-            else{
+            } else {
                 return null;
-                }
+            }
         } catch (URISyntaxException e) {
             System.out.println("API");
             return null;
@@ -298,3 +311,156 @@ public class Ranker {
     }
 }
 
+
+
+//
+//        //Semantic
+//        if (semanticNeeded) {
+//            try{
+//            HashSet<String> tmp = new HashSet<>();
+//            for (String term : QueryAfterParse.keySet()) {
+//                if (term.contains("-")) {
+//                    String[] splited = StringUtils.split(term, "-");
+//                    for (int i = 0; i < splited.length; i++) {
+//                        if (StringUtils.isAlpha(splited[i])) {
+//                            tmp.add(splited[i]);
+//                        }
+//                    }
+//                } else if (!StringUtils.isAlpha(term))
+//                    continue;
+//                else
+//                    tmp.add(term);
+//            }
+//            for (String term : tmp) {
+//                SemanticsWords = GetSemanticFromAPI(term);
+//                if (SemanticsWords != null) {
+//                    for (String word : SemanticsWords) {
+//                        TermDetailes tmpTD = new TermDetailes("API");
+//                        tmpTD.setTF(1);
+//                        tmpTD.setInTitle(false);
+//                        QueryAfterParse.put(word, tmpTD);
+//                    }
+//                } else {
+//                    continue;
+//                }
+//            }
+//        }
+//        catch (Exception e){
+//            System.out.println("Probellm in semantic ");
+//        }
+//        }
+//
+//        //Query
+//        for (String term : QueryAfterParse.keySet()) {
+//            try {
+//                //term in corpus
+//                if (Searcher.LoadedDictionary.get(term) != null) {
+//                    double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
+//                    Ciq = QueryAfterParse.get(term).getTF();
+//                    Wiq = (QueryAfterParse.get(term).getTF() / querylength) * (Math.log((Searcher.NumOdDocs+1) / idf));
+//                    Query_BM25.put(term, Ciq);
+//                    Query_CosSim.put(term, Wiq);
+//                }
+//                //if term not in corpus
+//                else {
+//                    Query_BM25.put(term, 0.0);
+//                    Query_CosSim.put(term, 0.0);
+//                }
+//            } catch (Exception e) {
+//                System.out.println("Probellm in Query section");
+//            }
+//        }
+//
+//        //ReOrgnize calc Wij,Cig
+//        for (String term : QueryAfterParse.keySet()) {
+//            try {
+//                if (Searcher.LoadedDictionary.get(term) != null) {
+//                    Pointer = Searcher.LoadedDictionary.get(term).getPointer();
+//                    GetTF_InTitelFromPosting(Pointer, term);// <docid,tf> from posting
+//                } else {
+//                    continue;
+//                }
+//            } catch (Exception e) {
+//                System.out.println("Probellm in reorgnized part 1");
+//            }
+//        }
+//        for (String docid : PostingTFResult.keySet()) {
+//            for(String term : PostingTFResult.get(docid).keySet()) {
+//                try{
+//                if (Searcher.citiesToFilter != null) {
+//                    if (Searcher.citiesToFilter.contains(Searcher.DocsResultCITY.get(docid))) {
+//                        double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
+//                        Wij = (PostingTFResult.get(docid).get(term) / Searcher.DocsResultDL.get(docid)) * (Math.log((Searcher.NumOdDocs+1) / idf)/Math.log(2));
+//                        Cij = PostingTFResult.get(docid).get(term);
+//                        CosSimtmp.put(term, Wij);
+//                        BM25tmp.put(term, Cij);
+//                    } else
+//                        continue;
+//                } else {
+//                    double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
+//                    Wij = (PostingTFResult.get(docid).get(term) / Searcher.DocsResultDL.get(docid)) * (Math.log((Searcher.NumOdDocs+1) / idf)/Math.log(2));
+//                    Cij = PostingTFResult.get(docid).get(term);
+//                    CosSimtmp.put(term, Wij);
+//                    BM25tmp.put(term, Cij);
+//                }
+//            }
+//            catch (Exception e){
+//                    System.out.println("Probellm in reorgnized part 2");
+//            }
+//            }
+//            CosSim_Matrix.put(docid,CosSimtmp);
+//            BM25_Matrix.put(docid,BM25tmp);
+//        }
+//
+//        //Compare get CosSim,BM25 score
+//        for(String Doc : PostingTFResult.keySet()) {
+//            for (String term : QueryAfterParse.keySet()) {
+//                try {
+//                    double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
+//                    //calc CosSim
+//                    CosSimRankUP += CosSim_Matrix.get(Doc).get(term) * Query_CosSim.get(term);
+//                    CosSimRankDOWNdoc += Math.pow(CosSim_Matrix.get(Doc).get(term), 2);
+//                    CosSimRankDOWNquery += Math.pow(Query_CosSim.get(term), 2);
+//                    //calc BM25
+//                    BM25UP = BM25_Matrix.get(Doc).get(term) * (k + 1) * Query_BM25.get(term);
+//                    BM25DOWN = BM25_Matrix.get(Doc).get(term) + k *(1 - b + b * (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl));
+//                    BM25Log = (Math.log((Searcher.NumOdDocs+1) / idf)/Math.log(2));
+//                    BM25Rank += BM25UP * BM25DOWN * BM25Log;
+//                    //BM25Rank  = ((((k=1)*tf)/(tf+k*(1-b+b* doclength/avg)))*Math.log((numod docs in all corpus+1)/idf))
+//                } catch (Exception e) {
+//                    System.out.println("Problem in Compare");
+//                }
+//            }
+//                CosSimRankDOWN = Math.sqrt(CosSimRankDOWNdoc * CosSimRankDOWNquery);
+//                CosSimRank = CosSimRankUP / CosSimRankDOWN;
+//                RankerResult.put((0.5 * CosSimRank) + (0.5 * BM25Rank), Doc);
+//        }
+//  RankDocs(RankerResult, Queryid);
+
+
+//        HashMap<Double, String> RankerResult = new HashMap<>();//HashMap<Rank,DocID>
+//        HashMap<String, HashMap<String, Double>> CosSim_Matrix = new HashMap<>(); //new--- <Docid,<term ,CosSim Score>>
+//        HashMap<String, HashMap<String, Double>> BM25_Matrix = new HashMap<>();  //new--- <Docid,<term ,BM25 score>>
+//        HashMap<String, Double> CosSimtmp = new HashMap<>();//for Docid
+//        HashMap<String, Double> BM25tmp = new HashMap<>();//for Docid
+//        HashMap<String, Double> Query_BM25 = new HashMap<>();
+//        HashMap<String, Double> Query_CosSim = new HashMap<>();
+//        HashSet<String> SemanticsWords;
+//        int Pointer;
+//        double Wij;
+//        double Cij;
+//        double Wiq;
+//        double Ciq;
+//        double querylength = QueryAfterParse.size();
+//        double CosSimRank = 0;
+//        double CosSimRankDOWNdoc = 0;
+//        double CosSimRankDOWNquery = 0;
+//        double CosSimRankUP = 0;
+//        double CosSimRankDOWN = 0;
+//        double BM25Rank = 0;
+//        double b = 0.75;
+//        double k = 2;
+//        double BM25UP = 0;
+//        double BM25DOWN = 0;
+//        double BM25Log = 0;
+//        // double TitleRank = 0;
