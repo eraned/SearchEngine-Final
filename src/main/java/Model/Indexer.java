@@ -498,7 +498,3 @@ public class Indexer {
 }
 
 
-
-//            if(!Character.isLetterOrDigit(tmpTerm.charAt(0))){
-//                continue;
-//            }

@@ -155,7 +155,7 @@ public class Searcher {
     public static void WriteResults(File FileToSaveIn) throws IOException {
         FileWriter FW = new FileWriter(FileToSaveIn.getAbsolutePath()+"\\results.txt");
         for(int i = 0 ; i < Results.size();i++) {
-            FW.write( Results.get(i).getKey()+ " 0" + " " + Results.get(i).getValue() + " 1" + " 00.00" + " test\n");
+            FW.write( Results.get(i).getKey()+ " 0" + " " + Results.get(i).getValue() + " 1" + " 00.00" + " test" + System.getProperty( "line.separator" ));
         }
         FW.close();
     }

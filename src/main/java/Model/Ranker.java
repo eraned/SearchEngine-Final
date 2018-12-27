@@ -80,15 +80,21 @@ public class Ranker {
                 else
                     tmp.add(term);
             }
-            for(String term : tmp){
+            for(String term : tmp) {
                 SemanticsWords = GetSemanticFromAPI(term);
-                for (String word : SemanticsWords) {
-                    TermDetailes tmpTD = new TermDetailes("API");
-                    tmpTD.setTF(1);
-                    tmpTD.setInTitle(false);
-                    QueryAfterParse.put(word, tmpTD);
+                if (SemanticsWords != null) {
+                    for (String word : SemanticsWords) {
+                        TermDetailes tmpTD = new TermDetailes("API");
+                        tmpTD.setTF(1);
+                        tmpTD.setInTitle(false);
+                        QueryAfterParse.put(word, tmpTD);
+                    }
+                }
+                else {
+                    continue;
                 }
             }
+
         }
         for (String term : QueryAfterParse.keySet()) {
             //if term not in corpus
@@ -240,25 +246,23 @@ public class Ranker {
             URL AfterCheck = CityUrl.toURL();
             BufferedReader Input = new BufferedReader(new InputStreamReader(AfterCheck.openStream()));
             String Line = Input.readLine();
-            Input.close();
             int counter = 0;
-            while (counter < 3){
-                try {
+            if(!Line.equals("[]")) {
+                while (counter < 3) {
                     String WordToAdd = Line.substring(Line.indexOf("\"word\"") + 8, Line.indexOf("\"score\"") - 2);
                     Line = Line.substring(Line.indexOf("}") + 1);
                     result.add(WordToAdd);
                     counter++;
                 }
-                catch (Exception e){
-                    System.out.println(term);
-                    System.out.println("problem API!");
-                    continue;
-                }
+                Input.close();
+                return result;
             }
-            return result;
-        }
-        catch (URISyntaxException e) {
-            return result;
+            else{
+                return null;
+                }
+        } catch (URISyntaxException e) {
+            System.out.println("API");
+            return null;
         }
     }
 }
