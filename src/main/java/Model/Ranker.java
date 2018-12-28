@@ -79,6 +79,7 @@ public class Ranker {
         ProccesReOrgnize(QueryAfterParse);
         ProccesCompare(QueryAfterParse);
         RankDocs(RankerResult, Queryid);
+        ClearAll();
     }
 
     public void ProccesSemantic(HashMap<String, TermDetailes> QueryAfterParse) {
@@ -122,7 +123,9 @@ public class Ranker {
                 if (Searcher.LoadedDictionary.get(term) != null) {
                     double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
                     Ciq = QueryAfterParse.get(term).getTF();
-                    Wiq = (QueryAfterParse.get(term).getTF() / querylength) * (Math.log((Searcher.NumOdDocs + 1) / idf));
+                    Wiq = (QueryAfterParse.get(term).getTF() / querylength) * (Math.log((Searcher.NumOdDocs + 1) / idf) / Math.log(2));
+//                    double x = (QueryAfterParse.get(term).getTF() / querylength);
+//                    double y = Math.log((Searcher.NumOdDocs + 1) / idf);
                     Query_BM25.put(term, Ciq);
                     Query_CosSim.put(term, Wiq);
                 }
@@ -166,6 +169,9 @@ public class Ranker {
                         double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
                         Wij = (PostingTFResult.get(docid).get(term) / Searcher.DocsResultDL.get(docid)) * (Math.log((Searcher.NumOdDocs + 1) / idf) / Math.log(2));
                         Cij = PostingTFResult.get(docid).get(term);
+//                        double x = PostingTFResult.get(docid).get(term);
+//                        double y = Searcher.DocsResultDL.get(docid);
+//                        double z = Math.log((Searcher.NumOdDocs + 1) / idf);
                         CosSimtmp.put(term, Wij);
                         BM25tmp.put(term, Cij);
                     }
@@ -180,21 +186,43 @@ public class Ranker {
     }
 
     public void ProccesCompare(HashMap<String, TermDetailes> QueryAfterParse) {
+        int testline = 0;
         for (String Doc : PostingTFResult.keySet()) {
             for (String term : QueryAfterParse.keySet()) {
                 try {
-                    double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
-                    //calc CosSim
-                    CosSimRankUP += CosSim_Matrix.get(Doc).get(term) * Query_CosSim.get(term);
-                    CosSimRankDOWNdoc += Math.pow(CosSim_Matrix.get(Doc).get(term), 2);
-                    CosSimRankDOWNquery += Math.pow(Query_CosSim.get(term), 2);
-                    //calc BM25
-                    BM25UP = BM25_Matrix.get(Doc).get(term) * (k + 1) * Query_BM25.get(term);
-                    BM25DOWN = BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl));
-                    BM25Log = (Math.log((Searcher.NumOdDocs + 1) / idf) / Math.log(2));
-                    BM25Rank += BM25UP * BM25DOWN * BM25Log;
-                    //BM25Rank  = ((((k=1)*tf)/(tf+k*(1-b+b* doclength/avg)))*Math.log((numod docs in all corpus+1)/idf))
-                } catch (Exception e) {
+                    if (Searcher.LoadedDictionary.get(term) != null) {
+                        testline =1;
+                        double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
+                        //calc CosSim
+                        testline =2;
+                        CosSimRankUP += CosSim_Matrix.get(Doc).get(term) * Query_CosSim.get(term);
+                        CosSimRankDOWNdoc += Math.pow(CosSim_Matrix.get(Doc).get(term), 2);
+                        testline =3;
+                        CosSimRankDOWNquery += Math.pow(Query_CosSim.get(term), 2);
+                    double x = CosSim_Matrix.get(Doc).get(term);
+                    double y = Query_CosSim.get(term);
+                    double z = Math.pow(CosSim_Matrix.get(Doc).get(term), 2);
+                        //calc BM25
+                        testline =4;
+                        BM25UP = BM25_Matrix.get(Doc).get(term) * (k + 1) * Query_BM25.get(term);
+                        testline = 5;
+                        BM25DOWN = BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl));
+                        testline =6;
+                        BM25Log = (Math.log((Searcher.NumOdDocs + 1) / idf) / Math.log(2));
+                    double a = BM25_Matrix.get(Doc).get(term);
+                    double b = Query_BM25.get(term);
+                    double d = Searcher.DocsResultDL.get(Doc);
+                    double c = (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl);
+                        BM25Rank += BM25UP * BM25DOWN * BM25Log;
+                        //BM25Rank  = ((((k=1)*tf)/(tf+k*(1-b+b* doclength/avg)))*Math.log((numod docs in all corpus+1)/idf))
+                    }
+                    else continue;
+                }
+                catch (Exception e) {
+                    System.out.println(Doc);
+                    System.out.println(term);
+                    System.out.println(testline);
+
                     System.out.println("Problem in Compare");
                 }
             }
@@ -202,6 +230,18 @@ public class Ranker {
             CosSimRank = CosSimRankUP / CosSimRankDOWN;
             RankerResult.put((0.5 * CosSimRank) + (0.5 * BM25Rank), Doc);
         }
+    }
+
+    public void ClearAll(){
+        PostingTFResult.clear();
+        RankerResult.clear();
+        CosSim_Matrix.clear();
+        BM25_Matrix.clear();
+        CosSimtmp.clear();
+        BM25tmp.clear();
+        Query_BM25.clear();
+        Query_CosSim.clear();
+        SemanticsWords.clear();
     }
 
 
@@ -226,25 +266,38 @@ public class Ranker {
         char tmpFirst = term.charAt(0);
         tmpFirst = Character.toLowerCase(tmpFirst);
         StringBuilder stb = new StringBuilder();
+//        if (tmpFirst >= 'a' && tmpFirst <= 'e') { //todo
+//            stb.append(PostingPath + "\\A_E.txt");
+//        } else if (tmpFirst >= 'f' && tmpFirst <= 'j') {
+//            stb.append(PostingPath + "\\F_J.txt");
+//        } else if (tmpFirst >= 'k' && tmpFirst <= 'p') {
+//            stb.append(PostingPath + "\\K_P.txt");
+//        } else if (tmpFirst >= 'q' && tmpFirst <= 'u') {
+//            stb.append(PostingPath + "\\Q_U.txt");
+//        } else if (tmpFirst >= 'v' && tmpFirst <= 'z') {
+//            stb.append(PostingPath + "\\V_Z.txt");
+//        } else {
+//            stb.append(PostingPath + "\\Numbers.txt");
+//        }
         if (tmpFirst >= 'a' && tmpFirst <= 'e') {
-            stb.append(PostingPath + "\\A_E.txt");
+            stb.append(PostingPath + "/A_E.txt");
         } else if (tmpFirst >= 'f' && tmpFirst <= 'j') {
-            stb.append(PostingPath + "\\F_J.txt");
+            stb.append(PostingPath + "/F_J.txt");
         } else if (tmpFirst >= 'k' && tmpFirst <= 'p') {
-            stb.append(PostingPath + "\\K_P.txt");
+            stb.append(PostingPath + "/K_P.txt");
         } else if (tmpFirst >= 'q' && tmpFirst <= 'u') {
-            stb.append(PostingPath + "\\Q_U.txt");
+            stb.append(PostingPath + "/Q_U.txt");
         } else if (tmpFirst >= 'v' && tmpFirst <= 'z') {
-            stb.append(PostingPath + "\\V_Z.txt");
+            stb.append(PostingPath + "/V_Z.txt");
         } else {
-            stb.append(PostingPath + "\\Numbers.txt");
+            stb.append(PostingPath + "/Numbers.txt");
         }
         File SelectedPosting = new File(stb.toString());
         String TermLIne = (String) FileUtils.readLines(SelectedPosting).get(pointer);
         stb.setLength(0);
         String docID;
         double tf = 0;
-        boolean title;
+        //boolean title;
         int index = TermLIne.indexOf(':');
         TermLIne = TermLIne.substring(index + 1);
         while (TermLIne.length() > 0) {

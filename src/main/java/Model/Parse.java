@@ -1,7 +1,6 @@
 package Model;
 
 import org.apache.commons.lang3.StringUtils;
-
 import java.io.*;
 import java.util.*;
 
@@ -179,12 +178,6 @@ public class Parse {
             }
         }
     }
-
-//    public Boolean isNumeric(String s) {
-//        Boolean res;
-//        res = (s != null && s.matches("[-+]?\\d*\\.?\\d+"));
-//        return res;
-//    }
 
     /**
      * A function that is checked for a particular word or a collection of words for which department they belongs
