@@ -23,17 +23,14 @@ public class Searcher {
     public static Indexer SearcherIndexer;
     public static Parse SearcherParser;
     public boolean SemanticNeeded;
-    public boolean StemmerNeeded;
-    public StringBuilder stbResult;
     public static HashMap<String, DictionaryDetailes> LoadedDictionary;
     public static double AVGdl;
-    public static double NumOdDocs;
+    public static double NumOfDocs;
     public static HashMap<String, Double> DocsResultDL;
     public static HashMap<String, Double> DocsResultMax;
     public static HashMap<String, String> DocsResultCITY;
     public static HashMap<String,HashMap<String, Double>> DocsResultEntitys;
     public static ObservableList<String> citiesToFilter;
-
     public static ArrayList<Pair> Results; //<<queryid,Docid>>
 
 
@@ -42,24 +39,21 @@ public class Searcher {
      * @param indexer
      * @param parser
      * @param semanticNeeded
-     * @param stemmerNeeded
      * @param cities
      * @throws IOException
      */
-    public Searcher(Indexer indexer, Parse parser, boolean semanticNeeded,boolean stemmerNeeded,ObservableList<String> cities) throws IOException {
+    public Searcher(Indexer indexer, Parse parser, boolean semanticNeeded,ObservableList<String> cities) throws IOException {
         SearcherIndexer = indexer;
         SearcherParser = parser;
         SemanticNeeded = semanticNeeded;
-        StemmerNeeded = stemmerNeeded;
         AVGdl = 0;
-        NumOdDocs = 0;
+        NumOfDocs = 0;
         if(cities != null)
             citiesToFilter = cities;
         DocsResultDL = new HashMap<>();
         DocsResultCITY = new HashMap<>();
         DocsResultMax = new HashMap<>();
         DocsResultEntitys = new HashMap<>();
-        stbResult = new StringBuilder();
         Results = new ArrayList<>();
         if(indexer.Dictionary.isEmpty())
         LoadedDictionary = SearchEngine.ItsTimeToLoadDictionary(SearcherIndexer.stbOUT.toString() + "Dictionary.txt");

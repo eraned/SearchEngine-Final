@@ -30,7 +30,6 @@ public class SearchEngine {
 
     /**
      * Constructor
-     *
      * @param corpusPathIN  - path in that the user enter
      * @param corpusPathOUT - path out that the user enter
      * @param isSteemer     - user choise
@@ -294,6 +293,6 @@ public class SearchEngine {
             e.printStackTrace();
         }
         Searcher.AVGdl = tmp / counter;
-        Searcher.NumOdDocs = counter;
+        Searcher.NumOfDocs = counter;
     }
 }

@@ -135,7 +135,7 @@ public class Ranker {
                 double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
                 testline =2;
                 Ciq = Query.get(term).getTF();
-                Wiq = (Query.get(term).getTF() / querylength) * (Math.log((Searcher.NumOdDocs + 1) / idf) / Math.log(2));
+                Wiq = (Query.get(term).getTF() / querylength) * (Math.log((Searcher.NumOfDocs + 1) / idf) / Math.log(2));
                 testline =3;
                 Query_BM25.put(term, Ciq);
                 Query_CosSim.put(term, Wiq);
@@ -174,7 +174,7 @@ public class Ranker {
                     testline =3;
                     double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
                     testline =4;
-                    Wij = (PostingTFResult.get(Doc).get(term) / Searcher.DocsResultDL.get(Doc)) * (Math.log((Searcher.NumOdDocs + 1) / idf) / Math.log(2));
+                    Wij = (PostingTFResult.get(Doc).get(term) / Searcher.DocsResultDL.get(Doc)) * (Math.log((Searcher.NumOfDocs + 1) / idf) / Math.log(2));
                     Cij = PostingTFResult.get(Doc).get(term);
                     CosSimtmp.put(term, Wij);
                     BM25tmp.put(term, Cij);
@@ -215,7 +215,7 @@ public class Ranker {
                     testline = 5;
                     BM25DOWN = BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl));
                     testline =6;
-                    BM25Log = (Math.log((Searcher.NumOdDocs + 1) / idf) / Math.log(2));
+                    BM25Log = (Math.log((Searcher.NumOfDocs + 1) / idf) / Math.log(2));
                     double a = BM25_Matrix.get(Doc).get(term);
                     double b = Query_BM25.get(term);
                     double d = Searcher.DocsResultDL.get(Doc);
@@ -416,7 +416,7 @@ public class Ranker {
 //                if (Searcher.LoadedDictionary.get(term) != null) {
 //                    double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
 //                    Ciq = QueryAfterParse.get(term).getTF();
-//                    Wiq = (QueryAfterParse.get(term).getTF() / querylength) * (Math.log((Searcher.NumOdDocs+1) / idf));
+//                    Wiq = (QueryAfterParse.get(term).getTF() / querylength) * (Math.log((Searcher.NumOfDocs+1) / idf));
 //                    Query_BM25.put(term, Ciq);
 //                    Query_CosSim.put(term, Wiq);
 //                }
@@ -449,7 +449,7 @@ public class Ranker {
 //                if (Searcher.citiesToFilter != null) {
 //                    if (Searcher.citiesToFilter.contains(Searcher.DocsResultCITY.get(docid))) {
 //                        double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
-//                        Wij = (PostingTFResult.get(docid).get(term) / Searcher.DocsResultDL.get(docid)) * (Math.log((Searcher.NumOdDocs+1) / idf)/Math.log(2));
+//                        Wij = (PostingTFResult.get(docid).get(term) / Searcher.DocsResultDL.get(docid)) * (Math.log((Searcher.NumOfDocs+1) / idf)/Math.log(2));
 //                        Cij = PostingTFResult.get(docid).get(term);
 //                        CosSimtmp.put(term, Wij);
 //                        BM25tmp.put(term, Cij);
@@ -457,7 +457,7 @@ public class Ranker {
 //                        continue;
 //                } else {
 //                    double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
-//                    Wij = (PostingTFResult.get(docid).get(term) / Searcher.DocsResultDL.get(docid)) * (Math.log((Searcher.NumOdDocs+1) / idf)/Math.log(2));
+//                    Wij = (PostingTFResult.get(docid).get(term) / Searcher.DocsResultDL.get(docid)) * (Math.log((Searcher.NumOfDocs+1) / idf)/Math.log(2));
 //                    Cij = PostingTFResult.get(docid).get(term);
 //                    CosSimtmp.put(term, Wij);
 //                    BM25tmp.put(term, Cij);
@@ -483,7 +483,7 @@ public class Ranker {
 //                    //calc BM25
 //                    BM25UP = BM25_Matrix.get(Doc).get(term) * (k + 1) * Query_BM25.get(term);
 //                    BM25DOWN = BM25_Matrix.get(Doc).get(term) + k *(1 - b + b * (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl));
-//                    BM25Log = (Math.log((Searcher.NumOdDocs+1) / idf)/Math.log(2));
+//                    BM25Log = (Math.log((Searcher.NumOfDocs+1) / idf)/Math.log(2));
 //                    BM25Rank += BM25UP * BM25DOWN * BM25Log;
 //                    //BM25Rank  = ((((k=1)*tf)/(tf+k*(1-b+b* doclength/avg)))*Math.log((numod docs in all corpus+1)/idf))
 //                } catch (Exception e) {
