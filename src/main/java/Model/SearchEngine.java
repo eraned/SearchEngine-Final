@@ -179,7 +179,7 @@ public class SearchEngine {
             FileWriter FW = new FileWriter(AllDocsFile);
             BufferedWriter BW = new BufferedWriter(FW);
             for (String doc : SortedDocs) {
-                BW.write(doc + ": " + "DocLength:" + All_Docs.get(doc).getDocLength() + "; MaxTermFrequency:" + All_Docs.get(doc).getMaxTermFrequency() + "; City:" + All_Docs.get(doc).getDocCity() + "; DocEntitys:" + All_Docs.get(doc).getDocSuspectedEntitys().toString());
+                BW.write(doc + ":" + "DocLength:" + All_Docs.get(doc).getDocLength() + ";MaxTermFrequency:" + All_Docs.get(doc).getMaxTermFrequency() + ";City:" + All_Docs.get(doc).getDocCity() + ";DocEntitys:" + All_Docs.get(doc).getDocSuspectedEntitys().toString());
                 BW.newLine();
             }
             BW.close();
@@ -195,17 +195,18 @@ public class SearchEngine {
      * @return
      */
     public static HashMap<String, DictionaryDetailes> ItsTimeToLoadDictionary(String Path) {
-        HashMap<String, DictionaryDetailes> LoadedDic = new HashMap<>();
+        HashMap<String, DictionaryDetailes> LoadedDic = new HashMap<>();int index;
         try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
             String line = br.readLine();
             int totalfreq = 0, df = 0, pointer = 0;
             while (line != null) {
                 try {
-                    int index = line.indexOf(':');
+                    index = line.indexOf(':');
                     String term = line.substring(0, index);
                     line = line.substring(index + 1);
                     if (!term.isEmpty()) {
-                        String TFreq = line.substring(12, line.indexOf(';'));
+                        index = line.indexOf("TotalTF:");
+                        String TFreq = line.substring(index+8,line.indexOf(';'));
                         totalfreq = Integer.parseInt(TFreq);
                         line = line.substring(line.indexOf(';') + 1);
                         index = line.indexOf("DF:");
@@ -213,7 +214,7 @@ public class SearchEngine {
                         df = Integer.parseInt(DF);
                         line = line.substring(line.indexOf(';') + 1);
                         index = line.indexOf("Pointer:");
-                        String point = line.substring(index + 8);
+                        String point = line.substring(index + 8,line.indexOf("#"));
                         pointer = Integer.parseInt(point);
                         DictionaryDetailes DD = new DictionaryDetailes();
                         DD.setNumOfTermInCorpus(totalfreq);
@@ -238,6 +239,7 @@ public class SearchEngine {
      * @param Path
      */
     public static void ItsTimeToLoadAllDocs(String Path) {
+        int index;
         double Doclength;
         String DocCity;
         double tmp = 0;
@@ -249,18 +251,20 @@ public class SearchEngine {
             String line = br.readLine();
             while (line != null) {
                 try {
-                    int index = line.indexOf(':');
+                    index = line.indexOf(':');
                     String doc = line.substring(0, index);
                     line = line.substring(index + 1);
                     if (!doc.isEmpty()) {
-                        String Length = line.substring(line.indexOf("DocLength:") + 10, line.indexOf(';'));
+                        index = line.indexOf("DocLength:");
+                        String Length = line.substring(index+ 10, line.indexOf(';'));
                         Doclength = Double.parseDouble(Length);
                         line = line.substring(line.indexOf(';') + 1);
-                        String max = line.substring(line.indexOf("MaxTermFrequency:") + 17, line.indexOf(';'));
+                        index = line.indexOf("MaxTermFrequency:");
+                        String max = line.substring(index+ 17, line.indexOf(';'));
                         max_tf = Double.parseDouble(max);
                         line = line.substring(line.indexOf(';') + 1);
-                        DocCity = line.substring(line.indexOf("City:") + 5,line.indexOf(';')+1);
-                        line = line.substring(line.indexOf("DocEntitys:") + 11);
+                        index = line.indexOf("City:");
+                        DocCity = line.substring(index + 5,line.indexOf(';')+1);
                         if(DocCity.length() == 1)
                             DocCity = "";
                         tmp += Doclength;
@@ -268,6 +272,8 @@ public class SearchEngine {
                         Searcher.DocsResultDL.put(doc, Doclength);
                         Searcher.DocsResultCITY.put(doc, DocCity);
                         Searcher.DocsResultMax.put(doc, max_tf);
+                        index = line.indexOf("DocEntitys:");
+                        line = line.substring(index + 11);
                         HashMap<String,Double> tmpHash = new HashMap<>();
                         while(line.length() > 1) {
                             term = line.substring(0, line.indexOf(":"));

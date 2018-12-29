@@ -95,15 +95,28 @@ public class Indexer {
         for (String tmpTerm : DocAfterParse.keySet()) {
             TermDetailes tmpTermDetailes = DocAfterParse.get(tmpTerm);
             try {
-                if(tmpTerm.charAt(0) == '-'){
+                if(StringUtils.contains(tmpTerm,'-')){
                     if(StringUtils.containsOnly(tmpTerm,'-')){
                         continue;
                     }
-                    else {
+                    else if(tmpTerm.charAt(0) == '-' || tmpTerm.endsWith("-")){
                         tmpTerm = RegExUtils.removeAll(tmpTerm,"-");
                     }
+                    else if(StringUtils.contains(tmpTerm,'/'))
+                        continue;
+                    else{
+                        if(StringUtils.contains(tmpTerm,"--"))
+                            tmpTerm = RegExUtils.replaceAll(tmpTerm,"--","-");
+                        String[] splited = StringUtils.split(tmpTerm, "-");
+                        for (int i = 0; i < splited.length; i++) {
+                            if (!StringUtils.isAlphanumeric(splited[i])) {
+                                continue;
+                            }
+                        }
+
+                    }
                 }
-                if(tmpTerm.length() <= 1)
+                else if(tmpTerm.length() <= 1 && StringUtils.contains(tmpTerm,'/'))
                     continue;
                 else if (!ParserBooster(tmpTerm))
                     continue;
@@ -177,8 +190,9 @@ public class Indexer {
             for(String term : SortedPost){
                 BW.write(term + ":");
                 for(TermDetailes TD : Posting.get(term)) {
-                    BW.write("(Docid :" + TD.getDocId() + " , TF  :" + TD.getTF() +" , InTitle  :" + TD.getInTitle() +  ")->");
+                    BW.write("Docid:" + TD.getDocId() + ";TF:" + TD.getTF() +";InTitle:" + TD.getInTitle() +  "->");
                 }
+                BW.write("#");
                 BW.newLine();
             }
             BW.close();
@@ -455,7 +469,7 @@ public class Indexer {
                 if((StringUtils.isAlpha(term)) && (StringUtils.isAllUpperCase(term))){
                     Entitys.add(term);
                 }
-                BW.write(  term + ": " + "Total Freq:"+Dictionary.get(term).getNumOfTermInCorpus() + "; DF:" + Dictionary.get(term).getNumOfDocsTermIN() + "; Pointer:" + Dictionary.get(term).getPointer());
+                BW.write(  term + ":" + "TotalTF:"+Dictionary.get(term).getNumOfTermInCorpus() + ";DF:" + Dictionary.get(term).getNumOfDocsTermIN() + ";Pointer:" + Dictionary.get(term).getPointer() + "#");
                 BW.newLine();
             }
             BW.close();
@@ -471,36 +485,25 @@ public class Indexer {
      * @return
      */
     public boolean ParserBooster(String term){
-        if(term.contains("-")){
-            String[] splited = StringUtils.split(term, "-");
-            for (int i = 0; i < splited.length; i++) {
-                if (!StringUtils.isAlphanumeric(splited[i])) {
-                    return false;
-                }
-            }
-        }
-        else{
-            if((term.endsWith("K") || term.endsWith("M") || term.endsWith("B") || term.endsWith("%")) && (!StringUtils.isAlpha(term))){
-                if(!StringUtils.isNumeric(term.substring(0,term.length()-1)) && !NumberUtils.isParsable(term.substring(0,term.length()-1)))
-                    return false;
-            }
-            else if(term.endsWith("Dollars") && term.length() > 8){
-                int index = term.indexOf("Dollars");
-                char c = term.charAt(index-2);
-                if(!Character.isDigit(c) && (c != 'M'))
-                    return false;
-                if(term.length() > 10 && (c == 'M')) {
-                    char w = term.charAt(index - 4);
-                    if (!Character.isDigit(w))
-                        return false;
-                }
-            }
-            else if(!StringUtils.isAlpha(term) && !StringUtils.isNumeric(term))
-                return false;
-
-            else if(!NumberUtils.isParsable(term) && StringUtils.isNumeric(term))
+        if((term.endsWith("K") || term.endsWith("M") || term.endsWith("B") || term.endsWith("%")) && (!StringUtils.isAlpha(term))){
+            if(!StringUtils.isNumeric(term.substring(0,term.length()-1)) && !NumberUtils.isParsable(term.substring(0,term.length()-1)))
                 return false;
         }
+        else if(term.endsWith("Dollars") && term.length() > 8){
+            int index = term.indexOf("Dollars");
+            char c = term.charAt(index-2);
+            if(!Character.isDigit(c) && (c != 'M'))
+                return false;
+            if(term.length() > 10 && (c == 'M')) {
+                char w = term.charAt(index - 4);
+                if (!Character.isDigit(w))
+                    return false;
+            }
+        }
+        else if(!StringUtils.isAlpha(term) && !StringUtils.isNumeric(term))
+            return false;
+        else if(!NumberUtils.isParsable(term) && StringUtils.isNumeric(term))
+            return false;
         return true;
     }
 }

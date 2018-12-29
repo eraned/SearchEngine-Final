@@ -17,7 +17,7 @@ public class Ranker {
     HashMap<String, TermDetailes> Query;
     public String PostingPath;
     public HashMap<String, HashMap<String, Double>> PostingTFResult;
-    // public HashMap<String, Boolean> PostingTitelResult;
+    public HashMap<String, Boolean> PostingTitelResult;
     public HashMap<Double, String> RankerResult;//HashMap<Rank,DocID>
     public HashMap<String, HashMap<String, Double>> CosSim_Matrix; //new--- <Docid,<term ,CosSim Score>>
     public HashMap<String, HashMap<String, Double>> BM25_Matrix;  //new--- <Docid,<term ,BM25 score>>
@@ -54,7 +54,7 @@ public class Ranker {
         Query = new HashMap<>();
         PostingPath = pathforFindposting;
         PostingTFResult = new HashMap<>();
-        //   PostingTitelResult = new HashMap<>();
+        PostingTitelResult = new HashMap<>();
         RankerResult = new HashMap<>();
         CosSim_Matrix = new HashMap<>();
         BM25_Matrix = new HashMap<>();
@@ -198,29 +198,29 @@ public class Ranker {
         for (String Doc : PostingTFResult.keySet()) {
             for (String term : PostingTFResult.get(Doc).keySet()) {
                 try {
-                        testline =1;
-                        double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
-                        //calc CosSim
-                        testline =2;
-                        CosSimRankUP += CosSim_Matrix.get(Doc).get(term) * Query_CosSim.get(term);
-                        CosSimRankDOWNdoc += Math.pow(CosSim_Matrix.get(Doc).get(term), 2);
-                        testline =3;
-                        CosSimRankDOWNquery += Math.pow(Query_CosSim.get(term), 2);
-                        double x = CosSim_Matrix.get(Doc).get(term);
-                        double y = Query_CosSim.get(term);
-                        double z = Math.pow(CosSim_Matrix.get(Doc).get(term), 2);
-                        //calc BM25
-                        testline =4;
-                        BM25UP = BM25_Matrix.get(Doc).get(term) * (k + 1) * Query_BM25.get(term);
-                        testline = 5;
-                        BM25DOWN = BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl));
-                        testline =6;
-                        BM25Log = (Math.log((Searcher.NumOdDocs + 1) / idf) / Math.log(2));
-                        double a = BM25_Matrix.get(Doc).get(term);
-                        double b = Query_BM25.get(term);
-                        double d = Searcher.DocsResultDL.get(Doc);
-                        double c = (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl);
-                        BM25Rank += BM25UP * BM25DOWN * BM25Log;
+                    testline =1;
+                    double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
+                    //calc CosSim
+                    testline =2;
+                    CosSimRankUP += CosSim_Matrix.get(Doc).get(term) * Query_CosSim.get(term);
+                    CosSimRankDOWNdoc += Math.pow(CosSim_Matrix.get(Doc).get(term), 2);
+                    testline =3;
+                    CosSimRankDOWNquery += Math.pow(Query_CosSim.get(term), 2);
+                    double x = CosSim_Matrix.get(Doc).get(term);
+                    double y = Query_CosSim.get(term);
+                    double z = Math.pow(CosSim_Matrix.get(Doc).get(term), 2);
+                    //calc BM25
+                    testline =4;
+                    BM25UP = BM25_Matrix.get(Doc).get(term) * (k + 1) * Query_BM25.get(term);
+                    testline = 5;
+                    BM25DOWN = BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl));
+                    testline =6;
+                    BM25Log = (Math.log((Searcher.NumOdDocs + 1) / idf) / Math.log(2));
+                    double a = BM25_Matrix.get(Doc).get(term);
+                    double b = Query_BM25.get(term);
+                    double d = Searcher.DocsResultDL.get(Doc);
+                    double c = (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl);
+                    BM25Rank += BM25UP * BM25DOWN * BM25Log;
                 }
                 catch (Exception e) {
                     System.out.println("Problem in Compare");
@@ -302,23 +302,22 @@ public class Ranker {
         stb.setLength(0);
         String docID;
         double tf = 0;
-        //boolean title;
-        int index = TermLIne.indexOf(':');
+        boolean title;
+        int index;
+        index = TermLIne.indexOf(':');
         TermLIne = TermLIne.substring(index + 1);
         while (TermLIne.length() > 0) {
             try {
-                docID = TermLIne.substring(TermLIne.indexOf(':') + 1, TermLIne.indexOf(',') - 1);
-                TermLIne = TermLIne.substring(TermLIne.indexOf(',') + 1);
-                String TF = TermLIne.substring(TermLIne.indexOf(':') + 1, TermLIne.indexOf(',') - 1);
+                index = TermLIne.indexOf("id:");
+                docID = TermLIne.substring(index + 3, TermLIne.indexOf(';'));
+                TermLIne = TermLIne.substring(TermLIne.indexOf(';')+1);
+                index = TermLIne.indexOf("TF:");
+                String TF = TermLIne.substring(index + 3,TermLIne.indexOf(';'));
                 tf = Double.parseDouble(TF);
-                //TermLIne = TermLIne.substring(TermLIne.indexOf(',') + 1);
-                //String Title = TermLIne.substring(TermLIne.indexOf(':') + 1, TermLIne.indexOf(')'));
-                // title = Boolean.parseBoolean(Title);
-                try {
-                    TermLIne = TermLIne.substring(TermLIne.indexOf("("));
-                } catch (Exception e) {
-                    break;
-                }
+                TermLIne = TermLIne.substring(TermLIne.indexOf(';')+1);
+                index = TermLIne.indexOf("InTitle:");
+                String Title = TermLIne.substring(index + 8, TermLIne.indexOf("->"));
+                title = Boolean.parseBoolean(Title);
                 if (PostingTFResult.containsKey(docID)) {
                     PostingTFResult.get(docID).put(term, tf);
                 } else {
@@ -326,8 +325,10 @@ public class Ranker {
                     tmp.put(term, tf);
                     PostingTFResult.put(docID, tmp);
                 }
-                // PostingTFResult.put(docID, tf);
-                // PostingTitelResult.put(docID, title);
+                PostingTitelResult.put(docID, title);
+                TermLIne = TermLIne.substring(TermLIne.indexOf("->"));
+                if(TermLIne.length() == 3)
+                    break;
             } catch (Exception e) {
                 System.out.println("problem get tf!");
                 break;
