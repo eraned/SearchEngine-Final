@@ -14,7 +14,7 @@ import java.util.*;
  *
  */
 public class Ranker {
-
+    HashMap<String, TermDetailes> Query;
     public String PostingPath;
     public HashMap<String, HashMap<String, Double>> PostingTFResult;
     // public HashMap<String, Boolean> PostingTitelResult;
@@ -51,6 +51,7 @@ public class Ranker {
      * @param pathforFindposting
      */
     public Ranker(String pathforFindposting) {
+        Query = new HashMap<>();
         PostingPath = pathforFindposting;
         PostingTFResult = new HashMap<>();
         //   PostingTitelResult = new HashMap<>();
@@ -76,16 +77,19 @@ public class Ranker {
         if (semanticNeeded)
             ProccesSemantic(QueryAfterParse);
         ProccesQuery(QueryAfterParse);
-        ProccesReOrgnize(QueryAfterParse);
-        ProccesCompare(QueryAfterParse);
+        ProccesReOrgnize();
+        ProccesCompare();
         RankDocs(RankerResult, Queryid);
         ClearAll();
     }
 
     public void ProccesSemantic(HashMap<String, TermDetailes> QueryAfterParse) {
+        int testline = 0;
         try {
+            //part 1 - process query words for API
             HashSet<String> tmp = new HashSet<>();
             for (String term : QueryAfterParse.keySet()) {
+                testline =1;
                 if (term.contains("-")) {
                     String[] splited = StringUtils.split(term, "-");
                     for (int i = 0; i < splited.length; i++) {
@@ -98,14 +102,16 @@ public class Ranker {
                 else
                     tmp.add(term);
             }
+            //part 2 - add semantics words to query
             for (String term : tmp) {
                 SemanticsWords = GetSemanticFromAPI(term);
+                testline =2;
                 if (SemanticsWords != null) {
                     for (String word : SemanticsWords) {
                         TermDetailes tmpTD = new TermDetailes("API");
                         tmpTD.setTF(1);
                         tmpTD.setInTitle(false);
-                        QueryAfterParse.put(word, tmpTD);
+                        Query.put(word, tmpTD);
                     }
                 } else {
                     continue;
@@ -113,84 +119,85 @@ public class Ranker {
             }
         } catch (Exception e) {
             System.out.println("Probellm in semantic ");
-        }
+            System.out.println(testline);        }
     }
 
     public void ProccesQuery(HashMap<String, TermDetailes> QueryAfterParse) {
-        for (String term : QueryAfterParse.keySet()) {
+        int testline = 0;
+        for(String term : QueryAfterParse.keySet()) {
+            if (Searcher.LoadedDictionary.get(term) != null) {
+                Query.put(term, QueryAfterParse.get(term));
+            }
+        }
+        for (String term : Query.keySet()){
             try {
-                //term in corpus
-                if (Searcher.LoadedDictionary.get(term) != null) {
-                    double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
-                    Ciq = QueryAfterParse.get(term).getTF();
-                    Wiq = (QueryAfterParse.get(term).getTF() / querylength) * (Math.log((Searcher.NumOdDocs + 1) / idf) / Math.log(2));
-//                    double x = (QueryAfterParse.get(term).getTF() / querylength);
-//                    double y = Math.log((Searcher.NumOdDocs + 1) / idf);
-                    Query_BM25.put(term, Ciq);
-                    Query_CosSim.put(term, Wiq);
-                }
-                //if term not in corpus
-                else {
-                    Query_BM25.put(term, 0.0);
-                    Query_CosSim.put(term, 0.0);
-                }
+                testline =1;
+                double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
+                testline =2;
+                Ciq = Query.get(term).getTF();
+                Wiq = (Query.get(term).getTF() / querylength) * (Math.log((Searcher.NumOdDocs + 1) / idf) / Math.log(2));
+                testline =3;
+                Query_BM25.put(term, Ciq);
+                Query_CosSim.put(term, Wiq);
             } catch (Exception e) {
-                System.out.println("Probellm in Query section");
+                System.out.println("Probelem in Query section");
+                System.out.println(term);
+                System.out.println(testline);
             }
         }
     }
 
-    public void ProccesReOrgnize(HashMap<String, TermDetailes> QueryAfterParse) {
-        for (String term : QueryAfterParse.keySet()) {
+    public void ProccesReOrgnize() {
+        int testline = 0;
+        //part 1
+        for (String term : Query.keySet()) {
             try {
-                if (Searcher.LoadedDictionary.get(term) != null) {
-                    Pointer = Searcher.LoadedDictionary.get(term).getPointer();
-                    GetTF_InTitelFromPosting(Pointer, term);// <docid,tf> from posting
-                } else {
-                    continue;
-                }
+                testline =1;
+                Pointer = Searcher.LoadedDictionary.get(term).getPointer();
+                testline =2;
+                GetTF_InTitelFromPosting(Pointer, term);// <docid,tf> from posting
             } catch (Exception e) {
                 System.out.println("Probellm in reorgnized part 1");
+                System.out.println(term);
+                System.out.println(testline);
+                break;
             }
         }
-        for (String docid : PostingTFResult.keySet()) {
-            for (String term : PostingTFResult.get(docid).keySet()) {
+        //part 2
+        for (String Doc : PostingTFResult.keySet()) {
+            if (Searcher.citiesToFilter != null) {
+                if (!Searcher.citiesToFilter.contains(Searcher.DocsResultCITY.get(Doc)))
+                    continue;
+            }
+            for (String term : PostingTFResult.get(Doc).keySet()) {
                 try {
-                    if (Searcher.citiesToFilter != null) {
-                        if (Searcher.citiesToFilter.contains(Searcher.DocsResultCITY.get(docid))) {
-                            double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
-                            Wij = (PostingTFResult.get(docid).get(term) / Searcher.DocsResultDL.get(docid)) * (Math.log((Searcher.NumOdDocs + 1) / idf) / Math.log(2));
-                            Cij = PostingTFResult.get(docid).get(term);
-                            CosSimtmp.put(term, Wij);
-                            BM25tmp.put(term, Cij);
-                        } else
-                            continue;
-                    } else {
-                        double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
-                        Wij = (PostingTFResult.get(docid).get(term) / Searcher.DocsResultDL.get(docid)) * (Math.log((Searcher.NumOdDocs + 1) / idf) / Math.log(2));
-                        Cij = PostingTFResult.get(docid).get(term);
-//                        double x = PostingTFResult.get(docid).get(term);
-//                        double y = Searcher.DocsResultDL.get(docid);
-//                        double z = Math.log((Searcher.NumOdDocs + 1) / idf);
-                        CosSimtmp.put(term, Wij);
-                        BM25tmp.put(term, Cij);
-                    }
+                    testline =3;
+                    double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
+                    testline =4;
+                    Wij = (PostingTFResult.get(Doc).get(term) / Searcher.DocsResultDL.get(Doc)) * (Math.log((Searcher.NumOdDocs + 1) / idf) / Math.log(2));
+                    Cij = PostingTFResult.get(Doc).get(term);
+                    CosSimtmp.put(term, Wij);
+                    BM25tmp.put(term, Cij);
                 } catch (Exception e) {
                     System.out.println("Probellm in reorgnized part 2");
+                    System.out.println(Doc);
+                    System.out.println(term);
+                    System.out.println(testline);
+                    break;
                 }
             }
-            CosSim_Matrix.put(docid, CosSimtmp);
-            BM25_Matrix.put(docid, BM25tmp);
+            testline =5;
+            CosSim_Matrix.put(Doc, CosSimtmp);
+            BM25_Matrix.put(Doc, BM25tmp);
         }
 
     }
 
-    public void ProccesCompare(HashMap<String, TermDetailes> QueryAfterParse) {
+    public void ProccesCompare() {
         int testline = 0;
         for (String Doc : PostingTFResult.keySet()) {
-            for (String term : QueryAfterParse.keySet()) {
+            for (String term : PostingTFResult.get(Doc).keySet()) {
                 try {
-                    if (Searcher.LoadedDictionary.get(term) != null) {
                         testline =1;
                         double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
                         //calc CosSim
@@ -199,9 +206,9 @@ public class Ranker {
                         CosSimRankDOWNdoc += Math.pow(CosSim_Matrix.get(Doc).get(term), 2);
                         testline =3;
                         CosSimRankDOWNquery += Math.pow(Query_CosSim.get(term), 2);
-                    double x = CosSim_Matrix.get(Doc).get(term);
-                    double y = Query_CosSim.get(term);
-                    double z = Math.pow(CosSim_Matrix.get(Doc).get(term), 2);
+                        double x = CosSim_Matrix.get(Doc).get(term);
+                        double y = Query_CosSim.get(term);
+                        double z = Math.pow(CosSim_Matrix.get(Doc).get(term), 2);
                         //calc BM25
                         testline =4;
                         BM25UP = BM25_Matrix.get(Doc).get(term) * (k + 1) * Query_BM25.get(term);
@@ -209,21 +216,18 @@ public class Ranker {
                         BM25DOWN = BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl));
                         testline =6;
                         BM25Log = (Math.log((Searcher.NumOdDocs + 1) / idf) / Math.log(2));
-                    double a = BM25_Matrix.get(Doc).get(term);
-                    double b = Query_BM25.get(term);
-                    double d = Searcher.DocsResultDL.get(Doc);
-                    double c = (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl);
+                        double a = BM25_Matrix.get(Doc).get(term);
+                        double b = Query_BM25.get(term);
+                        double d = Searcher.DocsResultDL.get(Doc);
+                        double c = (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl);
                         BM25Rank += BM25UP * BM25DOWN * BM25Log;
-                        //BM25Rank  = ((((k=1)*tf)/(tf+k*(1-b+b* doclength/avg)))*Math.log((numod docs in all corpus+1)/idf))
-                    }
-                    else continue;
                 }
                 catch (Exception e) {
+                    System.out.println("Problem in Compare");
                     System.out.println(Doc);
                     System.out.println(term);
                     System.out.println(testline);
-
-                    System.out.println("Problem in Compare");
+                    break;
                 }
             }
             CosSimRankDOWN = Math.sqrt(CosSimRankDOWNdoc * CosSimRankDOWNquery);
@@ -233,6 +237,7 @@ public class Ranker {
     }
 
     public void ClearAll(){
+        Query.clear();
         PostingTFResult.clear();
         RankerResult.clear();
         CosSim_Matrix.clear();
