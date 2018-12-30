@@ -39,7 +39,7 @@ public class Ranker {
     public double CosSimRankDOWN = 0;
     public double BM25Rank = 0;
     public double b = 0.75;
-    public double k = 2;
+    public double k = 1.3;
     public double BM25UP = 0;
     public double BM25DOWN = 0;
     public double BM25Log = 0;
@@ -372,156 +372,149 @@ public class Ranker {
     }
 }
 
+/**
+class Ranker
+{
+    string path;
+    Parser p;
+    bool isStem;
+    ReadFile r;
+    Dictionary<string, double> DocWeight;
+    public Dictionary<string, int> Docsmaxtf;
+    Dictionary<string, double> docslength;
+    Indexer ind;
+    double avgDL, k;
+    public Ranker(string path,Parser p,ReadFile r,Indexer ind,bool isStem)
+    {
+        this.path = path;
+        avgDL = 0;
+        k = 1.3;
+        this.isStem = isStem;
+        this.r = r;
+        this.p = p;
+        this.ind = ind;
+        DocWeight = new Dictionary<string, double>();
+        Docsmaxtf = new Dictionary<string, int>();
+        docslength = new Dictionary<string, double>();
+        string file;
+        //check if we can do fast loading
+        if (isStem)
+            file = path + @"\rankerStem";
+            else
+        file=path + @"\ranker";
+        if (File.Exists(file))
+        {
+            //if File exiest loading dictionaries in order to run faster
+            using (FileStream fs = new FileStream(file, FileMode.Open))
+            {
+                IFormatter bf = new BinaryFormatter();
+                DocWeight = (Dictionary<string,double>)bf.Deserialize(fs);//read object
+                Docsmaxtf = (Dictionary<string, int>)bf.Deserialize(fs);//read object
+                docslength = (Dictionary<string, double>)bf.Deserialize(fs);//read object
+                avgDL = (double)bf.Deserialize(fs);
+            }
+        }
+        else
+        {
+            //calculate the dictionaries in order to run- long process
+            calculateWeight();
+            //after calculate save it for next time
+            using (FileStream fs = new FileStream(file, FileMode.Create))
+            {
+                IFormatter bf = new BinaryFormatter();
+                bf.Serialize(fs, DocWeight);//write object
+                bf.Serialize(fs, Docsmaxtf);//write object
+                bf.Serialize(fs, docslength);//write object
+                bf.Serialize(fs, avgDL);//write object
+            }
 
+        }
+    }
+    //Calculate cosin and BM fields
+    public void calculateWeight()
+    {
+        for (int i = 0; i < r.files.Count; i++)
+        {
+            Debug.WriteLine(i);
+            //Run on all files again
+            Dictionary<string, string> d = r.ProccessDocs(r.files[i]);
+            foreach (string docNo in d.Keys)
+            {
+                //Parse DOC
+                Dictionary<string, termInfo> docdic = p.Parse(d[docNo]);
+                //length dictionary
+                docslength[docNo.Trim(' ')] = docdic.Count;
+                //Wight dictionary
+                DocWeight.Add(docNo.Trim(' '), 0);
+                //max tf dic
+                Docsmaxtf.Add(docNo.Trim(' '), p.maxtf);
+                foreach (string trm in docdic.Keys)
+                {
+                    if (docdic.ContainsKey(trm)&& ind.dic.ContainsKey(trm))
+                    {  //For Cosin
+                        double W = (((double)docdic[trm].tf /(double) p.maxtf) * (double)ind.dic[trm].idf);
+                        DocWeight[docNo.Trim(' ')] += (W * W);
+                    }
+                }
+                DocWeight[docNo.Trim(' ')] = Math.Sqrt(DocWeight[docNo.Trim(' ')]);
+            }
+        }
+        //for BM Formula
+        foreach(string s in docslength.Keys)
+        {
+            avgDL += docslength[s];
+        }
+        avgDL = avgDL / (double)docslength.Count;
 
-//
-//        //Semantic
-//        if (semanticNeeded) {
-//            try{
-//            HashSet<String> tmp = new HashSet<>();
-//            for (String term : QueryAfterParse.keySet()) {
-//                if (term.contains("-")) {
-//                    String[] splited = StringUtils.split(term, "-");
-//                    for (int i = 0; i < splited.length; i++) {
-//                        if (StringUtils.isAlpha(splited[i])) {
-//                            tmp.add(splited[i]);
-//                        }
-//                    }
-//                } else if (!StringUtils.isAlpha(term))
-//                    continue;
-//                else
-//                    tmp.add(term);
-//            }
-//            for (String term : tmp) {
-//                SemanticsWords = GetSemanticFromAPI(term);
-//                if (SemanticsWords != null) {
-//                    for (String word : SemanticsWords) {
-//                        TermDetailes tmpTD = new TermDetailes("API");
-//                        tmpTD.setTF(1);
-//                        tmpTD.setInTitle(false);
-//                        QueryAfterParse.put(word, tmpTD);
-//                    }
-//                } else {
-//                    continue;
-//                }
-//            }
-//        }
-//        catch (Exception e){
-//            System.out.println("Probellm in semantic ");
-//        }
-//        }
-//
-//        //Query
-//        for (String term : QueryAfterParse.keySet()) {
-//            try {
-//                //term in corpus
-//                if (Searcher.LoadedDictionary.get(term) != null) {
-//                    double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
-//                    Ciq = QueryAfterParse.get(term).getTF();
-//                    Wiq = (QueryAfterParse.get(term).getTF() / querylength) * (Math.log((Searcher.NumOfDocs+1) / idf));
-//                    Query_BM25.put(term, Ciq);
-//                    Query_CosSim.put(term, Wiq);
-//                }
-//                //if term not in corpus
-//                else {
-//                    Query_BM25.put(term, 0.0);
-//                    Query_CosSim.put(term, 0.0);
-//                }
-//            } catch (Exception e) {
-//                System.out.println("Probellm in Query section");
-//            }
-//        }
-//
-//        //ReOrgnize calc Wij,Cig
-//        for (String term : QueryAfterParse.keySet()) {
-//            try {
-//                if (Searcher.LoadedDictionary.get(term) != null) {
-//                    Pointer = Searcher.LoadedDictionary.get(term).getPointer();
-//                    GetTF_InTitelFromPosting(Pointer, term);// <docid,tf> from posting
-//                } else {
-//                    continue;
-//                }
-//            } catch (Exception e) {
-//                System.out.println("Probellm in reorgnized part 1");
-//            }
-//        }
-//        for (String docid : PostingTFResult.keySet()) {
-//            for(String term : PostingTFResult.get(docid).keySet()) {
-//                try{
-//                if (Searcher.citiesToFilter != null) {
-//                    if (Searcher.citiesToFilter.contains(Searcher.DocsResultCITY.get(docid))) {
-//                        double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
-//                        Wij = (PostingTFResult.get(docid).get(term) / Searcher.DocsResultDL.get(docid)) * (Math.log((Searcher.NumOfDocs+1) / idf)/Math.log(2));
-//                        Cij = PostingTFResult.get(docid).get(term);
-//                        CosSimtmp.put(term, Wij);
-//                        BM25tmp.put(term, Cij);
-//                    } else
-//                        continue;
-//                } else {
-//                    double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
-//                    Wij = (PostingTFResult.get(docid).get(term) / Searcher.DocsResultDL.get(docid)) * (Math.log((Searcher.NumOfDocs+1) / idf)/Math.log(2));
-//                    Cij = PostingTFResult.get(docid).get(term);
-//                    CosSimtmp.put(term, Wij);
-//                    BM25tmp.put(term, Cij);
-//                }
-//            }
-//            catch (Exception e){
-//                    System.out.println("Probellm in reorgnized part 2");
-//            }
-//            }
-//            CosSim_Matrix.put(docid,CosSimtmp);
-//            BM25_Matrix.put(docid,BM25tmp);
-//        }
-//
-//        //Compare get CosSim,BM25 score
-//        for(String Doc : PostingTFResult.keySet()) {
-//            for (String term : QueryAfterParse.keySet()) {
-//                try {
-//                    double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
-//                    //calc CosSim
-//                    CosSimRankUP += CosSim_Matrix.get(Doc).get(term) * Query_CosSim.get(term);
-//                    CosSimRankDOWNdoc += Math.pow(CosSim_Matrix.get(Doc).get(term), 2);
-//                    CosSimRankDOWNquery += Math.pow(Query_CosSim.get(term), 2);
-//                    //calc BM25
-//                    BM25UP = BM25_Matrix.get(Doc).get(term) * (k + 1) * Query_BM25.get(term);
-//                    BM25DOWN = BM25_Matrix.get(Doc).get(term) + k *(1 - b + b * (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl));
-//                    BM25Log = (Math.log((Searcher.NumOfDocs+1) / idf)/Math.log(2));
-//                    BM25Rank += BM25UP * BM25DOWN * BM25Log;
-//                    //BM25Rank  = ((((k=1)*tf)/(tf+k*(1-b+b* doclength/avg)))*Math.log((numod docs in all corpus+1)/idf))
-//                } catch (Exception e) {
-//                    System.out.println("Problem in Compare");
-//                }
-//            }
-//                CosSimRankDOWN = Math.sqrt(CosSimRankDOWNdoc * CosSimRankDOWNquery);
-//                CosSimRank = CosSimRankUP / CosSimRankDOWN;
-//                RankerResult.put((0.5 * CosSimRank) + (0.5 * BM25Rank), Doc);
-//        }
-//  RankDocs(RankerResult, Queryid);
+    }
+    //rate Docs of specific query, calculate cosin and bm25 and return the final list- 50 or 70 docs aprox.
+    public List<string> rateDocs(Dictionary<string, Dictionary<string, int>> qTerms,int numOfTerms,int amount)
+    {
+        List<KeyValuePair<string, double>> temp = new List<KeyValuePair<string, double>>();
 
+        foreach (string docNum in qTerms.Keys)
+        {
+            //cos_sim
+            double upCos = 0;
+            double downCos = 0;
+            //BM25
+            double upBM25 = 0;
+            double downBM25 = 0;
+            double bm25 = 0;
+            double bmbcal = k * (0.25 + 0.75 * docslength[docNum] / avgDL);
 
-//        HashMap<Double, String> RankerResult = new HashMap<>();//HashMap<Rank,DocID>
-//        HashMap<String, HashMap<String, Double>> CosSim_Matrix = new HashMap<>(); //new--- <Docid,<term ,CosSim Score>>
-//        HashMap<String, HashMap<String, Double>> BM25_Matrix = new HashMap<>();  //new--- <Docid,<term ,BM25 score>>
-//        HashMap<String, Double> CosSimtmp = new HashMap<>();//for Docid
-//        HashMap<String, Double> BM25tmp = new HashMap<>();//for Docid
-//        HashMap<String, Double> Query_BM25 = new HashMap<>();
-//        HashMap<String, Double> Query_CosSim = new HashMap<>();
-//        HashSet<String> SemanticsWords;
-//        int Pointer;
-//        double Wij;
-//        double Cij;
-//        double Wiq;
-//        double Ciq;
-//        double querylength = QueryAfterParse.size();
-//        double CosSimRank = 0;
-//        double CosSimRankDOWNdoc = 0;
-//        double CosSimRankDOWNquery = 0;
-//        double CosSimRankUP = 0;
-//        double CosSimRankDOWN = 0;
-//        double BM25Rank = 0;
-//        double b = 0.75;
-//        double k = 2;
-//        double BM25UP = 0;
-//        double BM25DOWN = 0;
-//        double BM25Log = 0;
-//        // double TitleRank = 0;
+            //all terms in query
+            foreach (string query_term in qTerms[docNum].Keys)
+            {
+                //if term exsits in query but not in dictionary
+                if (ind.dic.ContainsKey(query_term))
+                {
+                    //cosin
+                    double Wij=((double)qTerms[docNum][query_term] / (double)Docsmaxtf[docNum]) * (double)ind.dic[query_term].idf;
+                    upCos += Wij;
+
+                    //BM25
+                    upBM25 = (double)ind.dic[query_term].idf * (double)qTerms[docNum][query_term] * (k + 1);
+                    downBM25 = (double)qTerms[docNum][query_term] + bmbcal ;
+                    bm25 += upBM25 / downBM25;
+                }
+            }
+            downCos = Math.Sqrt((double)numOfTerms)* (double)DocWeight[docNum];
+            double cosin = upCos / downCos;
+            //Final Formula
+            double formul = 0.4 * (cosin) + 0.6 * (bm25);
+            temp.Add(new KeyValuePair<string, double>(docNum, formul));
+        }
+        //Sort the temp
+        temp.Sort((KeyValuePair<string,double> d1, KeyValuePair<string, double> d2) => d2.Value.CompareTo(d1.Value));
+        List<string> ans = new List<string>();
+        for (int i=0;i<temp.Count && i<amount;i++)
+        {
+            //list of the docs after rank
+            ans.Add(temp[i].Key);
+        }
+        return ans;
+    }
+}
+}
+ */

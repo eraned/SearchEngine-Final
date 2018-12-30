@@ -2,15 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="000fed4f-d4e5-4843-860e-5a5ca9c4c96e" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/compiler.xml" afterPath="$PROJECT_DIR$/.idea/compiler.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SearchEngine-Final.iml" afterPath="$PROJECT_DIR$/SearchEngine-Final.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/Controller/Controller.java" afterPath="$PROJECT_DIR$/src/main/java/Controller/Controller.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/Model/Indexer.java" afterPath="$PROJECT_DIR$/src/main/java/Model/Indexer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/Model/Ranker.java" afterPath="$PROJECT_DIR$/src/main/java/Model/Ranker.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/Model/ReadFile.java" afterPath="$PROJECT_DIR$/src/main/java/Model/ReadFile.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/Model/SearchEngine.java" afterPath="$PROJECT_DIR$/src/main/java/Model/SearchEngine.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/Model/Searcher.java" afterPath="$PROJECT_DIR$/src/main/java/Model/Searcher.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -79,8 +72,8 @@
       <file leaf-file-name="Ranker.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/Model/Ranker.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="396">
-              <caret line="144" column="64" lean-forward="true" selection-start-line="144" selection-start-column="64" selection-end-line="144" selection-end-column="64" />
+            <state relative-caret-position="167">
+              <caret line="449" column="56" lean-forward="true" selection-start-line="449" selection-start-column="56" selection-end-line="449" selection-end-column="56" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -420,13 +413,6 @@
       <workItem from="1545987987333" duration="9377000" />
       <workItem from="1546076056930" duration="18026000" />
     </task>
-    <task id="LOCAL-00012" summary="update - gui fxml and css 4">
-      <created>1544282754982</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1544282754982</updated>
-    </task>
     <task id="LOCAL-00013" summary="update - notes neede">
       <created>1544304368156</created>
       <option name="number" value="00013" />
@@ -763,7 +749,14 @@
       <option name="project" value="LOCAL" />
       <updated>1546082664402</updated>
     </task>
-    <option name="localTasksCounter" value="61" />
+    <task id="LOCAL-00061" summary="eran - start tests runs">
+      <created>1546158452026</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1546158452026</updated>
+    </task>
+    <option name="localTasksCounter" value="62" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
@@ -1078,7 +1071,7 @@
         <state relative-caret-position="861">
           <caret line="206" column="0" lean-forward="false" selection-start-line="206" selection-start-column="0" selection-end-line="206" selection-end-column="0" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="imports" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1135,8 +1128,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/Model/Ranker.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="144" column="64" lean-forward="true" selection-start-line="144" selection-start-column="64" selection-end-line="144" selection-end-column="64" />
+        <state relative-caret-position="167">
+          <caret line="449" column="56" lean-forward="true" selection-start-line="449" selection-start-column="56" selection-end-line="449" selection-end-column="56" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
