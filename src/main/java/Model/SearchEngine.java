@@ -40,8 +40,8 @@ public class SearchEngine {
         long StartTime = System.nanoTime();
         CorpusPathIN = corpusPathIN;
         CorpusPathOUT = corpusPathOUT;
-        //StopWordsPath = new StringBuilder(CorpusPathIN + "\\stop_words.txt"); //todo
-        StopWordsPath = new StringBuilder(CorpusPathIN + "/stop_words.txt");
+        StopWordsPath = new StringBuilder(CorpusPathIN + "\\stop_words.txt"); //todo
+        //StopWordsPath = new StringBuilder(CorpusPathIN + "/stop_words.txt");
         StemmerNeeded = isSteemer;
         readFile = new ReadFile(CorpusPathIN,StemmerNeeded);
         parser = new Parse(StemmerNeeded, StopWordsPath.toString());
@@ -170,8 +170,8 @@ public class SearchEngine {
      *
      */
     public void ItsTimeToWriteAllDocs() {
-        //File AllDocsFile = new File(indexer.stbOUT + "\\Docs" + ".txt"); //todo
-        File AllDocsFile = new File(indexer.stbOUT + "/Docs" + ".txt");
+        File AllDocsFile = new File(indexer.stbOUT + "\\Docs" + ".txt"); //todo
+        //File AllDocsFile = new File(indexer.stbOUT + "/Docs" + ".txt");
         ArrayList<String> SortedDocs = new ArrayList<>(All_Docs.keySet());
         Collections.sort(SortedDocs);
         try {

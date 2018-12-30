@@ -165,12 +165,12 @@ public class Controller{
         File FileToReset;
         String Pathout = PathOUT.getText();
         if (Stemmer.isSelected())
-            //FileToReset = new File(Pathout + "\\EngineOut_WithStemmer\\"); //todo
-            FileToReset = new File(Pathout + "/EngineOut_WithStemmer/");
+            FileToReset = new File(Pathout + "\\EngineOut_WithStemmer\\"); //todo
+            //FileToReset = new File(Pathout + "/EngineOut_WithStemmer/");
 
         else
-            //FileToReset = new File(Pathout + "\\EngineOut\\"); //todo
-            FileToReset = new File(Pathout + "/EngineOut/");
+            FileToReset = new File(Pathout + "\\EngineOut\\"); //todo
+            //FileToReset = new File(Pathout + "/EngineOut/");
 
 
         if (FileToReset.exists()) {
@@ -203,13 +203,13 @@ public class Controller{
         if (!PathOUT.getText().trim().isEmpty()) {
             String Pathout = PathOUT.getText();
             if(!Stemmer.isSelected()) {
-                //File dictionary = new File(Pathout + "\\EngineOut\\Dictionary.txt"); //todo
-                File dictionary = new File(Pathout + "/EngineOut/Dictionary.txt");
+                File dictionary = new File(Pathout + "\\EngineOut\\Dictionary.txt"); //todo
+                //File dictionary = new File(Pathout + "/EngineOut/Dictionary.txt");
                 Desktop.getDesktop().edit(dictionary);
             }
             else{
-                //File dictionary = new File(Pathout + "\\EngineOut_WithStemmer\\Dictionary.txt"); //todo
-                File dictionary = new File(Pathout + "/EngineOut_WithStemmer/Dictionary.txt");
+                File dictionary = new File(Pathout + "\\EngineOut_WithStemmer\\Dictionary.txt"); //todo
+                //File dictionary = new File(Pathout + "/EngineOut_WithStemmer/Dictionary.txt");
                 Desktop.getDesktop().edit(dictionary);
             }
         }
@@ -221,13 +221,13 @@ public class Controller{
     /**
      * read the dic from the disk and initialized it to new data structure that save in the memory.
      */
-    public void LoadDicToMemory() throws IOException { //todo - to move to the function in the indexer!!
+    public void LoadDicToMemory() throws IOException {
         if(!Stemmer.isSelected())
-            //searchEngine.GetIndexer().Dictionary  = SearchEngine.ItsTimeToLoadDictionary(  PathOUT.getText() + "\\EngineOut\\Dictionary.txt"); //todo
-            searchEngine.GetIndexer().Dictionary  = SearchEngine.ItsTimeToLoadDictionary(  PathOUT.getText() + "/EngineOut/Dictionary.txt");
+            searchEngine.GetIndexer().Dictionary  = SearchEngine.ItsTimeToLoadDictionary(  PathOUT.getText() + "\\EngineOut\\Dictionary.txt"); //todo
+            //searchEngine.GetIndexer().Dictionary  = SearchEngine.ItsTimeToLoadDictionary(  PathOUT.getText() + "/EngineOut/Dictionary.txt");
         else
-            //searchEngine.GetIndexer().Dictionary  = SearchEngine.ItsTimeToLoadDictionary( PathOUT.getText()+ "\\EngineOut_WithStemmer\\Dictionary.txt"); //todo
-            searchEngine.GetIndexer().Dictionary  = SearchEngine.ItsTimeToLoadDictionary( PathOUT.getText()+ "/EngineOut_WithStemmer/Dictionary.txt");
+            searchEngine.GetIndexer().Dictionary  = SearchEngine.ItsTimeToLoadDictionary( PathOUT.getText()+ "\\EngineOut_WithStemmer\\Dictionary.txt"); //todo
+            //searchEngine.GetIndexer().Dictionary  = SearchEngine.ItsTimeToLoadDictionary( PathOUT.getText()+ "/EngineOut_WithStemmer/Dictionary.txt");
         if (LoadDic != null)
             showAlert("Dictionary successfully loaded to Memory!");
          else
@@ -299,8 +299,8 @@ public class Controller{
      */
     public void NewSearch() {
         File ResultsToReset;
-        //String ResultPath = PathForResults.getText() + "\\Results"; //todo
-        String ResultPath = PathForResults.getText() + "/Results";
+        String ResultPath = PathForResults.getText() + "\\Results"; //todo
+        //String ResultPath = PathForResults.getText() + "/Results";
         ResultsToReset = new File(ResultPath);
         if (ResultsToReset.exists()) {
             File[] fileList = ResultsToReset.listFiles();
@@ -335,8 +335,8 @@ public class Controller{
      * @throws IOException
      */
     public void SaveResults() throws IOException {
-        //File SavedResultsFile = new File(PathForResults.getText() + "\\Results");
-        File SavedResultsFile = new File(PathForResults.getText() + "/Results");
+        File SavedResultsFile = new File(PathForResults.getText() + "\\Results"); //todo
+        //File SavedResultsFile = new File(PathForResults.getText() + "/Results");
         SavedResultsFile.mkdir();
         Searcher.WriteResults(SavedResultsFile);
         showAlert("Results Saved successfully!");

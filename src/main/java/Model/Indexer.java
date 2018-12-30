@@ -59,11 +59,11 @@ public class Indexer {
         Entitys = new HashSet<>();
 
         if(StemmerNeeded)
-            //stbOUT.append(CorpusPathOUT + "\\EngineOut_WithStemmer\\"); //todo
-            stbOUT.append(CorpusPathOUT + "/EngineOut_WithStemmer/");
+            stbOUT.append(CorpusPathOUT + "\\EngineOut_WithStemmer\\"); //todo
+            //stbOUT.append(CorpusPathOUT + "/EngineOut_WithStemmer/");
         else
-            //stbOUT.append(CorpusPathOUT + "\\EngineOut\\"); //todo
-            stbOUT.append(CorpusPathOUT + "/EngineOut/");
+            stbOUT.append(CorpusPathOUT + "\\EngineOut\\"); //todo
+            //stbOUT.append(CorpusPathOUT + "/EngineOut/");
 
         File folder = new File(stbOUT.toString());
         File[] listOfFiles = folder.listFiles();
@@ -314,20 +314,20 @@ public class Indexer {
      * split the final posting file to 6 ranges to improve to find doc for query
      */
     public void ItsTimeForSPLIT_Final_Posting(){
-//        File Numbers = new File(stbOUT+"\\Numbers.txt"); //todo
-//        File A_E = new File(stbOUT+"\\A_E.txt");
-//        File F_J = new File(stbOUT+"\\F_J.txt");
-//        File K_P= new File(stbOUT+"\\K_P.txt" );
-//        File Q_U = new File(stbOUT+"\\Q_U.txt");
-//        File V_Z = new File(stbOUT+"\\V_Z.txt");
-//        File Final_Posting =  new File(stbOUT + "\\FinaleMerge" + ".txt");
-        File Numbers = new File(stbOUT+"/Numbers.txt");
-        File A_E = new File(stbOUT+"/A_E.txt");
-        File F_J = new File(stbOUT+"/F_J.txt");
-        File K_P= new File(stbOUT+"/K_P.txt" );
-        File Q_U = new File(stbOUT+"/Q_U.txt");
-        File V_Z = new File(stbOUT+"/V_Z.txt");
-        File Final_Posting =  new File(stbOUT + "/FinaleMerge" + ".txt");
+        File Numbers = new File(stbOUT+"\\Numbers.txt"); //todo
+        File A_E = new File(stbOUT+"\\A_E.txt");
+        File F_J = new File(stbOUT+"\\F_J.txt");
+        File K_P= new File(stbOUT+"\\K_P.txt" );
+        File Q_U = new File(stbOUT+"\\Q_U.txt");
+        File V_Z = new File(stbOUT+"\\V_Z.txt");
+        File Final_Posting =  new File(stbOUT + "\\FinaleMerge" + ".txt");
+//        File Numbers = new File(stbOUT+"/Numbers.txt");
+//        File A_E = new File(stbOUT+"/A_E.txt");
+//        File F_J = new File(stbOUT+"/F_J.txt");
+//        File K_P= new File(stbOUT+"/K_P.txt" );
+//        File Q_U = new File(stbOUT+"/Q_U.txt");
+//        File V_Z = new File(stbOUT+"/V_Z.txt");
+//        File Final_Posting =  new File(stbOUT + "/FinaleMerge" + ".txt");
         int countNumber = 0 ;
         int countA_E = 0 ;
         int countF_J = 0 ;
@@ -457,8 +457,8 @@ public class Indexer {
      * after the inverted index was created write the Dictionary to the disk
      */
     public void ItsTimeToWriteDictionary(){
-        //File DictionaryDoc = new File(stbOUT + "\\Dictionary" + ".txt"); //todo
-        File DictionaryDoc = new File(stbOUT + "/Dictionary" + ".txt");
+        File DictionaryDoc = new File(stbOUT + "\\Dictionary" + ".txt"); //todo
+        //File DictionaryDoc = new File(stbOUT + "/Dictionary" + ".txt");
         ArrayList<String> SortedDic = new ArrayList<>(Dictionary.keySet());
         Collections.sort(SortedDic);
 

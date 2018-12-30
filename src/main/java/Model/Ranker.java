@@ -73,7 +73,6 @@ public class Ranker {
      * @throws URISyntaxException
      */
     public void InitializScores(HashMap<String, TermDetailes> QueryAfterParse, String Queryid, boolean semanticNeeded) throws IOException, URISyntaxException { //Matrix of columns: d1,d2,d3....q     rows: t1,t2,t3....
-        querylength = QueryAfterParse.size();
         if (semanticNeeded)
             ProccesSemantic(QueryAfterParse);
         ProccesQuery(QueryAfterParse);
@@ -108,10 +107,12 @@ public class Ranker {
                 testline =2;
                 if (SemanticsWords != null) {
                     for (String word : SemanticsWords) {
-                        TermDetailes tmpTD = new TermDetailes("API");
-                        tmpTD.setTF(1);
-                        tmpTD.setInTitle(false);
-                        Query.put(word, tmpTD);
+                        if (Searcher.LoadedDictionary.get(word) != null) {
+                            TermDetailes tmpTD = new TermDetailes("API");
+                            tmpTD.setTF(1);
+                            tmpTD.setInTitle(false);
+                            Query.put(word, tmpTD);
+                        }
                     }
                 } else {
                     continue;
@@ -129,6 +130,7 @@ public class Ranker {
                 Query.put(term, QueryAfterParse.get(term));
             }
         }
+        querylength = Query.size();
         for (String term : Query.keySet()){
             try {
                 testline =1;
@@ -271,32 +273,32 @@ public class Ranker {
         char tmpFirst = term.charAt(0);
         tmpFirst = Character.toLowerCase(tmpFirst);
         StringBuilder stb = new StringBuilder();
-//        if (tmpFirst >= 'a' && tmpFirst <= 'e') { //todo
-//            stb.append(PostingPath + "\\A_E.txt");
-//        } else if (tmpFirst >= 'f' && tmpFirst <= 'j') {
-//            stb.append(PostingPath + "\\F_J.txt");
-//        } else if (tmpFirst >= 'k' && tmpFirst <= 'p') {
-//            stb.append(PostingPath + "\\K_P.txt");
-//        } else if (tmpFirst >= 'q' && tmpFirst <= 'u') {
-//            stb.append(PostingPath + "\\Q_U.txt");
-//        } else if (tmpFirst >= 'v' && tmpFirst <= 'z') {
-//            stb.append(PostingPath + "\\V_Z.txt");
-//        } else {
-//            stb.append(PostingPath + "\\Numbers.txt");
-//        }
-        if (tmpFirst >= 'a' && tmpFirst <= 'e') {
-            stb.append(PostingPath + "/A_E.txt");
+        if (tmpFirst >= 'a' && tmpFirst <= 'e') { //todo
+            stb.append(PostingPath + "\\A_E.txt");
         } else if (tmpFirst >= 'f' && tmpFirst <= 'j') {
-            stb.append(PostingPath + "/F_J.txt");
+            stb.append(PostingPath + "\\F_J.txt");
         } else if (tmpFirst >= 'k' && tmpFirst <= 'p') {
-            stb.append(PostingPath + "/K_P.txt");
+            stb.append(PostingPath + "\\K_P.txt");
         } else if (tmpFirst >= 'q' && tmpFirst <= 'u') {
-            stb.append(PostingPath + "/Q_U.txt");
+            stb.append(PostingPath + "\\Q_U.txt");
         } else if (tmpFirst >= 'v' && tmpFirst <= 'z') {
-            stb.append(PostingPath + "/V_Z.txt");
+            stb.append(PostingPath + "\\V_Z.txt");
         } else {
-            stb.append(PostingPath + "/Numbers.txt");
+            stb.append(PostingPath + "\\Numbers.txt");
         }
+//        if (tmpFirst >= 'a' && tmpFirst <= 'e') {
+//            stb.append(PostingPath + "/A_E.txt");
+//        } else if (tmpFirst >= 'f' && tmpFirst <= 'j') {
+//            stb.append(PostingPath + "/F_J.txt");
+//        } else if (tmpFirst >= 'k' && tmpFirst <= 'p') {
+//            stb.append(PostingPath + "/K_P.txt");
+//        } else if (tmpFirst >= 'q' && tmpFirst <= 'u') {
+//            stb.append(PostingPath + "/Q_U.txt");
+//        } else if (tmpFirst >= 'v' && tmpFirst <= 'z') {
+//            stb.append(PostingPath + "/V_Z.txt");
+//        } else {
+//            stb.append(PostingPath + "/Numbers.txt");
+//        }
         File SelectedPosting = new File(stb.toString());
         String TermLIne = (String) FileUtils.readLines(SelectedPosting).get(pointer);
         stb.setLength(0);
