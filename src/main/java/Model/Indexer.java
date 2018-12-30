@@ -27,6 +27,7 @@ public class Indexer {
     public  HashMap<String, ArrayList<TermDetailes>> Posting;
     public StringBuilder stbOUT;
     public int PostingNumber;
+    public int MergeNumber;
     public int BlockCounter;
     public int PostingDocIndex;
     public  long PostingSize;
@@ -51,6 +52,7 @@ public class Indexer {
         Posting = new HashMap<>();
         stbOUT = new StringBuilder();
         PostingNumber = 0;
+        MergeNumber = 0;
         PostingSize = 0;
         BlockCounter = 0;
         PostingDocIndex = 0;
@@ -178,7 +180,7 @@ public class Indexer {
         ArrayList<String> SortedPost = new ArrayList<>(Posting.keySet());
         Collections.sort(SortedPost);
         PostingNumber++;
-
+        int postingcounter = 0;
         try {
             FileWriter FW = new FileWriter(tmpPost);
             BufferedWriter BW = new BufferedWriter(FW);
@@ -191,12 +193,14 @@ public class Indexer {
                 if (term.equals("exploration")) {
                     for (TermDetailes TD : Posting.get(term)) {
                         counterbefore++;
+                        postingcounter++;
                     }
                 }
                 BW.write("#");
                 BW.newLine();
             }
             BW.close();
+            System.out.println("posting   " + PostingNumber + "   "+postingcounter);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -206,17 +210,20 @@ public class Indexer {
      * after all tmp posting files was created merge every 2 docs Lexicography for final posting file.
      * @throws IOException
      */
+
     public void ItsTimeForMERGE_All_Postings() throws IOException {
         File file = new File(stbOUT.toString());
         File[] FilestoMerge = file.listFiles();
-        String tmpPath = stbOUT + "tmpMerge" + ".txt";
+        //String tmpPath = stbOUT + "tmpMerge" + ".txt";
         String FinalePath = stbOUT + "FinaleMerge" + ".txt";
-        String tmpPath_odd = stbOUT + "tmpMerge-odd" + ".txt";
+        //String tmpPath_odd = stbOUT + "tmpMerge-odd" + ".txt";
+
         //todo - corpus more then one block
         if(FilestoMerge.length >= 1) {
-            while (FilestoMerge.length > 2) {
+            while (FilestoMerge.length > 1) {
                 for (int i = 0; i < FilestoMerge.length - 1; i += 2) {
-                    EXTERNAL_SORT(FilestoMerge[i], FilestoMerge[i + 1],tmpPath);
+                    EXTERNAL_SORT(FilestoMerge[i], FilestoMerge[i + 1],MergeNumber);
+                    MergeNumber++;
                 }
                 FilestoMerge = file.listFiles();
             }
@@ -224,7 +231,7 @@ public class Indexer {
             if(FilestoMerge.length == 1){
                 ItsTimeForFLUSH_POSTING();
                 FilestoMerge = file.listFiles();
-                EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],FinalePath);
+                EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],MergeNumber);
                 FilestoMerge = file.listFiles();
                 PostingSize = FilestoMerge[0].length()/1024;
                 Posting.clear();
@@ -232,10 +239,10 @@ public class Indexer {
             }
             //todo - corpus odd posting files
             if(FilestoMerge.length == 2){
-                EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],tmpPath_odd);
+                EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],MergeNumber);
                 ItsTimeForFLUSH_POSTING();
                 FilestoMerge = file.listFiles();
-                EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],FinalePath);
+                EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],MergeNumber);
                 FilestoMerge = file.listFiles();
                 PostingSize = FilestoMerge[0].length()/1024;
                 Posting.clear();
@@ -246,7 +253,7 @@ public class Indexer {
         else{
             ItsTimeForFLUSH_POSTING();
             FilestoMerge = file.listFiles();
-            File filenewName = new File(FinalePath);
+            File filenewName = new File(stbOUT.toString() + MergeNumber + "tmp.txt");
             FilestoMerge[0].renameTo(filenewName);
             FilestoMerge = file.listFiles();
             PostingSize = FilestoMerge[0].length()/1024;
@@ -255,17 +262,84 @@ public class Indexer {
         }
     }
 
+
+    //    public void mergeSort(File f1,File f2) throws IOException {
+//
+//        BufferedReader tr1 = new BufferedReader(new FileReader(f1));
+//        BufferedReader tr2 = new BufferedReader(new FileReader(f2));
+//
+//        String line1 = tr1.readLine();
+//        String line2 = tr2.readLine();
+//
+//        PrintWriter fw = new PrintWriter(new File(path+"\\tempPosting\\" + "merge "+docIndex + ".txt"));
+//        docIndex++;
+//
+//        //compering the beginning of 2 files
+//        while (line1 != null && line2 != null) {//if 2 docs have lines
+//            if (line1 != null && line1.length() == 0)
+//                break;
+//            if (line2 != null && line2.length() == 0)
+//                break;
+//            String term1 = line1.substring(0, line1.indexOf(":"));
+//            String term2 = line2.substring(0, line2.indexOf(":"));
+//
+//            int comp = term1.compareTo(term2);
+//            //checking witch term is smaller by Lexicographic order and write it to the merge file
+//            if (comp > 0) {
+//                fw.write(line2 + "\n");
+//                line2 = tr2.readLine();
+//            } else if (comp < 0) {
+//                fw.write(line1 + "\n");
+//                line1 = tr1.readLine();
+//            } else {
+//                StringBuilder f = new StringBuilder();
+//                f.append(term1 + ": ");
+//                f.append(line1.substring(line1.indexOf(":")+2));
+//                f.append(line2.substring(line2.indexOf(":")+2));
+//                fw.write(f.toString() + "\n");
+//                line1 = tr1.readLine();
+//                line2 = tr2.readLine();
+//            }
+//        }
+//        //if finish passing file 1 - we will copy file 2
+//        while (line2 != null) {
+//            if (line2 != null && line2.length() == 0)
+//                break;
+//            fw.write(line2 + "\n");
+//            line2 = tr2.readLine();
+//        }
+//        //if finish passing file 2 - we will copy file 1
+//        while (line1 != null) {
+//            if (line1 != null && line1.length() == 0)
+//                break;
+//            fw.write(line1 + "\n");
+//            line1 = tr1.readLine();
+//        }
+//        tr1.close();
+//        tr2.close();
+//        Files.delete(f1.toPath());
+//        Files.delete(f2.toPath());
+//        fw.flush();
+//        fw.close();
+//
+//    }
+
+
+
+
     /**
      * merge two file Lexicography implementaion line by line.
      * @param F1 - tmp posting file to merge
      * @param F2 - tmp posting file to merge
      * @throws IOException
      */
-    public void EXTERNAL_SORT(File F1 , File F2 ,String PathToMerge) throws IOException{
-        int externalcounterF1 = 0;
-        int externalcounteraF2 = 0;
-        int externalcounteramerged = 0;
-        FileWriter FW = new FileWriter(new File(PathToMerge));
+    public void EXTERNAL_SORT(File F1 , File F2 ,int counter) throws IOException{
+
+
+        FileWriter FW = new FileWriter(new File(stbOUT.toString() + MergeNumber + "tmp.txt"));
+//        MergeNumber++;
+
+        //FileWriter FW = new FileWriter(new File(PathToMerge));
         BufferedReader BR1 = new BufferedReader(new FileReader(F1));
         BufferedReader BR2 = new BufferedReader(new FileReader(F2));
         String S1 = BR1.readLine();
@@ -302,12 +376,12 @@ public class Indexer {
             FW.write(S2 + System.getProperty( "line.separator" ));
             S2 = BR2.readLine();
         }
-        FW.flush();
-        FW.close();
         BR1.close();
         BR2.close();
         Files.delete(F1.toPath());
         Files.delete(F2.toPath());
+        FW.flush();
+        FW.close();
     }
 
     /**
@@ -320,7 +394,7 @@ public class Indexer {
         File K_P = new File(stbOUT + "\\K_P.txt");
         File Q_U = new File(stbOUT + "\\Q_U.txt");
         File V_Z = new File(stbOUT + "\\V_Z.txt");
-        File Final_Posting = new File(stbOUT + "\\FinaleMerge" + ".txt");
+        File Final_Posting = new File(stbOUT.toString() + MergeNumber + "tmp.txt");
         int countNumber = 0;
         int countA_E = 0;
         int countF_J = 0;
@@ -352,24 +426,23 @@ public class Indexer {
                 //A-E
                 if (tmpFirst >= 'a' && tmpFirst <= 'e') {
                     A_E_BW.write(S);
-//                    if (stbTerm.toString().equals("exploration")) {
-//                        String docID;
-//                        int index;
-//                        index = S.indexOf(':');
-//                        S = S.substring(index + 1);
-//                        while (S.length() > 1) {
-//                            try {
-//                                index = S.indexOf("id:");
-//                                docID = S.substring(index + 3, S.indexOf(';'));
-//                                testHashFinal.add(docID);
-//                                S = S.substring(S.indexOf(">")+1);
-//                                counterafter++;
-//                            } catch (Exception e) {
-//                                System.out.println("problem get tf!");
-//                                break;
-//                            }
-//                        }
-//                    }
+                    if (stbTerm.toString().equals("exploration")) {
+                        String docID;
+                        int index;
+                        index = S.indexOf(':');
+                        S = S.substring(index + 1);
+                        while (S.length() > 1) {
+                            try {
+                                index = S.indexOf("id:");
+                                docID = S.substring(index + 3, S.indexOf(';'));
+                                S = S.substring(S.indexOf(">")+1);
+                                counterafter++;
+                            } catch (Exception e) {
+                                System.out.println("problem get tf!");
+                                break;
+                            }
+                        }
+                    }
                     if (Dictionary.containsKey(stbTerm.toString())) {
                         Dictionary.get(stbTerm.toString()).setPointer(countA_E);
                     }
