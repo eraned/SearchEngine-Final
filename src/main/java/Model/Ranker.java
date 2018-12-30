@@ -150,6 +150,13 @@ public class Ranker {
                 Pointer = Searcher.LoadedDictionary.get(term).getPointer();
                 testline =2;
                 GetTF_InTitelFromPosting(Pointer, term);// <docid,tf> from posting
+               // public HashMap<String, HashMap<String, Double>> PostingTFResult;
+                for(String doccc : PostingTFResult.keySet()){
+                    System.out.println(doccc);
+                    for(String t : PostingTFResult.get(doccc).keySet()){
+                        System.out.println(t);
+                    }
+                }
             } catch (Exception e) {
                 System.out.println("Probellm in reorgnized part 1");
                 System.out.println(term);

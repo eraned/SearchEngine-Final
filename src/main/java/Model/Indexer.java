@@ -27,6 +27,7 @@ public class Indexer {
     public  HashMap<String, ArrayList<TermDetailes>> Posting;
     public StringBuilder stbOUT;
     public int PostingNumber;
+    public int testNumber;
     public int BlockCounter;
     public int PostingDocIndex;
     public  long PostingSize;
@@ -49,6 +50,7 @@ public class Indexer {
         Posting = new HashMap<>();
         stbOUT = new StringBuilder();
         PostingNumber = 0;
+        testNumber = 0;
         PostingSize = 0;
         BlockCounter = 0;
         PostingDocIndex = 0;
@@ -90,23 +92,22 @@ public class Indexer {
      */
 
     public void CreateMINI_Posting(HashMap<String, TermDetailes> DocAfterParse,String Docid) throws IOException {
-        int MaxTermFreq = 0;StringBuilder Ent = new StringBuilder();//HashSet<String> EntHash = new HashSet<>();
+        int MaxTermFreq = 0;
+        StringBuilder Ent = new StringBuilder();//HashSet<String> EntHash = new HashSet<>();
         //improve parser
         for (String tmpTerm : DocAfterParse.keySet()) {
             TermDetailes tmpTermDetailes = DocAfterParse.get(tmpTerm);
             try {
-                if(StringUtils.contains(tmpTerm,'-')){
-                    if(StringUtils.containsOnly(tmpTerm,'-')){
+                if (StringUtils.contains(tmpTerm, '-')) {
+                    if (StringUtils.containsOnly(tmpTerm, '-')) {
                         continue;
-                    }
-                    else if(tmpTerm.charAt(0) == '-' || tmpTerm.endsWith("-")){
-                        tmpTerm = RegExUtils.removeAll(tmpTerm,"-");
-                    }
-                    else if(StringUtils.contains(tmpTerm,'/'))
+                    } else if (tmpTerm.charAt(0) == '-' || tmpTerm.endsWith("-")) {
+                        tmpTerm = RegExUtils.removeAll(tmpTerm, "-");
+                    } else if (StringUtils.contains(tmpTerm, '/'))
                         continue;
-                    else{
-                        if(StringUtils.contains(tmpTerm,"--"))
-                            tmpTerm = RegExUtils.replaceAll(tmpTerm,"--","-");
+                    else {
+                        if (StringUtils.contains(tmpTerm, "--"))
+                            tmpTerm = RegExUtils.replaceAll(tmpTerm, "--", "-");
                         String[] splited = StringUtils.split(tmpTerm, "-");
                         for (int i = 0; i < splited.length; i++) {
                             if (!StringUtils.isAlphanumeric(splited[i])) {
@@ -115,21 +116,22 @@ public class Indexer {
                         }
 
                     }
-                }
-                else if(tmpTerm.length() <= 1 && StringUtils.contains(tmpTerm,'/'))
+                } else if (tmpTerm.length() <= 1 && StringUtils.contains(tmpTerm, '/'))
                     continue;
                 else if (!ParserBooster(tmpTerm))
                     continue;
-            }
-            catch (Exception e){ //todo - delete before
+            } catch (Exception e) { //todo - delete before
                 System.out.println(tmpTerm);
             }
-            if(StringUtils.isAlpha(tmpTerm) && StringUtils.isAllUpperCase(tmpTerm)){
+            if (StringUtils.isAlpha(tmpTerm) && StringUtils.isAllUpperCase(tmpTerm)) {
                 Ent.append(tmpTerm + ":" + tmpTermDetailes.getTF() + ";");
             }
+//            if (tmpTerm.equals("exploration")) {
+//                System.out.println("found!");
+//            }
             // not in Post
             if (!Posting.containsKey(tmpTerm)) {
-                Posting.put(tmpTerm,new ArrayList<TermDetailes>());
+                Posting.put(tmpTerm, new ArrayList<TermDetailes>());
                 Posting.get(tmpTerm).add(tmpTermDetailes);
             }
             // in Post
@@ -138,13 +140,12 @@ public class Indexer {
             }
             //in dic
             if (Dictionary.containsKey(tmpTerm)) {
-                if (Dictionary.containsKey(tmpTerm.toUpperCase())&& Character.isLowerCase(tmpTerm.charAt(0))){
+                if (Dictionary.containsKey(tmpTerm.toUpperCase()) && Character.isLowerCase(tmpTerm.charAt(0))) {
                     Dictionary.put(tmpTerm.toLowerCase(), Dictionary.get(tmpTerm.toUpperCase()));
                     Dictionary.remove(tmpTerm.toUpperCase());
                     Dictionary.get(tmpTerm.toLowerCase()).setNumOfDocsTermIN(Posting.get(tmpTerm).size());
                     Dictionary.get(tmpTerm.toLowerCase()).UpdateNumOfTermInCorpus(tmpTermDetailes.getTF());
-                }
-                else{
+                } else {
                     Dictionary.get(tmpTerm).setNumOfDocsTermIN(Posting.get(tmpTerm).size());
                     Dictionary.get(tmpTerm).UpdateNumOfTermInCorpus(tmpTermDetailes.getTF());
                 }
@@ -164,8 +165,11 @@ public class Indexer {
         SearchEngine.All_Docs.get(Docid).setDocLength(DocAfterParse.size());
         Ent.append("#");
         SearchEngine.All_Docs.get(Docid).setDocSuspectedEntitys(Ent);
-        if(BlockCounter == 5000) {
+        if (BlockCounter == 5000) {
             ItsTimeForFLUSH_POSTING();
+//            for (int i = 0; i < Posting.get("exploration").size(); i++) {
+//                System.out.println(Posting.get("exploration").get(i).getDocId());
+//            }
             Posting.clear();
             BlockCounter = 0;
             PostingDocIndex = 0;
@@ -178,26 +182,44 @@ public class Indexer {
      * when you get the memory full its write all the hashmap of the posting to txt file for later use.
      * @throws IOException
      */
-    public void ItsTimeForFLUSH_POSTING()throws IOException{
+    public void ItsTimeForFLUSH_POSTING()throws IOException {
         File tmpPost = new File(stbOUT.toString() + PostingNumber + ".txt");
+        StringBuilder test = new StringBuilder();
+        test.append("C:\\Users\\eraned\\test351\\");
+        File Ftest = new File( test.toString()+ testNumber + ".txt");
         ArrayList<String> SortedPost = new ArrayList<>(Posting.keySet());
         Collections.sort(SortedPost);
         PostingNumber++;
+        testNumber++;
 
         try {
             FileWriter FW = new FileWriter(tmpPost);
+            FileWriter fw = new FileWriter(Ftest);
             BufferedWriter BW = new BufferedWriter(FW);
-            for(String term : SortedPost){
+            BufferedWriter bw = new BufferedWriter(fw);
+            for (String term : SortedPost) {
+//                if(term.equals("exploration")){
+//                    System.out.println("found!");
+//                }
                 BW.write(term + ":");
-                for(TermDetailes TD : Posting.get(term)) {
-                    BW.write("Docid:" + TD.getDocId() + ";TF:" + TD.getTF() +";InTitle:" + TD.getInTitle() +  "->");
+                for (TermDetailes TD : Posting.get(term)) {
+                    BW.write("Docid:" + TD.getDocId() + ";TF:" + TD.getTF() + ";InTitle:" + TD.getInTitle() + "->");
                 }
+                if (term.equals("exploration")) {
+                    for (TermDetailes TD : Posting.get(term)) {
+                        bw.write("Docid:" + TD.getDocId() + ";" +System.getProperty("line.separator"));
+                    }
+                    bw.newLine();
+                }
+
+              //  bw.write("#");
+
                 BW.write("#");
                 BW.newLine();
             }
             BW.close();
-        }
-        catch (IOException e) {
+            bw.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -268,28 +290,28 @@ public class Indexer {
         String S1 = BR1.readLine();
         String S2 = BR2.readLine();
         int Compare;
-        while (S1 != null && S2 != null){
-            if(S1.length()==0 || S2.length()==0)
+        while (S1 != null && S2 != null) {
+            if (S1.length() == 0 || S2.length() == 0)
                 break;
-            String t1 = S1.substring(0,S1.indexOf(":"));
-            String t2 = S2.substring(0,S2.indexOf(":"));
+            String t1 = S1.substring(0, S1.indexOf(":"));
+            String t2 = S2.substring(0, S2.indexOf(":"));
             Compare = t1.compareTo(t2);
-
-            if(Compare > 0){
-                FW.write( S2 +  System.getProperty( "line.separator" ) );
+            if (t1.equals("exploration") && t2.equals("exploration")) {
+                System.out.println("merge here!");
+            }
+            if (Compare > 0) {
+                FW.write(S2 + System.getProperty("line.separator"));
                 S2 = BR2.readLine();
 
-            }
-            else if(Compare < 0){
-                FW.write(S1 + System.getProperty( "line.separator" ));
+            } else if (Compare < 0) {
+                FW.write(S1 + System.getProperty("line.separator"));
                 S1 = BR1.readLine();
-            }
-            else{
+            } else {
                 StringBuilder stb = new StringBuilder();
                 stb.append(t2 + ":");
-                stb.append(S1.substring(S1.indexOf(":")+2));
-                stb.append(S2.substring(S2.indexOf(":")+2));
-                FW.write(stb.toString() + System.getProperty( "line.separator" ));
+                stb.append(S1.substring(S1.indexOf(":") + 1,S1.indexOf("#")));
+                stb.append(S2.substring(S2.indexOf(":") + 1));
+                FW.write(stb.toString() + System.getProperty("line.separator"));
                 S1 = BR1.readLine();
                 S2 = BR2.readLine();
             }
@@ -321,13 +343,6 @@ public class Indexer {
         File Q_U = new File(stbOUT+"\\Q_U.txt");
         File V_Z = new File(stbOUT+"\\V_Z.txt");
         File Final_Posting =  new File(stbOUT + "\\FinaleMerge" + ".txt");
-//        File Numbers = new File(stbOUT+"/Numbers.txt");
-//        File A_E = new File(stbOUT+"/A_E.txt");
-//        File F_J = new File(stbOUT+"/F_J.txt");
-//        File K_P= new File(stbOUT+"/K_P.txt" );
-//        File Q_U = new File(stbOUT+"/Q_U.txt");
-//        File V_Z = new File(stbOUT+"/V_Z.txt");
-//        File Final_Posting =  new File(stbOUT + "/FinaleMerge" + ".txt");
         int countNumber = 0 ;
         int countA_E = 0 ;
         int countF_J = 0 ;
@@ -356,6 +371,9 @@ public class Indexer {
                 stbTerm.append(S.substring(0, S.indexOf(":")));
                 char tmpFirst = stbTerm.charAt(0);
                 tmpFirst = Character.toLowerCase(tmpFirst);
+                if(stbTerm.toString().equals("exploration")){
+                    System.out.println("here!!!");
+                }
                 //A-E
                 if (tmpFirst >= 'a' && tmpFirst <= 'e') {
                     A_E_BW.write(S);
