@@ -27,7 +27,6 @@ public class Indexer {
     public  HashMap<String, ArrayList<TermDetailes>> Posting;
     public StringBuilder stbOUT;
     public int PostingNumber;
-    public int testNumber;
     public int BlockCounter;
     public int PostingDocIndex;
     public  long PostingSize;
@@ -36,6 +35,8 @@ public class Indexer {
     public  int NumOfTerms_Numbers;
     public String DocMaxCity;
     public static HashSet<String> Entitys;
+    int counterbefore;
+    int counterafter;
 
 
     /**
@@ -50,7 +51,6 @@ public class Indexer {
         Posting = new HashMap<>();
         stbOUT = new StringBuilder();
         PostingNumber = 0;
-        testNumber = 0;
         PostingSize = 0;
         BlockCounter = 0;
         PostingDocIndex = 0;
@@ -59,25 +59,22 @@ public class Indexer {
         NumOfTerms_Numbers = 0;
         DocMaxCity = "";
         Entitys = new HashSet<>();
-
-        if(StemmerNeeded)
+        counterbefore = 0;
+        counterafter = 0;
+        if (StemmerNeeded)
             stbOUT.append(CorpusPathOUT + "\\EngineOut_WithStemmer\\"); //todo
-            //stbOUT.append(CorpusPathOUT + "/EngineOut_WithStemmer/");
         else
             stbOUT.append(CorpusPathOUT + "\\EngineOut\\"); //todo
-            //stbOUT.append(CorpusPathOUT + "/EngineOut/");
-
         File folder = new File(stbOUT.toString());
         File[] listOfFiles = folder.listFiles();
-        if (listOfFiles!=null) {
+        if (listOfFiles != null) {
             for (int i = 0; i < listOfFiles.length; i++)
                 try {
                     Files.deleteIfExists(listOfFiles[i].toPath());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-        }
-        else{
+        } else {
             folder.mkdir();
         }
     }
@@ -126,9 +123,6 @@ public class Indexer {
             if (StringUtils.isAlpha(tmpTerm) && StringUtils.isAllUpperCase(tmpTerm)) {
                 Ent.append(tmpTerm + ":" + tmpTermDetailes.getTF() + ";");
             }
-//            if (tmpTerm.equals("exploration")) {
-//                System.out.println("found!");
-//            }
             // not in Post
             if (!Posting.containsKey(tmpTerm)) {
                 Posting.put(tmpTerm, new ArrayList<TermDetailes>());
@@ -167,9 +161,6 @@ public class Indexer {
         SearchEngine.All_Docs.get(Docid).setDocSuspectedEntitys(Ent);
         if (BlockCounter == 5000) {
             ItsTimeForFLUSH_POSTING();
-//            for (int i = 0; i < Posting.get("exploration").size(); i++) {
-//                System.out.println(Posting.get("exploration").get(i).getDocId());
-//            }
             Posting.clear();
             BlockCounter = 0;
             PostingDocIndex = 0;
@@ -184,41 +175,28 @@ public class Indexer {
      */
     public void ItsTimeForFLUSH_POSTING()throws IOException {
         File tmpPost = new File(stbOUT.toString() + PostingNumber + ".txt");
-        StringBuilder test = new StringBuilder();
-        test.append("C:\\Users\\eraned\\test351\\");
-        File Ftest = new File( test.toString()+ testNumber + ".txt");
         ArrayList<String> SortedPost = new ArrayList<>(Posting.keySet());
         Collections.sort(SortedPost);
         PostingNumber++;
-        testNumber++;
 
         try {
             FileWriter FW = new FileWriter(tmpPost);
-            FileWriter fw = new FileWriter(Ftest);
             BufferedWriter BW = new BufferedWriter(FW);
-            BufferedWriter bw = new BufferedWriter(fw);
             for (String term : SortedPost) {
-//                if(term.equals("exploration")){
-//                    System.out.println("found!");
-//                }
+
                 BW.write(term + ":");
                 for (TermDetailes TD : Posting.get(term)) {
                     BW.write("Docid:" + TD.getDocId() + ";TF:" + TD.getTF() + ";InTitle:" + TD.getInTitle() + "->");
                 }
                 if (term.equals("exploration")) {
                     for (TermDetailes TD : Posting.get(term)) {
-                        bw.write("Docid:" + TD.getDocId() + ";" +System.getProperty("line.separator"));
+                        counterbefore++;
                     }
-                    bw.newLine();
                 }
-
-              //  bw.write("#");
-
                 BW.write("#");
                 BW.newLine();
             }
             BW.close();
-            bw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -284,6 +262,9 @@ public class Indexer {
      * @throws IOException
      */
     public void EXTERNAL_SORT(File F1 , File F2 ,String PathToMerge) throws IOException{
+        int externalcounterF1 = 0;
+        int externalcounteraF2 = 0;
+        int externalcounteramerged = 0;
         FileWriter FW = new FileWriter(new File(PathToMerge));
         BufferedReader BR1 = new BufferedReader(new FileReader(F1));
         BufferedReader BR2 = new BufferedReader(new FileReader(F2));
@@ -296,9 +277,6 @@ public class Indexer {
             String t1 = S1.substring(0, S1.indexOf(":"));
             String t2 = S2.substring(0, S2.indexOf(":"));
             Compare = t1.compareTo(t2);
-            if (t1.equals("exploration") && t2.equals("exploration")) {
-                System.out.println("merge here!");
-            }
             if (Compare > 0) {
                 FW.write(S2 + System.getProperty("line.separator"));
                 S2 = BR2.readLine();
@@ -335,29 +313,29 @@ public class Indexer {
     /**
      * split the final posting file to 6 ranges to improve to find doc for query
      */
-    public void ItsTimeForSPLIT_Final_Posting(){
-        File Numbers = new File(stbOUT+"\\Numbers.txt"); //todo
-        File A_E = new File(stbOUT+"\\A_E.txt");
-        File F_J = new File(stbOUT+"\\F_J.txt");
-        File K_P= new File(stbOUT+"\\K_P.txt" );
-        File Q_U = new File(stbOUT+"\\Q_U.txt");
-        File V_Z = new File(stbOUT+"\\V_Z.txt");
-        File Final_Posting =  new File(stbOUT + "\\FinaleMerge" + ".txt");
-        int countNumber = 0 ;
-        int countA_E = 0 ;
-        int countF_J = 0 ;
-        int countK_P = 0 ;
-        int countQ_U = 0 ;
-        int countV_Z = 0 ;
+    public void ItsTimeForSPLIT_Final_Posting() {
+        File Numbers = new File(stbOUT + "\\Numbers.txt"); //todo
+        File A_E = new File(stbOUT + "\\A_E.txt");
+        File F_J = new File(stbOUT + "\\F_J.txt");
+        File K_P = new File(stbOUT + "\\K_P.txt");
+        File Q_U = new File(stbOUT + "\\Q_U.txt");
+        File V_Z = new File(stbOUT + "\\V_Z.txt");
+        File Final_Posting = new File(stbOUT + "\\FinaleMerge" + ".txt");
+        int countNumber = 0;
+        int countA_E = 0;
+        int countF_J = 0;
+        int countK_P = 0;
+        int countQ_U = 0;
+        int countV_Z = 0;
 
-        try{
+        try {
             BufferedReader BR_Final_Posting = new BufferedReader(new FileReader(Final_Posting));
             FileWriter Numbers_FW = new FileWriter(Numbers);
-            FileWriter A_E_FW= new FileWriter(A_E);
-            FileWriter F_J_FW= new FileWriter(F_J);
-            FileWriter K_P_FW= new FileWriter(K_P);
-            FileWriter Q_U_FW= new FileWriter(Q_U);
-            FileWriter V_Z_FW= new FileWriter(V_Z);
+            FileWriter A_E_FW = new FileWriter(A_E);
+            FileWriter F_J_FW = new FileWriter(F_J);
+            FileWriter K_P_FW = new FileWriter(K_P);
+            FileWriter Q_U_FW = new FileWriter(Q_U);
+            FileWriter V_Z_FW = new FileWriter(V_Z);
             BufferedWriter Numbers_BW = new BufferedWriter(Numbers_FW);
             BufferedWriter A_E_BW = new BufferedWriter(A_E_FW);
             BufferedWriter F_J_BW = new BufferedWriter(F_J_FW);
@@ -367,17 +345,32 @@ public class Indexer {
             String S = BR_Final_Posting.readLine();
             StringBuilder stbTerm = new StringBuilder();
 
-            while(S != null) {
+            while (S != null) {
                 stbTerm.append(S.substring(0, S.indexOf(":")));
                 char tmpFirst = stbTerm.charAt(0);
                 tmpFirst = Character.toLowerCase(tmpFirst);
-                if(stbTerm.toString().equals("exploration")){
-                    System.out.println("here!!!");
-                }
                 //A-E
                 if (tmpFirst >= 'a' && tmpFirst <= 'e') {
                     A_E_BW.write(S);
-                    if(Dictionary.containsKey(stbTerm.toString())){
+//                    if (stbTerm.toString().equals("exploration")) {
+//                        String docID;
+//                        int index;
+//                        index = S.indexOf(':');
+//                        S = S.substring(index + 1);
+//                        while (S.length() > 1) {
+//                            try {
+//                                index = S.indexOf("id:");
+//                                docID = S.substring(index + 3, S.indexOf(';'));
+//                                testHashFinal.add(docID);
+//                                S = S.substring(S.indexOf(">")+1);
+//                                counterafter++;
+//                            } catch (Exception e) {
+//                                System.out.println("problem get tf!");
+//                                break;
+//                            }
+//                        }
+//                    }
+                    if (Dictionary.containsKey(stbTerm.toString())) {
                         Dictionary.get(stbTerm.toString()).setPointer(countA_E);
                     }
                     A_E_BW.newLine();
@@ -389,7 +382,7 @@ public class Indexer {
                 //F-J
                 else if (tmpFirst >= 'f' && tmpFirst <= 'j') {
                     F_J_BW.write(S);
-                    if(Dictionary.containsKey(stbTerm.toString())){
+                    if (Dictionary.containsKey(stbTerm.toString())) {
                         Dictionary.get(stbTerm.toString()).setPointer(countF_J);
                     }
                     F_J_BW.newLine();
@@ -401,7 +394,7 @@ public class Indexer {
                 //K-P
                 else if (tmpFirst >= 'k' && tmpFirst <= 'p') {
                     K_P_BW.write(S);
-                    if(Dictionary.containsKey(stbTerm.toString())){
+                    if (Dictionary.containsKey(stbTerm.toString())) {
                         Dictionary.get(stbTerm.toString()).setPointer(countK_P);
                     }
                     K_P_BW.newLine();
@@ -413,7 +406,7 @@ public class Indexer {
                 //Q-U
                 else if (tmpFirst >= 'q' && tmpFirst <= 'u') {
                     Q_U_BW.write(S);
-                    if(Dictionary.containsKey(stbTerm.toString())){
+                    if (Dictionary.containsKey(stbTerm.toString())) {
                         Dictionary.get(stbTerm.toString()).setPointer(countQ_U);
                     }
                     Q_U_BW.newLine();
@@ -425,7 +418,7 @@ public class Indexer {
                 //V-Z
                 else if (tmpFirst >= 'v' && tmpFirst <= 'z') {
                     V_Z_BW.write(S);
-                    if(Dictionary.containsKey(stbTerm.toString())){
+                    if (Dictionary.containsKey(stbTerm.toString())) {
                         Dictionary.get(stbTerm.toString()).setPointer(countV_Z);
                     }
                     V_Z_BW.newLine();
@@ -437,7 +430,7 @@ public class Indexer {
                 //Numbers
                 else {
                     Numbers_BW.write(S);
-                    if(Dictionary.containsKey(stbTerm.toString())){
+                    if (Dictionary.containsKey(stbTerm.toString())) {
                         Dictionary.get(stbTerm.toString()).setPointer(countNumber);
                     }
                     Numbers_BW.newLine();
@@ -457,18 +450,18 @@ public class Indexer {
             Q_U_BW.close();
             V_Z_BW.close();
             NumOfTerms_Numbers = countNumber;
-            if(StemmerNeeded) {
+            if (StemmerNeeded) {
                 NumOfTermsAfterStemming = Dictionary.size();
-            }
-            else {
+            } else {
                 NumOfTermsBeforeStemming = Dictionary.size();
             }
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         ItsTimeToWriteDictionary();
         Dictionary.clear();
+        System.out.println("counter befoe:"+counterbefore);
+        System.out.println("counter after:"+counterafter);
     }
 
     /**

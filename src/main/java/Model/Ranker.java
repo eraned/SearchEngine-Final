@@ -105,6 +105,12 @@ public class Ranker {
                             tmpTD.setInTitle(false);
                             Query.put(word, tmpTD);
                         }
+                        if (Searcher.LoadedDictionary.get(word.toUpperCase()) != null) {
+                            TermDetailes tmpTD = new TermDetailes("API");
+                            tmpTD.setTF(1);
+                            tmpTD.setInTitle(false);
+                            Query.put(word.toUpperCase(), tmpTD);
+                        }
                     }
                 } else {
                     continue;
@@ -121,6 +127,8 @@ public class Ranker {
             if (Searcher.LoadedDictionary.get(term) != null) {
                 Query.put(term, QueryAfterParse.get(term));
             }
+            if(Searcher.LoadedDictionary.get(term.toUpperCase())!= null)
+                Query.put(term.toUpperCase(),QueryAfterParse.get(term.toUpperCase()));
         }
         querylength = Query.size();
         for (String term : Query.keySet()){
