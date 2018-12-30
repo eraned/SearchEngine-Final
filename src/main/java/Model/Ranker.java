@@ -32,17 +32,9 @@ public class Ranker {
     public double Wiq;
     public double Ciq;
     public double querylength;
-    public double CosSimRank = 0;
-    public double CosSimRankDOWNdoc = 0;
-    public double CosSimRankDOWNquery = 0;
-    public double CosSimRankUP = 0;
-    public double CosSimRankDOWN = 0;
-    public double BM25Rank = 0;
     public double b = 0.75;
     public double k = 1.3;
-    public double BM25UP = 0;
-    public double BM25DOWN = 0;
-    public double BM25Log = 0;
+
 
 
     /**
@@ -64,7 +56,7 @@ public class Ranker {
         Query_CosSim = new HashMap<>();
         SemanticsWords = new HashSet<>();
     }
-
+//Falkland petroleum exploration
     /**
      * @param QueryAfterParse
      * @param Queryid
@@ -195,36 +187,45 @@ public class Ranker {
 
     }
 
+
     public void ProccesCompare() {
         int testline = 0;
         for (String Doc : PostingTFResult.keySet()) {
+            double CosSimRankUP = 0;
+            double CosSimRankDOWNdoc = 0;
+            double CosSimRankDOWNquery = 0;
+            double BM25UP = 0;
+            double BM25DOWN = 0;
+            double BM25Log = 0;
+            double BM25Rank = 0;
+            double CosSimRankDOWN = 0;
+            double CosSimRank = 0;
             for (String term : PostingTFResult.get(Doc).keySet()) {
                 try {
-                    testline =1;
+                    testline = 1;
                     double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
                     //calc CosSim
-                    testline =2;
+                    testline = 2;
                     CosSimRankUP += CosSim_Matrix.get(Doc).get(term) * Query_CosSim.get(term);
                     CosSimRankDOWNdoc += Math.pow(CosSim_Matrix.get(Doc).get(term), 2);
-                    testline =3;
+                    testline = 3;
                     CosSimRankDOWNquery += Math.pow(Query_CosSim.get(term), 2);
                     double x = CosSim_Matrix.get(Doc).get(term);
                     double y = Query_CosSim.get(term);
                     double z = Math.pow(CosSim_Matrix.get(Doc).get(term), 2);
                     //calc BM25
-                    testline =4;
+                    testline = 4;
                     BM25UP = BM25_Matrix.get(Doc).get(term) * (k + 1) * Query_BM25.get(term);
                     testline = 5;
                     BM25DOWN = BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl));
-                    testline =6;
+                    testline = 6;
                     BM25Log = (Math.log((Searcher.NumOfDocs + 1) / idf) / Math.log(2));
                     double a = BM25_Matrix.get(Doc).get(term);
                     double b = Query_BM25.get(term);
                     double d = Searcher.DocsResultDL.get(Doc);
                     double c = (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl);
                     BM25Rank += BM25UP * BM25DOWN * BM25Log;
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     System.out.println("Problem in Compare");
                     System.out.println(Doc);
                     System.out.println(term);
@@ -260,7 +261,7 @@ public class Ranker {
         ArrayList<Double> SortedRank = new ArrayList<>(RankedQuery.keySet());
         Collections.sort(SortedRank, Collections.reverseOrder());
         for (int i = 0; i < SortedRank.size() && i < 50; i++) {
-            Searcher.Results.add(new Pair(queryID, RankedQuery.get(SortedRank.get(i)))); //Hashmap<queryid,Docid>
+            Searcher.Results.add(new Pair(queryID, RankedQuery.get(SortedRank.get(i))));
         }
     }
 
@@ -286,19 +287,6 @@ public class Ranker {
         } else {
             stb.append(PostingPath + "\\Numbers.txt");
         }
-//        if (tmpFirst >= 'a' && tmpFirst <= 'e') {
-//            stb.append(PostingPath + "/A_E.txt");
-//        } else if (tmpFirst >= 'f' && tmpFirst <= 'j') {
-//            stb.append(PostingPath + "/F_J.txt");
-//        } else if (tmpFirst >= 'k' && tmpFirst <= 'p') {
-//            stb.append(PostingPath + "/K_P.txt");
-//        } else if (tmpFirst >= 'q' && tmpFirst <= 'u') {
-//            stb.append(PostingPath + "/Q_U.txt");
-//        } else if (tmpFirst >= 'v' && tmpFirst <= 'z') {
-//            stb.append(PostingPath + "/V_Z.txt");
-//        } else {
-//            stb.append(PostingPath + "/Numbers.txt");
-//        }
         File SelectedPosting = new File(stb.toString());
         String TermLIne = (String) FileUtils.readLines(SelectedPosting).get(pointer);
         stb.setLength(0);
