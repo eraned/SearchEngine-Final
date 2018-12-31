@@ -34,6 +34,7 @@ public class Searcher {
     public static ArrayList<Pair> Results; //<<queryid,Docid>>
 
 
+
     /**
      * Constructor
      * @param indexer

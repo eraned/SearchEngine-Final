@@ -252,6 +252,10 @@ public class Controller{
         }
     }
 
+    public void LoadOutPut() {
+
+    }
+
     /**
      * @throws IOException
      * @throws URISyntaxException
