@@ -3,7 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="000fed4f-d4e5-4843-860e-5a5ca9c4c96e" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/Controller/Controller.java" afterPath="$PROJECT_DIR$/src/main/java/Controller/Controller.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/Model/Ranker.java" afterPath="$PROJECT_DIR$/src/main/java/Model/Ranker.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/Model/Searcher.java" afterPath="$PROJECT_DIR$/src/main/java/Model/Searcher.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -70,8 +72,8 @@
       <file leaf-file-name="Searcher.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/Model/Searcher.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-209">
-              <caret line="34" column="0" lean-forward="false" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
+            <state relative-caret-position="83">
+              <caret line="143" column="70" lean-forward="false" selection-start-line="143" selection-start-column="70" selection-end-line="143" selection-end-column="70" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -82,12 +84,22 @@
       <file leaf-file-name="Ranker.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/Model/Ranker.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2346">
-              <caret line="234" column="18" lean-forward="false" selection-start-line="234" selection-start-column="18" selection-end-line="234" selection-end-column="18" />
+            <state relative-caret-position="-1">
+              <caret line="137" column="41" lean-forward="true" selection-start-line="137" selection-start-column="41" selection-end-line="137" selection-end-column="41" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#8332#8340#0" expanded="true" />
+                <element signature="e#8348#8356#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="FXMLLoader.java" pinned="false" current-in-tab="false">
+        <entry file="jar://C:/Program Files/Java/jdk1.8.0_131/javafx-src.zip!/javafx/fxml/FXMLLoader.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="290">
+              <caret line="1772" column="0" lean-forward="false" selection-start-line="1772" selection-start-column="0" selection-end-line="1772" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -105,8 +117,8 @@
       <file leaf-file-name="Controller.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/Controller/Controller.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="591">
-              <caret line="107" column="16" lean-forward="true" selection-start-line="107" selection-start-column="16" selection-end-line="107" selection-end-column="16" />
+            <state relative-caret-position="398">
+              <caret line="269" column="101" lean-forward="false" selection-start-line="269" selection-start-column="101" selection-end-line="269" selection-end-column="101" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -175,10 +187,10 @@
         <option value="$PROJECT_DIR$/src/main/java/Model/ReadFile.java" />
         <option value="$PROJECT_DIR$/src/main/java/Model/SearchEngine.java" />
         <option value="$PROJECT_DIR$/src/main/java/View/GUI.java" />
-        <option value="$PROJECT_DIR$/src/main/java/Controller/Controller.java" />
-        <option value="$PROJECT_DIR$/src/main/java/Model/Searcher.java" />
         <option value="$PROJECT_DIR$/src/main/java/Model/Indexer.java" />
+        <option value="$PROJECT_DIR$/src/main/java/Controller/Controller.java" />
         <option value="$PROJECT_DIR$/src/main/java/Model/Ranker.java" />
+        <option value="$PROJECT_DIR$/src/main/java/Model/Searcher.java" />
       </list>
     </option>
   </component>
@@ -422,13 +434,6 @@
       <workItem from="1545725018897" duration="21422000" />
       <workItem from="1545987987333" duration="9377000" />
       <workItem from="1546076056930" duration="18026000" />
-    </task>
-    <task id="LOCAL-00020" summary="eran - part b">
-      <created>1545067143911</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1545067143911</updated>
     </task>
     <task id="LOCAL-00021" summary="eran - part b">
       <created>1545070428764</created>
@@ -766,7 +771,14 @@
       <option name="project" value="LOCAL" />
       <updated>1546265325829</updated>
     </task>
-    <option name="localTasksCounter" value="69" />
+    <task id="LOCAL-00069" summary="eran - start tests runs">
+      <created>1546269931910</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1546269931910</updated>
+    </task>
+    <option name="localTasksCounter" value="70" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
@@ -778,7 +790,7 @@
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.118769884" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -794,7 +806,7 @@
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.048780486" sideWeight="0.49791667" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.41039237" sideWeight="0.49791667" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -843,7 +855,7 @@
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="493" />
+      <option name="time" value="504" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -1094,18 +1106,28 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/Model/Indexer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="472" column="7" lean-forward="false" selection-start-line="472" selection-start-column="7" selection-end-line="472" selection-end-column="7" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="jar://C:/Program Files/Java/jdk1.8.0_131/javafx-src.zip!/javafx/util/Pair.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="63" column="0" lean-forward="false" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
+        <state relative-caret-position="77">
+          <caret line="45" column="23" lean-forward="false" selection-start-line="45" selection-start-column="23" selection-end-line="45" selection-end-column="23" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/Model/Searcher.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/Controller/Controller.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-209">
-          <caret line="34" column="0" lean-forward="false" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
+        <state relative-caret-position="398">
+          <caret line="269" column="101" lean-forward="false" selection-start-line="269" selection-start-column="101" selection-end-line="269" selection-end-column="101" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1120,20 +1142,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/Controller/Controller.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/Model/Searcher.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="591">
-          <caret line="107" column="16" lean-forward="true" selection-start-line="107" selection-start-column="16" selection-end-line="107" selection-end-column="16" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/Model/Indexer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="472" column="7" lean-forward="false" selection-start-line="472" selection-start-column="7" selection-end-line="472" selection-end-column="7" />
+        <state relative-caret-position="83">
+          <caret line="143" column="70" lean-forward="false" selection-start-line="143" selection-start-column="70" selection-end-line="143" selection-end-column="70" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1142,11 +1154,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/Model/Ranker.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2346">
-          <caret line="234" column="18" lean-forward="false" selection-start-line="234" selection-start-column="18" selection-end-line="234" selection-end-column="18" />
+        <state relative-caret-position="-1">
+          <caret line="137" column="41" lean-forward="true" selection-start-line="137" selection-start-column="41" selection-end-line="137" selection-end-column="41" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#8332#8340#0" expanded="true" />
+            <element signature="e#8348#8356#0" expanded="true" />
           </folding>
         </state>
       </provider>

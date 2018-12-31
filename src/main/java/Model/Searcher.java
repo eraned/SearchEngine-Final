@@ -23,6 +23,7 @@ public class Searcher {
     public static Indexer SearcherIndexer;
     public static Parse SearcherParser;
     public boolean SemanticNeeded;
+    public boolean Steemerneeded;
     public static HashMap<String, DictionaryDetailes> LoadedDictionary;
     public static double AVGdl;
     public static double NumOfDocs;
@@ -43,10 +44,11 @@ public class Searcher {
      * @param cities
      * @throws IOException
      */
-    public Searcher(Indexer indexer, Parse parser, boolean semanticNeeded,ObservableList<String> cities) throws IOException {
+    public Searcher(Indexer indexer, Parse parser, boolean semanticNeeded,boolean SteemerNeeded,ObservableList<String> cities) throws IOException {
         SearcherIndexer = indexer;
         SearcherParser = parser;
         SemanticNeeded = semanticNeeded;
+        SteemerNeeded = SteemerNeeded;
         AVGdl = 0;
         NumOfDocs = 0;
         if(cities != null)
@@ -61,7 +63,7 @@ public class Searcher {
         else
             LoadedDictionary = indexer.Dictionary;
         SearchEngine.ItsTimeToLoadAllDocs(  SearcherIndexer.stbOUT.toString() + "Docs.txt");
-        ranker = new Ranker(SearcherIndexer.stbOUT.toString());
+        ranker = new Ranker(SearcherIndexer.stbOUT.toString(),SteemerNeeded);
     }
 
 
@@ -135,15 +137,27 @@ public class Searcher {
         Document d = Jsoup.parse(content);
         Elements elements = d.getElementsByTag("top");
         for (Element element : elements) {
+            StringBuilder QueryStb = new StringBuilder();
             String QueryID = element.getElementsByTag("num").toString();
             QueryID = QueryID.substring(QueryID.indexOf("Number:")+7,QueryID.indexOf("<title>"));
             QueryID = QueryID.trim();
-            String QueryContent = element.getElementsByTag("title").text();
-            Pair p = new Pair(QueryID,QueryContent);
+            QueryStb.append(element.getElementsByTag("title").text());
+            Pair p = new Pair(QueryID,QueryStb.toString());
             Result.add(p);
         }
         return Result;
     }
+
+//    public StringBuilder ProccessNarrative(String Nar){
+//        StringBuilder ans = new StringBuilder();
+//
+//
+//
+//
+//
+//
+//        return ans;
+//    }
 
     /**
      * @param FileToSaveIn

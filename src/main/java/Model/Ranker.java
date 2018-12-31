@@ -14,6 +14,7 @@ import java.util.*;
  *
  */
 public class Ranker {
+    public boolean Steemerneeded;
     HashMap<String, TermDetailes> Query;
     HashMap<String, TermDetailes> QueryNar;
     public String PostingPath;
@@ -38,14 +39,17 @@ public class Ranker {
      *
      * @param pathforFindposting
      */
-    public Ranker(String pathforFindposting) {
+    public Ranker(String pathforFindposting,boolean StemmingNeeded) {
+        Steemerneeded = StemmingNeeded;
         Query = new HashMap<>();
         QueryNar = new HashMap<>();
         PostingPath = pathforFindposting;
         PostingTFResult = new HashMap<>();
         PostingTitelResult = new HashMap<>();
         RankerResult = new HashMap<>();
+        BM25_Matrix = new HashMap<>();
         Query_BM25 = new HashMap<>();
+        BM25tmp = new HashMap<>();
         SemanticsWords = new HashSet<>();
     }
     /**
@@ -55,23 +59,21 @@ public class Ranker {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public void InitializScores(HashMap<String, TermDetailes> QueryAfterParse,HashSet<String> QueryNarrativeWords,String Queryid, boolean semanticNeeded) throws IOException, URISyntaxException { //Matrix of columns: d1,d2,d3....q     rows: t1,t2,t3....
+    public void InitializScores(HashMap<String, TermDetailes> QueryAfterParse,String Queryid, boolean semanticNeeded) throws IOException, URISyntaxException { //Matrix of columns: d1,d2,d3....q     rows: t1,t2,t3....
         if (semanticNeeded)
-            ProccesSemantic(QueryAfterParse);
-        ProccesQuery(QueryAfterParse,QueryNarrativeWords);
+            ProccesSemantic(QueryAfterParse,Steemerneeded);
+        ProccesQuery(QueryAfterParse,Steemerneeded);
         ProccesReOrgnize();
         ProccesCompare();
         RankDocs(RankerResult, Queryid);
         ClearAll();
     }
 
-    public void ProccesSemantic(HashMap<String, TermDetailes> QueryAfterParse) {
-        int testline = 0;
+    public void ProccesSemantic(HashMap<String, TermDetailes> QueryAfterParse,boolean Steemer) {
         try {
             //part 1 - process query words for API
             HashSet<String> tmp = new HashSet<>();
             for (String term : QueryAfterParse.keySet()) {
-                testline =1;
                 if (term.contains("-")) {
                     String[] splited = StringUtils.split(term, "-");
                     for (int i = 0; i < splited.length; i++) {
@@ -87,7 +89,6 @@ public class Ranker {
             //part 2 - add semantics words to query
             for (String term : tmp) {
                 SemanticsWords = GetSemanticFromAPI(term);
-                testline =2;
                 if (SemanticsWords != null) {
                     for (String word : SemanticsWords) {
                         if (Searcher.LoadedDictionary.get(word) != null) {
@@ -109,10 +110,10 @@ public class Ranker {
             }
         } catch (Exception e) {
             System.out.println("Probellm in semantic ");
-            System.out.println(testline);        }
+        }
     }
 
-    public void ProccesQuery(HashMap<String, TermDetailes> QueryAfterParse,HashSet<String> QueryNarrativeWords) {
+    public void ProccesQuery(HashMap<String, TermDetailes> QueryAfterParse,boolean Steemer) {
         for(String term : QueryAfterParse.keySet()) {
             if(StringUtils.isAllUpperCase(term) && Searcher.LoadedDictionary.get(term) != null) {
                 Query.put(term, QueryAfterParse.get(term));
@@ -189,7 +190,7 @@ public class Ranker {
                     break;
                 }
             }
-            System.out.println(Doc + "###" + BM25Rank);
+           // System.out.println(Doc + "###" + BM25Rank);
             if(T)
             RankerResult.put(BM25Rank + 0.05, Doc);
             else

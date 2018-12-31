@@ -264,10 +264,10 @@ public class Controller{
         if (CitySelctor.getCheckModel().getCheckedItems().size() > 1 || (CitySelctor.getCheckModel().getCheckedItems().size() == 1 && !CitySelctor.getCheckModel().getCheckedItems().equals("None"))) {
             ObservableList<String> cities = FXCollections.observableArrayList();
             cities.addAll(CitySelctor.getCheckModel().getCheckedItems());
-            searcher = new Searcher(searchEngine.indexer, searchEngine.parser, Semantic.isSelected(), cities);
+            searcher = new Searcher(searchEngine.indexer, searchEngine.parser, Semantic.isSelected(),Stemmer.isSelected(), cities);
         }
         else
-            searcher = new Searcher(searchEngine.indexer, searchEngine.parser, Semantic.isSelected(), null);
+            searcher = new Searcher(searchEngine.indexer, searchEngine.parser, Semantic.isSelected(),Stemmer.isSelected(),null);
         if(!SingleQuery.getText().isEmpty())
             searcher.ProccesSingleQuery(SingleQuery.getText());
         else if(!PathQueriesFile.getText().isEmpty())
