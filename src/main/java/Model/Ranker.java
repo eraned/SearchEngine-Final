@@ -124,11 +124,22 @@ public class Ranker {
     public void ProccesQuery(HashMap<String, TermDetailes> QueryAfterParse) {
         int testline = 0;
         for(String term : QueryAfterParse.keySet()) {
-            if (Searcher.LoadedDictionary.get(term) != null) {
+//            if (Searcher.LoadedDictionary.get(term) != null && !term.equals(term.toUpperCase())) {
+//                Query.put(term, QueryAfterParse.get(term));
+//
+//            }
+            if(StringUtils.isAllUpperCase(term) && Searcher.LoadedDictionary.get(term) != null) {
                 Query.put(term, QueryAfterParse.get(term));
+                if(Searcher.LoadedDictionary.get(term.toLowerCase()) != null)
+                Query.put(term.toLowerCase(), QueryAfterParse.get(term));
             }
-            if(Searcher.LoadedDictionary.get(term.toUpperCase())!= null)
-                Query.put(term.toUpperCase(),QueryAfterParse.get(term.toUpperCase()));
+            else if(StringUtils.isAllLowerCase(term) && Searcher.LoadedDictionary.get(term) != null){
+                Query.put(term, QueryAfterParse.get(term));
+                if(Searcher.LoadedDictionary.get(term.toUpperCase()) != null)
+                    Query.put(term.toUpperCase(), QueryAfterParse.get(term));
+            }
+                else
+                    continue;
         }
         querylength = Query.size();
         for (String term : Query.keySet()){
@@ -159,12 +170,12 @@ public class Ranker {
                 testline =2;
                 GetTF_InTitelFromPosting(Pointer, term);// <docid,tf> from posting
                // public HashMap<String, HashMap<String, Double>> PostingTFResult;
-                for(String doccc : PostingTFResult.keySet()){
-                    System.out.println(doccc);
-                    for(String t : PostingTFResult.get(doccc).keySet()){
-                        System.out.println(t);
-                    }
-                }
+//                for(String doccc : PostingTFResult.keySet()){
+//                    System.out.println(doccc);
+//                    for(String t : PostingTFResult.get(doccc).keySet()){
+//                        System.out.println(t);
+//                    }
+//                }
             } catch (Exception e) {
                 System.out.println("Probellm in reorgnized part 1");
                 System.out.println(term);
@@ -303,6 +314,8 @@ public class Ranker {
             stb.append(PostingPath + "\\Numbers.txt");
         }
         File SelectedPosting = new File(stb.toString());
+        //StringBuilder TermLIne = new StringBuilder();
+        //TermLIne.append((String)FileUtils.readLines(SelectedPosting).get(pointer));
         String TermLIne = (String) FileUtils.readLines(SelectedPosting).get(pointer);
         stb.setLength(0);
         String docID;
