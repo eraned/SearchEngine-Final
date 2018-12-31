@@ -263,70 +263,6 @@ public class Indexer {
     }
 
 
-    //    public void mergeSort(File f1,File f2) throws IOException {
-//
-//        BufferedReader tr1 = new BufferedReader(new FileReader(f1));
-//        BufferedReader tr2 = new BufferedReader(new FileReader(f2));
-//
-//        String line1 = tr1.readLine();
-//        String line2 = tr2.readLine();
-//
-//        PrintWriter fw = new PrintWriter(new File(path+"\\tempPosting\\" + "merge "+docIndex + ".txt"));
-//        docIndex++;
-//
-//        //compering the beginning of 2 files
-//        while (line1 != null && line2 != null) {//if 2 docs have lines
-//            if (line1 != null && line1.length() == 0)
-//                break;
-//            if (line2 != null && line2.length() == 0)
-//                break;
-//            String term1 = line1.substring(0, line1.indexOf(":"));
-//            String term2 = line2.substring(0, line2.indexOf(":"));
-//
-//            int comp = term1.compareTo(term2);
-//            //checking witch term is smaller by Lexicographic order and write it to the merge file
-//            if (comp > 0) {
-//                fw.write(line2 + "\n");
-//                line2 = tr2.readLine();
-//            } else if (comp < 0) {
-//                fw.write(line1 + "\n");
-//                line1 = tr1.readLine();
-//            } else {
-//                StringBuilder f = new StringBuilder();
-//                f.append(term1 + ": ");
-//                f.append(line1.substring(line1.indexOf(":")+2));
-//                f.append(line2.substring(line2.indexOf(":")+2));
-//                fw.write(f.toString() + "\n");
-//                line1 = tr1.readLine();
-//                line2 = tr2.readLine();
-//            }
-//        }
-//        //if finish passing file 1 - we will copy file 2
-//        while (line2 != null) {
-//            if (line2 != null && line2.length() == 0)
-//                break;
-//            fw.write(line2 + "\n");
-//            line2 = tr2.readLine();
-//        }
-//        //if finish passing file 2 - we will copy file 1
-//        while (line1 != null) {
-//            if (line1 != null && line1.length() == 0)
-//                break;
-//            fw.write(line1 + "\n");
-//            line1 = tr1.readLine();
-//        }
-//        tr1.close();
-//        tr2.close();
-//        Files.delete(f1.toPath());
-//        Files.delete(f2.toPath());
-//        fw.flush();
-//        fw.close();
-//
-//    }
-
-
-
-
     /**
      * merge two file Lexicography implementaion line by line.
      * @param F1 - tmp posting file to merge
@@ -533,8 +469,8 @@ public class Indexer {
         }
         ItsTimeToWriteDictionary();
         Dictionary.clear();
-        System.out.println("counter befoe:"+counterbefore);
-        System.out.println("counter after:"+counterafter);
+    //    System.out.println("counter befoe:"+counterbefore);
+     //   System.out.println("counter after:"+counterafter);
     }
 
     /**

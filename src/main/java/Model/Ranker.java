@@ -222,6 +222,7 @@ public class Ranker {
                     //calc CosSim
                     testline = 2;
                     CosSimRankUP += CosSim_Matrix.get(Doc).get(term) * Query_CosSim.get(term);
+                   // System.out.println(CosSimRankUP);
                     CosSimRankDOWNdoc += Math.pow(CosSim_Matrix.get(Doc).get(term), 2);
                     testline = 3;
                     CosSimRankDOWNquery += Math.pow(Query_CosSim.get(term), 2);
@@ -229,17 +230,22 @@ public class Ranker {
                     double y = Query_CosSim.get(term);
                     double z = Math.pow(CosSim_Matrix.get(Doc).get(term), 2);
                     //calc BM25
-                    testline = 4;
-                    BM25UP = BM25_Matrix.get(Doc).get(term) * (k + 1) * Query_BM25.get(term);
-                    testline = 5;
-                    BM25DOWN = BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl));
-                    testline = 6;
-                    BM25Log = (Math.log((Searcher.NumOfDocs + 1) / idf) / Math.log(2));
-                    double a = BM25_Matrix.get(Doc).get(term);
-                    double b = Query_BM25.get(term);
-                    double d = Searcher.DocsResultDL.get(Doc);
-                    double c = (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl);
-                    BM25Rank += BM25UP * BM25DOWN * BM25Log;
+//                    testline = 4;
+//                    BM25UP = BM25_Matrix.get(Doc).get(term) * (k + 1) * Query_BM25.get(term);
+//                   // System.out.println(BM25UP);
+//                    testline = 5;
+//                    BM25DOWN = BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl));
+//                   // System.out.println(BM25DOWN);
+//                    testline = 6;
+//                    BM25Log = (Math.log((Searcher.NumOfDocs + 1) / idf) / Math.log(2));
+//                    //System.out.println(BM25Log);
+//                    double a = BM25_Matrix.get(Doc).get(term);
+//                    double b = Query_BM25.get(term);
+//                    double d = Searcher.DocsResultDL.get(Doc);
+//                    double c = (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl);
+//                    BM25Rank += BM25UP * BM25DOWN * BM25Log;
+                    BM25Rank += ((((k+1)*BM25_Matrix.get(Doc).get(term))/(BM25_Matrix.get(Doc).get(term) + k * (1-b+b*Searcher.DocsResultDL.get(Doc)/Searcher.AVGdl)))*Math.log((Searcher.NumOfDocs + 1)/idf));
+                  //  System.out.println(BM25Rank);
                 } catch (Exception e) {
                     System.out.println("Problem in Compare");
                     System.out.println(Doc);
@@ -250,7 +256,10 @@ public class Ranker {
             }
             CosSimRankDOWN = Math.sqrt(CosSimRankDOWNdoc * CosSimRankDOWNquery);
             CosSimRank = CosSimRankUP / CosSimRankDOWN;
-            RankerResult.put((0.5 * CosSimRank) + (0.5 * BM25Rank), Doc);
+          //  System.out.println(Doc + "###" +BM25Rank + "###"+ CosSimRank);
+         //   RankerResult.put((0.5 * CosSimRank) + (0.5 * BM25Rank), Doc);
+            RankerResult.put( BM25Rank, Doc);
+
         }
     }
 
@@ -277,8 +286,9 @@ public class Ranker {
         Collections.sort(SortedRank,Collections.<Double>reverseOrder());
         for (int i = 0; i < SortedRank.size() && i < 50; i++) {
             Searcher.Results.add(new Pair(queryID, RankedQuery.get(SortedRank.get(i))));
+         //   System.out.println(SortedRank.get(i) + "##" + RankedQuery.get(SortedRank.get(i)));
         }
-        System.out.println("finish rank!");
+    //    System.out.println("finish rank!");
     }
 
     /**
@@ -292,6 +302,8 @@ public class Ranker {
         double tf;
         boolean title;
         int index;
+      //  int counterbefore = 0;
+      //  int counterafter = 0;
         tmpFirst = Character.toLowerCase(tmpFirst);
         StringBuilder stb = new StringBuilder();
         if (tmpFirst >= 'a' && tmpFirst <= 'e') { //todo
@@ -320,6 +332,7 @@ public class Ranker {
                 try {
                     index = TermLIne.indexOf("id:");
                     docID = TermLIne.substring(index + 3, TermLIne.indexOf(';'));
+                  //  counterbefore++;
                     TermLIne = TermLIne.substring(TermLIne.indexOf(';') + 1);
                     index = TermLIne.indexOf("TF:");
                     String TF = TermLIne.substring(index + 3, TermLIne.indexOf(';'));
@@ -330,10 +343,12 @@ public class Ranker {
                     title = Boolean.parseBoolean(Title);
                     if (PostingTFResult.containsKey(docID)) {
                         PostingTFResult.get(docID).put(term, tf);
+                        //counterafter++;
                     } else {
                         HashMap<String, Double> tmp = new HashMap<>();
                         tmp.put(term, tf);
                         PostingTFResult.put(docID, tmp);
+                      //  counterafter++;
                     }
                     PostingTitelResult.put(docID, title);
                     TermLIne = TermLIne.substring(TermLIne.indexOf("->"));
@@ -344,6 +359,8 @@ public class Ranker {
                     break;
                 }
             }
+          //      System.out.println("counter befoe:"+counterbefore);
+           //   System.out.println("counter after:"+counterafter);
         } catch (Exception e) {
             e.printStackTrace();
         }
