@@ -1,9 +1,6 @@
 package Controller;
 
-import Model.Parse;
-import Model.SearchEngine;
-import Model.DictionaryDetailes;
-import Model.Searcher;
+import Model.*;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceDialog;
 import javafx.stage.DirectoryChooser;
@@ -16,6 +13,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.*;
+import java.util.HashSet;
 import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -53,6 +51,9 @@ public class Controller{
 
     private SearchEngine searchEngine;
     private Searcher searcher;
+    public static HashSet<String> Controller_Languages;
+    public static HashSet<String> Controller_Cities;
+    public static int AVGdl;
 
     /**
      * translate the user choise to string for input to the search engine
@@ -92,8 +93,8 @@ public class Controller{
             String Pathout = PathOUT.getText();
             String Pathin = PathIN.getText();
             searchEngine = new SearchEngine(Pathin, Pathout,Stemmer.isSelected());
-            LoadLangugesToScroll();
-            LoadCitiesToScroll();
+            LoadLangugesToScroll_Engine();
+            LoadCitiesToScroll_Engine();
             showFirstRunMessage(getFinalDoc(),getFinalPositions());
             searchEngine.GetAllDocs().clear();
             PathIN.setDisable(false);
@@ -153,11 +154,42 @@ public class Controller{
     /**
      * after the search engine run first time its initiate all the languages that he fing to new menu item
      */
-    public void LoadLangugesToScroll(){
+    public void LoadLangugesToScroll_Engine(){
         for(String lang : SearchEngine.Languages) {
             LangSelctor.getItems().add(lang);
         }
     }
+
+
+
+    /**
+     * after the search engine run first time its initiate all the languages that he fing to new menu item
+     */
+    public void LoadLangugesToScroll_Disk(){
+        for(String lang : Controller_Languages) {
+            LangSelctor.getItems().add(lang);
+        }
+    }
+
+    /**
+     *
+     */
+    public void LoadCitiesToScroll_Engine(){
+        for(String city : SearchEngine.Cities.keySet()) {
+            CitySelctor.getItems().add(city);
+        }
+    }
+
+    /**
+     *
+     */
+    public void LoadCitiesToScroll_Disk(){
+        for(String city : Controller_Cities) {
+            CitySelctor.getItems().add(city);
+        }
+    }
+
+
 
     /**
      * this function after the user click the reset button delete all the search engine output.
@@ -215,7 +247,7 @@ public class Controller{
             }
         }
         else {
-            showAlert("Please make sure that the Path out is valid");
+            showAlert("Please make sure that the Path out is valid!");
         }
     }
 
@@ -223,24 +255,147 @@ public class Controller{
      * read the dic from the disk and initialized it to new data structure that save in the memory.
      */
     public void LoadDicToMemory() throws IOException {
-        if(!Stemmer.isSelected())
-            searcher = new Searcher(SearchEngine.ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut/Dictionary.txt"), SearchEngine.ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut/Docs.txt"),Semantic.isSelected(),Stemmer.isSelected(),PathOUT.getText() + "/EngineOut/",PathIN.getText());
-        else
-            searcher = new Searcher(SearchEngine.ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut_WithStemmer/Dictionary.txt"), SearchEngine.ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut_WithStemmer/Docs.txt"),Semantic.isSelected(),Stemmer.isSelected(),PathOUT.getText() + "/EngineOut_WithStemmer/",PathIN.getText());
+        if (!Stemmer.isSelected()) {
+            searcher = new Searcher(ItsTimeToLoadDictionary(PathOUT.getText() + "\\EngineOut\\Dictionary.txt"), ItsTimeToLoadAllDocs(PathOUT.getText() + "\\EngineOut\\Docs.txt"), PathOUT.getText() + "\\EngineOut\\", PathIN.getText());
+            LoadCitiesToScroll_Disk();
+            LoadLangugesToScroll_Disk();
+            searcher.setAVG(AVGdl);
+        } else {
+            searcher = new Searcher(ItsTimeToLoadDictionary(PathOUT.getText() + "\\EngineOut_WithStemmer\\Dictionary.txt"), ItsTimeToLoadAllDocs(PathOUT.getText() + "\\EngineOut_WithStemmer\\Docs.txt"), PathOUT.getText() + "\\EngineOut_WithStemmer\\", PathIN.getText());
+            LoadCitiesToScroll_Disk();
+            LoadLangugesToScroll_Disk();
+            searcher.setAVG(AVGdl);
+        }
         if (searcher != null)
             showAlert("Dictionary successfully loaded to Memory!");
-         else
+        else
             showAlert("Dictionry failed to load in to the Memory!");
     }
 
+
     /**
+     * reading line by line from disk and create new data structue that represent the Dictionary.
      *
+     * @param Path - where from to load the Dictionary from disk to memory
+     * @return
      */
-    public void LoadCitiesToScroll(){
-        for(String city : SearchEngine.Cities.keySet()) {
-            CitySelctor.getItems().add(city);
+    public static HashMap<String, DictionaryDetailes> ItsTimeToLoadDictionary(String Path) {
+        HashMap<String, DictionaryDetailes> LoadedDic = new HashMap<>();int index;
+        try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
+            String line = br.readLine();
+            int totalfreq = 0, df = 0, pointer = 0;
+            while (line != null) {
+                try {
+                    index = line.indexOf(':');
+                    String term = line.substring(0, index);
+                    line = line.substring(index + 1);
+                    if (!term.isEmpty()) {
+                        index = line.indexOf("TotalTF:");
+                        String TFreq = line.substring(index+8,line.indexOf(';'));
+                        totalfreq = Integer.parseInt(TFreq);
+                        line = line.substring(line.indexOf(';') + 1);
+                        index = line.indexOf("DF:");
+                        String DF = line.substring(index + 3, line.indexOf(';'));
+                        df = Integer.parseInt(DF);
+                        line = line.substring(line.indexOf(';') + 1);
+                        index = line.indexOf("Pointer:");
+                        String point = line.substring(index + 8,line.indexOf("#"));
+                        pointer = Integer.parseInt(point);
+                        DictionaryDetailes DD = new DictionaryDetailes();
+                        DD.setNumOfTermInCorpus(totalfreq);
+                        DD.setNumOfDocsTermIN(df);
+                        DD.setPointer(pointer);
+                        LoadedDic.put(term, DD);
+                    }
+                    line = br.readLine();
+                } catch (Exception e) {
+                    System.out.println("problem!");
+                    break;
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return LoadedDic;
     }
+
+    /**
+     * @param Path
+     */
+    public static HashMap<String, DocDetailes> ItsTimeToLoadAllDocs(String Path) {
+        HashMap<String, DocDetailes> Ans = new HashMap<>();
+        int index;
+        int Doclength;
+        String DocCity;
+        String DocLang;
+        double tmp = 0;
+        double counter = 0;
+        int max_tf;
+        String term;
+        String tf;
+        int DocsLengthCounter = 0;
+        try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
+            //upload languges
+            Controller_Languages = new HashSet<>();
+            String languuges = br.readLine();
+            index = languuges.indexOf(':');
+            languuges = languuges.substring(index + 1);
+            while(languuges.length() > 1) {
+                String l = languuges.substring(0,languuges.indexOf(";"));
+                Controller_Languages.add(l);
+                languuges = languuges.substring(languuges.indexOf(";")+1);
+            }
+            //upload cities
+            Controller_Cities = new HashSet<>();
+            String cities = br.readLine();
+            index = cities.indexOf(':');
+            cities = cities.substring(index + 1);
+            while(cities.length() > 1){
+                String c = cities.substring(0,cities.indexOf(";"));
+                Controller_Cities.add(c);
+                cities = cities.substring(cities.indexOf(";")+1);
+            }
+            //upload alldocs
+            String line = br.readLine();
+            while (line != null) {
+                try {
+                    index = line.indexOf(':');
+                    String doc = line.substring(0, index);
+                    line = line.substring(index + 1);
+                    if (!doc.isEmpty()) {
+                        index = line.indexOf("DocLength:");
+                        String Length = line.substring(index+ 10, line.indexOf(';'));
+                        Doclength = Integer.parseInt(Length);
+                        DocsLengthCounter += Doclength;
+                        line = line.substring(line.indexOf(';') + 1);
+                        index = line.indexOf("MaxTermFrequency:");
+                        String max = line.substring(index+ 17, line.indexOf(';'));
+                        max_tf = Integer.parseInt(max);
+                        line = line.substring(line.indexOf(';') + 1);
+                        index = line.indexOf("City:");
+                        DocCity = line.substring(index + 5,line.indexOf(';')+1);
+                        if(DocCity.length() == 1)
+                            DocCity = "";
+                        DocDetailes DD = new DocDetailes(null,null,null,DocCity);
+                        DD.setDocLength(Doclength);
+                        DD.setMaxTermFrequency(max_tf);
+                        Ans.put(doc,DD);
+                    }
+                    line = br.readLine();
+                } catch (Exception e) {
+                    System.out.println("problem load docs!");
+                    break;
+                }
+            }
+            AVGdl = DocsLengthCounter;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Ans;
+    }
+
+
 
     /**
      *
@@ -258,10 +413,18 @@ public class Controller{
      */
     public void RunQuery() throws IOException, URISyntaxException {
         if(searcher == null) {
-            if (!Stemmer.isSelected())
-                searcher = new Searcher(SearchEngine.ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut/Dictionary.txt"), SearchEngine.ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut/Docs.txt"), Semantic.isSelected(), Stemmer.isSelected(), PathOUT.getText() + "/EngineOut/", PathIN.getText());
-            else
-                searcher = new Searcher(SearchEngine.ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut_WithStemmer/Dictionary.txt"), SearchEngine.ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut_WithStemmer/Docs.txt"), Semantic.isSelected(), Stemmer.isSelected(), PathOUT.getText() + "/EngineOut_WithStemmer/", PathIN.getText());
+            if (!Stemmer.isSelected()) {
+                searcher = new Searcher(ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut/Dictionary.txt"), ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut/Docs.txt"), PathOUT.getText() + "/EngineOut/", PathIN.getText());
+                LoadCitiesToScroll_Disk();
+                LoadLangugesToScroll_Disk();
+                searcher.setAVG(AVGdl);
+            } else {
+                searcher = new Searcher(ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut_WithStemmer/Dictionary.txt"), ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut_WithStemmer/Docs.txt"), PathOUT.getText() + "/EngineOut_WithStemmer/", PathIN.getText());
+                LoadCitiesToScroll_Disk();
+                LoadLangugesToScroll_Disk();
+                searcher.setAVG(AVGdl);
+            }
+
         }
         if (CitySelctor.getCheckModel().getCheckedItems().size() > 1 || (CitySelctor.getCheckModel().getCheckedItems().size() == 1 && !CitySelctor.getCheckModel().getCheckedItems().equals("None"))) {
             ObservableList<String> cities = FXCollections.observableArrayList();
@@ -269,9 +432,11 @@ public class Controller{
             searcher.AddCitiesToFilter(cities);
         }
         if(!SingleQuery.getText().isEmpty())
-            searcher.ProccesSingleQuery(SingleQuery.getText());
+            searcher.ProccesSingleQuery(SingleQuery.getText(),Semantic.isSelected(),Stemmer.isSelected());
         else if(!PathQueriesFile.getText().isEmpty())
-            searcher.ProccesQueryFile(PathQueriesFile.getText());
+            searcher.ProccesQueryFile(PathQueriesFile.getText(),Semantic.isSelected(),Stemmer.isSelected());
+
+
         else {
             showAlert("You must enter a Querry in the right place!");
             return;

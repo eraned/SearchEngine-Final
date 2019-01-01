@@ -10,6 +10,14 @@ import java.nio.file.Files;
 import java.io.IOException;
 import java.io.*;
 import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 
 /**
@@ -23,17 +31,17 @@ public class Indexer {
 
     public String CorpusPathOUT;
     public boolean StemmerNeeded;
-    public  HashMap<String, DictionaryDetailes> Dictionary;
-    public  HashMap<String, ArrayList<TermDetailes>> Posting;
+    public HashMap<String, DictionaryDetailes> Dictionary;
+    public HashMap<String, ArrayList<TermDetailes>> Posting;
     public StringBuilder stbOUT;
     public int PostingNumber;
     public int MergeNumber;
     public int BlockCounter;
     public int PostingDocIndex;
-    public  long PostingSize;
-    public  int NumOfTermsBeforeStemming;
-    public  int NumOfTermsAfterStemming;
-    public  int NumOfTerms_Numbers;
+    public long PostingSize;
+    public int NumOfTermsBeforeStemming;
+    public int NumOfTermsAfterStemming;
+    public int NumOfTerms_Numbers;
     public String DocMaxCity;
     public static HashSet<String> Entitys;
     int counterbefore;
@@ -42,10 +50,11 @@ public class Indexer {
 
     /**
      * Constructor
+     *
      * @param corpusPathOUT - where to save all the output of the indexer
-     * @param isStemmer - get from the user
+     * @param isStemmer     - get from the user
      */
-    public Indexer(String corpusPathOUT,boolean isStemmer) {
+    public Indexer(String corpusPathOUT, boolean isStemmer) {
         CorpusPathOUT = corpusPathOUT;
         StemmerNeeded = isStemmer;
         Dictionary = new HashMap<>();
@@ -64,12 +73,12 @@ public class Indexer {
         counterbefore = 0;
         counterafter = 0;
         if (StemmerNeeded)
-            //stbOUT.append(CorpusPathOUT + "\\EngineOut_WithStemmer\\"); //todo
-            stbOUT.append(CorpusPathOUT + "/EngineOut_WithStemmer/"); //todo
+            stbOUT.append(CorpusPathOUT + "\\EngineOut_WithStemmer\\"); //todo
+            //stbOUT.append(CorpusPathOUT + "/EngineOut_WithStemmer/"); //todo
 
         else
-            //stbOUT.append(CorpusPathOUT + "\\EngineOut\\"); //todo
-            stbOUT.append(CorpusPathOUT + "/EngineOut/"); //todo
+            stbOUT.append(CorpusPathOUT + "\\EngineOut\\"); //todo
+        //stbOUT.append(CorpusPathOUT + "/EngineOut/"); //todo
         File folder = new File(stbOUT.toString());
         File[] listOfFiles = folder.listFiles();
         if (listOfFiles != null) {
@@ -87,13 +96,13 @@ public class Indexer {
     /**
      * method that hellpes the memory not to crush.
      * every bluck create tmp posting file into txt file and clear the hashmap of posting
-     * @param DocAfterParse - get from the parser parsed doc in hashmap
-     * @param Docid - the docid that parsed
-     * @throws IOException
      *
+     * @param DocAfterParse - get from the parser parsed doc in hashmap
+     * @param Docid         - the docid that parsed
+     * @throws IOException
      */
 
-    public void CreateMINI_Posting(HashMap<String, TermDetailes> DocAfterParse,String Docid) throws IOException {
+    public void CreateMINI_Posting(HashMap<String, TermDetailes> DocAfterParse, String Docid) throws IOException {
         int MaxTermFreq = 0;
         StringBuilder Ent = new StringBuilder();//HashSet<String> EntHash = new HashSet<>();
         //improve parser
@@ -176,9 +185,10 @@ public class Indexer {
 
     /**
      * when you get the memory full its write all the hashmap of the posting to txt file for later use.
+     *
      * @throws IOException
      */
-    public void ItsTimeForFLUSH_POSTING()throws IOException {
+    public void ItsTimeForFLUSH_POSTING() throws IOException {
         File tmpPost = new File(stbOUT.toString() + PostingNumber + ".txt");
         ArrayList<String> SortedPost = new ArrayList<>(Posting.keySet());
         Collections.sort(SortedPost);
@@ -197,7 +207,7 @@ public class Indexer {
                 BW.newLine();
             }
             BW.close();
-            System.out.println("posting   " + PostingNumber + "   "+postingcounter);
+            System.out.println("posting   " + PostingNumber + "   " + postingcounter);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -205,6 +215,7 @@ public class Indexer {
 
     /**
      * after all tmp posting files was created merge every 2 docs Lexicography for final posting file.
+     *
      * @throws IOException
      */
 
@@ -216,44 +227,44 @@ public class Indexer {
         //String tmpPath_odd = stbOUT + "tmpMerge-odd" + ".txt";
 
         //todo - corpus more then one block
-        if(FilestoMerge.length >= 1) {
+        if (FilestoMerge.length >= 1) {
             while (FilestoMerge.length > 1) {
                 for (int i = 0; i < FilestoMerge.length - 1; i += 2) {
-                    EXTERNAL_SORT(FilestoMerge[i], FilestoMerge[i + 1],MergeNumber);
+                    EXTERNAL_SORT(FilestoMerge[i], FilestoMerge[i + 1], MergeNumber);
                     MergeNumber++;
                 }
                 FilestoMerge = file.listFiles();
             }
             //todo - corpus even posting files
-            if(FilestoMerge.length == 1){
+            if (FilestoMerge.length == 1) {
                 ItsTimeForFLUSH_POSTING();
                 FilestoMerge = file.listFiles();
-                EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],MergeNumber);
+                EXTERNAL_SORT(FilestoMerge[0], FilestoMerge[1], MergeNumber);
                 FilestoMerge = file.listFiles();
-                PostingSize = FilestoMerge[0].length()/1024;
+                PostingSize = FilestoMerge[0].length() / 1024;
                 Posting.clear();
                 ItsTimeForSPLIT_Final_Posting();
             }
             //todo - corpus odd posting files
-            if(FilestoMerge.length == 2){
-                EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],MergeNumber);
+            if (FilestoMerge.length == 2) {
+                EXTERNAL_SORT(FilestoMerge[0], FilestoMerge[1], MergeNumber);
                 ItsTimeForFLUSH_POSTING();
                 FilestoMerge = file.listFiles();
-                EXTERNAL_SORT(FilestoMerge[0],FilestoMerge[1],MergeNumber);
+                EXTERNAL_SORT(FilestoMerge[0], FilestoMerge[1], MergeNumber);
                 FilestoMerge = file.listFiles();
-                PostingSize = FilestoMerge[0].length()/1024;
+                PostingSize = FilestoMerge[0].length() / 1024;
                 Posting.clear();
                 ItsTimeForSPLIT_Final_Posting();
             }
         }
         //todo - corpus less then one block
-        else{
+        else {
             ItsTimeForFLUSH_POSTING();
             FilestoMerge = file.listFiles();
             File filenewName = new File(stbOUT.toString() + MergeNumber + "tmp.txt");
             FilestoMerge[0].renameTo(filenewName);
             FilestoMerge = file.listFiles();
-            PostingSize = FilestoMerge[0].length()/1024;
+            PostingSize = FilestoMerge[0].length() / 1024;
             Posting.clear();
             ItsTimeForSPLIT_Final_Posting();
         }
@@ -262,11 +273,12 @@ public class Indexer {
 
     /**
      * merge two file Lexicography implementaion line by line.
+     *
      * @param F1 - tmp posting file to merge
      * @param F2 - tmp posting file to merge
      * @throws IOException
      */
-    public void EXTERNAL_SORT(File F1 , File F2 ,int counter) throws IOException{
+    public void EXTERNAL_SORT(File F1, File F2, int counter) throws IOException {
 
 
         FileWriter FW = new FileWriter(new File(stbOUT.toString() + MergeNumber + "tmp.txt"));
@@ -294,19 +306,19 @@ public class Indexer {
             } else {
                 StringBuilder stb = new StringBuilder();
                 stb.append(t2 + ":");
-                stb.append(S1.substring(S1.indexOf(":") + 1,S1.indexOf("#")));
+                stb.append(S1.substring(S1.indexOf(":") + 1, S1.indexOf("#")));
                 stb.append(S2.substring(S2.indexOf(":") + 1));
                 FW.write(stb.toString() + System.getProperty("line.separator"));
                 S1 = BR1.readLine();
                 S2 = BR2.readLine();
             }
         }
-        while (S1 != null){
-            FW.write(S1 + System.getProperty( "line.separator" ));
+        while (S1 != null) {
+            FW.write(S1 + System.getProperty("line.separator"));
             S1 = BR1.readLine();
         }
-        while(S2 != null){
-            FW.write(S2 + System.getProperty( "line.separator" ));
+        while (S2 != null) {
+            FW.write(S2 + System.getProperty("line.separator"));
             S2 = BR2.readLine();
         }
         BR1.close();
@@ -321,18 +333,18 @@ public class Indexer {
      * split the final posting file to 6 ranges to improve to find doc for query
      */
     public void ItsTimeForSPLIT_Final_Posting() {
-//        File Numbers = new File(stbOUT + "\\Numbers.txt"); //todo
-//        File A_E = new File(stbOUT + "\\A_E.txt");
-//        File F_J = new File(stbOUT + "\\F_J.txt");
-//        File K_P = new File(stbOUT + "\\K_P.txt");
-//        File Q_U = new File(stbOUT + "\\Q_U.txt");
-//        File V_Z = new File(stbOUT + "\\V_Z.txt");
-        File Numbers = new File(stbOUT + "/Numbers.txt"); //todo
-        File A_E = new File(stbOUT + "/A_E.txt");
-        File F_J = new File(stbOUT + "/F_J.txt");
-        File K_P = new File(stbOUT + "/K_P.txt");
-        File Q_U = new File(stbOUT + "/Q_U.txt");
-        File V_Z = new File(stbOUT + "/V_Z.txt");
+        File Numbers = new File(stbOUT + "\\Numbers.txt"); //todo
+        File A_E = new File(stbOUT + "\\A_E.txt");
+        File F_J = new File(stbOUT + "\\F_J.txt");
+        File K_P = new File(stbOUT + "\\K_P.txt");
+        File Q_U = new File(stbOUT + "\\Q_U.txt");
+        File V_Z = new File(stbOUT + "\\V_Z.txt");
+//        File Numbers = new File(stbOUT + "/Numbers.txt"); //todo
+//        File A_E = new File(stbOUT + "/A_E.txt");
+//        File F_J = new File(stbOUT + "/F_J.txt");
+//        File K_P = new File(stbOUT + "/K_P.txt");
+//        File Q_U = new File(stbOUT + "/Q_U.txt");
+//        File V_Z = new File(stbOUT + "/V_Z.txt");
         File Final_Posting = new File(stbOUT.toString() + MergeNumber + "tmp.txt");
         int countNumber = 0;
         int countA_E = 0;
@@ -374,7 +386,7 @@ public class Indexer {
                             try {
                                 index = S.indexOf("id:");
                                 docID = S.substring(index + 3, S.indexOf(';'));
-                                S = S.substring(S.indexOf(">")+1);
+                                S = S.substring(S.indexOf(">") + 1);
                                 counterafter++;
                             } catch (Exception e) {
                                 System.out.println("problem get tf!");
@@ -480,25 +492,24 @@ public class Indexer {
     /**
      * after the inverted index was created write the Dictionary to the disk
      */
-    public void ItsTimeToWriteDictionary(){
-        //File DictionaryDoc = new File(stbOUT + "\\Dictionary" + ".txt"); //todo
-        File DictionaryDoc = new File(stbOUT + "/Dictionary" + ".txt");
+    public void ItsTimeToWriteDictionary() {
+        File DictionaryDoc = new File(stbOUT + "\\Dictionary" + ".txt"); //todo
+        //File DictionaryDoc = new File(stbOUT + "/Dictionary" + ".txt");
         ArrayList<String> SortedDic = new ArrayList<>(Dictionary.keySet());
         Collections.sort(SortedDic);
 
         try {
             FileWriter FW = new FileWriter(DictionaryDoc);
             BufferedWriter BW = new BufferedWriter(FW);
-            for(String term : SortedDic){
-                if((StringUtils.isAlpha(term)) && (StringUtils.isAllUpperCase(term))){
+            for (String term : SortedDic) {
+                if ((StringUtils.isAlpha(term)) && (StringUtils.isAllUpperCase(term))) {
                     Entitys.add(term);
                 }
-                BW.write(  term + ":" + "TotalTF:"+Dictionary.get(term).getNumOfTermInCorpus() + ";DF:" + Dictionary.get(term).getNumOfDocsTermIN() + ";Pointer:" + Dictionary.get(term).getPointer() + "#");
+                BW.write(term + ":" + "TotalTF:" + Dictionary.get(term).getNumOfTermInCorpus() + ";DF:" + Dictionary.get(term).getNumOfDocsTermIN() + ";Pointer:" + Dictionary.get(term).getPointer() + "#");
                 BW.newLine();
             }
             BW.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -508,52 +519,63 @@ public class Indexer {
      * @param term
      * @return
      */
-    public boolean ParserBooster(String term){
-        if((term.endsWith("K") || term.endsWith("M") || term.endsWith("B") || term.endsWith("%")) && (!StringUtils.isAlpha(term))){
-            if(!StringUtils.isNumeric(term.substring(0,term.length()-1)) && !NumberUtils.isParsable(term.substring(0,term.length()-1)))
+    public boolean ParserBooster(String term) {
+        if ((term.endsWith("K") || term.endsWith("M") || term.endsWith("B") || term.endsWith("%")) && (!StringUtils.isAlpha(term))) {
+            if (!StringUtils.isNumeric(term.substring(0, term.length() - 1)) && !NumberUtils.isParsable(term.substring(0, term.length() - 1)))
                 return false;
-        }
-        else if(term.endsWith("Dollars") && term.length() > 8){
+        } else if (term.endsWith("Dollars") && term.length() > 8) {
             int index = term.indexOf("Dollars");
-            char c = term.charAt(index-2);
-            if(!Character.isDigit(c) && (c != 'M'))
+            char c = term.charAt(index - 2);
+            if (!Character.isDigit(c) && (c != 'M'))
                 return false;
-            if(term.length() > 10 && (c == 'M')) {
+            if (term.length() > 10 && (c == 'M')) {
                 char w = term.charAt(index - 4);
                 if (!Character.isDigit(w))
                     return false;
             }
-        }
-        else if(!StringUtils.isAlpha(term) && !StringUtils.isNumeric(term))
+        } else if (!StringUtils.isAlpha(term) && !StringUtils.isNumeric(term))
             return false;
-        else if(!NumberUtils.isParsable(term) && StringUtils.isNumeric(term))
+        else if (!NumberUtils.isParsable(term) && StringUtils.isNumeric(term))
             return false;
         return true;
     }
 
-    public void LoadEntitiysToDocs(){
-        HashMap<String,Integer> ans = new HashMap<>();
+
+    //https://stackoverflow.com/questions/8119366/sorting-hashmap-by-values
+    public void LoadEntitiysToDocs() {
+        HashMap<String, Integer> ans = new HashMap<>();
+        HashMap<Integer, String> tmp = new HashMap<>();
         StringBuilder stb = new StringBuilder();
         String term;
         String tf;
         int TF;
+        int counter = 0;
         String Suspected;
-        for(String Doc : SearchEngine.All_Docs.keySet()){
+        for (String Doc : SearchEngine.All_Docs.keySet()) {
             Suspected = SearchEngine.All_Docs.get(Doc).getDocSuspectedEntitys().toString();
-            while(Suspected.length() > 1){
+            while (Suspected.length() > 1) {
                 term = Suspected.substring(0, Suspected.indexOf(":"));
-                tf = Suspected.substring(Suspected.indexOf(":")+1, Suspected.indexOf(";"));
+                tf = Suspected.substring(Suspected.indexOf(":") + 1, Suspected.indexOf(";"));
                 TF = Integer.parseInt(tf);
-                if(Entitys.contains(term)){
-                    ans.put(term,TF);
+                if (Entitys.contains(term)) {
+                    ans.put(term, TF);
                 }
                 Suspected = Suspected.substring(Suspected.indexOf(";") + 1);
             }
             stb.append("#### Entitys Result ####\n");
-            ArrayList<Integer> SortedEntitys = new ArrayList<>(ans.values());
-            Collections.sort(SortedEntitys, Collections.reverseOrder());
-            for(int i = 0 ; i < SortedEntitys.size() && i < 5  ;i++){
-                stb.append(ans.get(SortedEntitys.get(i)) + " " + SortedEntitys.get(i) +"\n");
+            List<Entry<String, Integer>> list = new LinkedList<Entry<String, Integer>>(ans.entrySet());
+            Collections.sort(list, new Comparator<Entry<String, Integer>>() {
+                public int compare(Entry<String, Integer> o1, Entry<String, Integer> o2) {
+                    return o2.getValue().compareTo(o1.getValue());
+                }
+            });
+            Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
+            for (Entry<String, Integer> entry : list) {
+                if (counter < 5) {
+                    stb.append(entry.getKey() + " " + entry.getValue() + "\n");
+                    counter++;
+                } else
+                    break;
             }
             stb.append("###################\n");
             SearchEngine.All_Docs.get(Doc).setDocSuspectedEntitys(stb);
@@ -561,5 +583,4 @@ public class Indexer {
         }
     }
 }
-
 

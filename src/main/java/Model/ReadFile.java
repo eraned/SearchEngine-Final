@@ -49,15 +49,15 @@ public class ReadFile {
         File[] SubDirectories = file.listFiles();
         StringBuilder out = new StringBuilder();
         for (File tmp : SubDirectories) {
-            //StringBuilder stop =new StringBuilder( MainPath.toString() + "\\stop_words.txt"); //todo
-            StringBuilder stop =new StringBuilder( MainPath.toString() + "/stop_words.txt");
+            StringBuilder stop =new StringBuilder( MainPath.toString() + "\\stop_words.txt"); //todo
+            //StringBuilder stop =new StringBuilder( MainPath.toString() + "/stop_words.txt");
             if(SteemerNeeded)
-                 //out.append( MainPath.toString() + "\\EngineOut_WithStemmer\\"); //todo
-                out.append( MainPath.toString() + "/EngineOut_WithStemmer/");
+                 out.append( MainPath.toString() + "\\EngineOut_WithStemmer\\"); //todo
+                //out.append( MainPath.toString() + "/EngineOut_WithStemmer/");
 
             else
-                //out.append( MainPath.toString() + "\\EngineOut\\"); //todo
-                out.append( MainPath.toString() + "/EngineOut/");
+                out.append( MainPath.toString() + "\\EngineOut\\"); //todo
+                //out.append( MainPath.toString() + "/EngineOut/");
             if (tmp.isFile() && !(tmp.toString().equals(stop.toString())) && !(tmp.toString().equals(out.toString()))) {
                 SubFilesPath.add(tmp);
             } else if (tmp != null && tmp.isDirectory()) {
@@ -110,15 +110,10 @@ public class ReadFile {
                             if(CitySection.equals("SANTIAGO"))CitySection = "SANTIAGO DE CHILE";
                             if(CitySection.equals("--"))CitySection = "";
                         }
-//                        else{
-//                            flagCity = true;
-//                            CitySection = "";
-//                        }
                     }
                     if(splited[i].equals("105")){
                         String[] finaleLanguage = StringUtils.split(splited[i + 1], " ");
                         if(finaleLanguage.length > 1) {
-                            flagLang = true;
                             DocLanguage = finaleLanguage[1].toUpperCase();
                             if(!SearchEngine.Languages.contains(DocLanguage)) {
                                 SearchEngine.Languages.add(DocLanguage);
@@ -130,10 +125,8 @@ public class ReadFile {
                 }
                 if(!flagCity)
                     CitySection = "";
-                if(!flagLang)
-                    DocLanguage = "";
             }
-            tmpDocs.put(DocID, new DocDetailes(DocText, DocDate, DocTitle, CitySection,DocLanguage));
+            tmpDocs.put(DocID, new DocDetailes(DocText, DocDate, DocTitle, CitySection));
         }
         return tmpDocs;
     }

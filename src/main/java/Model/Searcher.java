@@ -22,40 +22,31 @@ public class Searcher {
     public Ranker ranker;
     public static Parse SearcherParser;
     public boolean SemanticNeeded;
-    public boolean Steemerneeded;
     public static HashMap<String, DictionaryDetailes> Loaded_Dictionary;
     public static HashMap<String, DocDetailes> Loaded_AllDocs;
-    //public static HashMap<String,String> DocsResultEntitys;
     public static double AVGdl;
     public static double NumOfDocs;
-    public int counter;
     public static ObservableList<String> citiesToFilter;
     public static ArrayList<Pair> Results; //<<queryid,Docid>>
-
-
-
+    public static String PathIN;
 
 
     /**
      * Constructor
-     * @param semanticNeeded
      * @throws IOException
      */
-    public Searcher(HashMap<String, DictionaryDetailes> dictionary,HashMap<String, DocDetailes> all_Docs,boolean semanticNeeded,boolean Steemer,String PathOut,String PathIn) throws IOException {
-        SearcherParser = new Parse(Steemer,PathIn);
-        SemanticNeeded = semanticNeeded;
-        Steemerneeded = Steemer;
-        //DocsResultEntitys = new HashMap<>();
+    public Searcher(HashMap<String, DictionaryDetailes> dictionary,HashMap<String, DocDetailes> all_Docs,String PathOut,String PathIn) throws IOException {
+        PathIN = PathIn;
         Results = new ArrayList<>();
         Loaded_Dictionary = dictionary;
         Loaded_AllDocs = all_Docs;
         NumOfDocs = Loaded_AllDocs.size();
-        counter = 0;
-        for(String doc : Loaded_AllDocs.keySet()){
-            counter += Loaded_AllDocs.get(doc).getDocLength();
-        }
-        AVGdl = counter/NumOfDocs;
-        ranker = new Ranker(PathOut,Steemerneeded);
+        AVGdl = 0;
+        ranker = new Ranker(PathOut);
+    }
+
+    public void setAVG(int avg){
+        AVGdl = (avg/NumOfDocs);
     }
 
 
@@ -64,8 +55,9 @@ public class Searcher {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public void ProccesQueryFile(String QueryPath) throws IOException, URISyntaxException {
+    public void ProccesQueryFile(String QueryPath,boolean semanticNeeded,boolean Steemer) throws IOException, URISyntaxException {
         ArrayList<Pair> Queries = SplitQueriesFile(QueryPath);
+        SearcherParser = new Parse(Steemer,PathIN + "\\stop_words.txt");
         for (int i = 0 ;i < Queries.size(); i++) {
             HashMap<String, TermDetailes> tmpQuery = SearcherParser.ParseDoc(Queries.get(i).getValue().toString(), "", "", "");
             HashSet<String> QueryWords = new HashSet<>(tmpQuery.keySet());
@@ -79,7 +71,8 @@ public class Searcher {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public void ProccesSingleQuery(String Query) throws IOException, URISyntaxException {
+    public void ProccesSingleQuery(String Query,boolean semanticNeeded,boolean Steemer) throws IOException, URISyntaxException {
+        SearcherParser = new Parse(Steemer,PathIN + "\\stop_words.txt");
         HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(Query,"","","");
         HashSet<String> QueryWords = new HashSet<>(tmpQuery.keySet());
         ranker.InitializScores(QueryWords,"000",SemanticNeeded);
@@ -117,7 +110,8 @@ public class Searcher {
             String QueryID = element.getElementsByTag("num").toString();
             QueryID = QueryID.substring(QueryID.indexOf("Number:")+7,QueryID.indexOf("<title>"));
             QueryID = QueryID.trim();
-            QueryStb.append(element.getElementsByTag("title").text());
+            String QueryContent = element.getElementsByTag("title").text();
+            String QueryDescription = element.getElementsByTag("desc").text();
             Pair p = new Pair(QueryID,QueryStb.toString());
             Result.add(p);
         }
@@ -135,25 +129,12 @@ public class Searcher {
      * @throws IOException
      */
     public static void WriteResults(File FileToSaveIn) throws IOException {
-        //FileWriter FW = new FileWriter(FileToSaveIn.getAbsolutePath()+"\\results.txt"); //todo
-        FileWriter FW = new FileWriter(FileToSaveIn.getAbsolutePath()+"/results.txt");
+        FileWriter FW = new FileWriter(FileToSaveIn.getAbsolutePath()+"\\results.txt"); //todo
+        //FileWriter FW = new FileWriter(FileToSaveIn.getAbsolutePath()+"/results.txt");
         for(int i = 0 ; i < Results.size();i++) {
             FW.write( Results.get(i).getKey()+ " 0" + " " + Results.get(i).getValue() + " 1" + " 00.00" + " test" + System.getProperty( "line.separator" ));
         }
         FW.close();
     }
-
-
-    //    public StringBuilder ProccessNarrative(String Nar){
-//        StringBuilder ans = new StringBuilder();
-//
-//
-//
-//
-//
-//
-//        return ans;
-//    }
-
 }
 

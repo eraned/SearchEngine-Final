@@ -13,7 +13,7 @@ import java.util.*;
  *
  */
 public class Ranker {
-    public boolean Steemerneeded;
+   // public boolean Steemerneeded;
     HashSet<String> Query;
     public String PostingPath;
     public HashMap<String, HashMap<String, Double>> PostingTFResult;
@@ -35,8 +35,8 @@ public class Ranker {
      *
      * @param pathforFindposting
      */
-    public Ranker(String pathforFindposting,boolean StemmingNeeded) {
-        Steemerneeded = StemmingNeeded;
+    public Ranker(String pathforFindposting) {
+       // Steemerneeded = StemmingNeeded;
         Query = new HashSet<>();
         PostingPath = pathforFindposting;
         PostingTFResult = new HashMap<>();
@@ -55,15 +55,15 @@ public class Ranker {
      */
     public void InitializScores(HashSet<String> querywords,String Queryid, boolean semanticNeeded) throws IOException, URISyntaxException { //Matrix of columns: d1,d2,d3....q     rows: t1,t2,t3....
         if (semanticNeeded)
-            ProccesSemantic(querywords,Steemerneeded);
-        ProccesQuery(querywords,Steemerneeded);
+            ProccesSemantic(querywords);
+        ProccesQuery(querywords);
         ProccesReOrgnize();
         ProccesCompare();
         RankDocs(RankerResult, Queryid);
         ClearAll();
     }
 
-    public void ProccesSemantic(HashSet<String> querywords,boolean Steemer) {
+    public void ProccesSemantic(HashSet<String> querywords) {
         try {
             //part 1 - process query words for API
             HashSet<String> tmp = new HashSet<>();
@@ -97,7 +97,7 @@ public class Ranker {
         }
     }
 
-    public void ProccesQuery(HashSet<String> querywords,boolean Steemer) {
+    public void ProccesQuery(HashSet<String> querywords) {
         for(String term : querywords) {
             if(StringUtils.isAllUpperCase(term) && Searcher.Loaded_Dictionary.get(term) != null) {
                 Query.add(term);
@@ -211,32 +211,32 @@ public class Ranker {
         int index;
         tmpFirst = Character.toLowerCase(tmpFirst);
         StringBuilder stb = new StringBuilder();
-//        if (tmpFirst >= 'a' && tmpFirst <= 'e') { //todo
-//            stb.append(PostingPath + "\\A_E.txt");
-//        } else if (tmpFirst >= 'f' && tmpFirst <= 'j') {
-//            stb.append(PostingPath + "\\F_J.txt");
-//        } else if (tmpFirst >= 'k' && tmpFirst <= 'p') {
-//            stb.append(PostingPath + "\\K_P.txt");
-//        } else if (tmpFirst >= 'q' && tmpFirst <= 'u') {
-//            stb.append(PostingPath + "\\Q_U.txt");
-//        } else if (tmpFirst >= 'v' && tmpFirst <= 'z') {
-//            stb.append(PostingPath + "\\V_Z.txt");
-//        } else {
-//            stb.append(PostingPath + "\\Numbers.txt");
-//        }
         if (tmpFirst >= 'a' && tmpFirst <= 'e') { //todo
-            stb.append(PostingPath + "/A_E.txt");
+            stb.append(PostingPath + "\\A_E.txt");
         } else if (tmpFirst >= 'f' && tmpFirst <= 'j') {
-            stb.append(PostingPath + "/F_J.txt");
+            stb.append(PostingPath + "\\F_J.txt");
         } else if (tmpFirst >= 'k' && tmpFirst <= 'p') {
-            stb.append(PostingPath + "/K_P.txt");
+            stb.append(PostingPath + "\\K_P.txt");
         } else if (tmpFirst >= 'q' && tmpFirst <= 'u') {
-            stb.append(PostingPath + "/Q_U.txt");
+            stb.append(PostingPath + "\\Q_U.txt");
         } else if (tmpFirst >= 'v' && tmpFirst <= 'z') {
-            stb.append(PostingPath + "/V_Z.txt");
+            stb.append(PostingPath + "\\V_Z.txt");
         } else {
-            stb.append(PostingPath + "/Numbers.txt");
+            stb.append(PostingPath + "\\Numbers.txt");
         }
+//        if (tmpFirst >= 'a' && tmpFirst <= 'e') { //todo
+//            stb.append(PostingPath + "/A_E.txt");
+//        } else if (tmpFirst >= 'f' && tmpFirst <= 'j') {
+//            stb.append(PostingPath + "/F_J.txt");
+//        } else if (tmpFirst >= 'k' && tmpFirst <= 'p') {
+//            stb.append(PostingPath + "/K_P.txt");
+//        } else if (tmpFirst >= 'q' && tmpFirst <= 'u') {
+//            stb.append(PostingPath + "/Q_U.txt");
+//        } else if (tmpFirst >= 'v' && tmpFirst <= 'z') {
+//            stb.append(PostingPath + "/V_Z.txt");
+//        } else {
+//            stb.append(PostingPath + "/Numbers.txt");
+//        }
         File SelectedPosting = new File(stb.toString());
         try (BufferedReader br = new BufferedReader(new FileReader(SelectedPosting))) {
             for(int i =0;i<pointer;i++){

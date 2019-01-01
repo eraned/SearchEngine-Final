@@ -40,8 +40,8 @@ public class SearchEngine {
         long StartTime = System.nanoTime();
         CorpusPathIN = corpusPathIN;
         CorpusPathOUT = corpusPathOUT;
-        //StopWordsPath = new StringBuilder(CorpusPathIN + "\\stop_words.txt"); //todo
-        StopWordsPath = new StringBuilder(CorpusPathIN + "/stop_words.txt");
+        StopWordsPath = new StringBuilder(CorpusPathIN + "\\stop_words.txt"); //todo
+        //StopWordsPath = new StringBuilder(CorpusPathIN + "/stop_words.txt");
         StemmerNeeded = isSteemer;
         readFile = new ReadFile(CorpusPathIN,StemmerNeeded);
         parser = new Parse(StemmerNeeded, StopWordsPath.toString());
@@ -71,13 +71,11 @@ public class SearchEngine {
         }
         indexer.ItsTimeForMERGE_All_Postings();
         ItsTimeToWriteAllDocs();
+        //All_Docs.clear();
         long FinishTime = System.nanoTime();
         TotalTime = FinishTime - StartTime;
     }
 
-    public Indexer GetIndexer() {
-        return indexer;
-    }
     public HashMap<String, DocDetailes> GetAllDocs(){return All_Docs;}
 
     /**
@@ -170,9 +168,9 @@ public class SearchEngine {
      *
      */
     public void ItsTimeToWriteAllDocs() {
-        //File AllDocsFile = new File(indexer.stbOUT + "\\Docs" + ".txt"); //todo
         try{
-            File AllDocsFile = new File(indexer.stbOUT + "/Docs" + ".txt");
+            File AllDocsFile = new File(indexer.stbOUT + "\\Docs" + ".txt"); //todo
+            //File AllDocsFile = new File(indexer.stbOUT + "/Docs" + ".txt");
             FileWriter FW = new FileWriter(AllDocsFile);
             BufferedWriter BW = new BufferedWriter(FW);
             //write languges
@@ -206,125 +204,7 @@ public class SearchEngine {
         }
     }
 
-    /**
-     * reading line by line from disk and create new data structue that represent the Dictionary.
-     *
-     * @param Path - where from to load the Dictionary from disk to memory
-     * @return
-     */
-    public static HashMap<String, DictionaryDetailes> ItsTimeToLoadDictionary(String Path) {
-        HashMap<String, DictionaryDetailes> LoadedDic = new HashMap<>();int index;
-        try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
-            String line = br.readLine();
-            int totalfreq = 0, df = 0, pointer = 0;
-            while (line != null) {
-                try {
-                    index = line.indexOf(':');
-                    String term = line.substring(0, index);
-                    line = line.substring(index + 1);
-                    if (!term.isEmpty()) {
-                        index = line.indexOf("TotalTF:");
-                        String TFreq = line.substring(index+8,line.indexOf(';'));
-                        totalfreq = Integer.parseInt(TFreq);
-                        line = line.substring(line.indexOf(';') + 1);
-                        index = line.indexOf("DF:");
-                        String DF = line.substring(index + 3, line.indexOf(';'));
-                        df = Integer.parseInt(DF);
-                        line = line.substring(line.indexOf(';') + 1);
-                        index = line.indexOf("Pointer:");
-                        String point = line.substring(index + 8,line.indexOf("#"));
-                        pointer = Integer.parseInt(point);
-                        DictionaryDetailes DD = new DictionaryDetailes();
-                        DD.setNumOfTermInCorpus(totalfreq);
-                        DD.setNumOfDocsTermIN(df);
-                        DD.setPointer(pointer);
-                        LoadedDic.put(term, DD);
-                    }
-                    line = br.readLine();
-                } catch (Exception e) {
-                    System.out.println("problem!");
-                    break;
-                }
-            }
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return LoadedDic;
-    }
 
-    /**
-     * @param Path
-     */
-    public static HashMap<String, DocDetailes> ItsTimeToLoadAllDocs(String Path) {
-        HashMap<String, DocDetailes> Ans = new HashMap<>();
-        int index;
-        int Doclength;
-        String DocCity;
-        String DocLang;
-        double tmp = 0;
-        double counter = 0;
-        int max_tf;
-        String term;
-        String tf;
-        try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
-            //upload languges
-            String languuges = br.readLine();
-            index = languuges.indexOf(':');
-            languuges = languuges.substring(index + 1);
-            while(languuges.length() > 1){
 
-            }
-            //upload cities
-            String cities = br.readLine();
-            while(cities.length() > 1){
-
-            }
-            //upload alldocs
-            String line = br.readLine();
-            while (line != null) {
-                try {
-                    index = line.indexOf(':');
-                    String doc = line.substring(0, index);
-                    line = line.substring(index + 1);
-                    if (!doc.isEmpty()) {
-                        index = line.indexOf("DocLength:");
-                        String Length = line.substring(index+ 10, line.indexOf(';'));
-                        Doclength = Integer.parseInt(Length);
-                        line = line.substring(line.indexOf(';') + 1);
-                        index = line.indexOf("MaxTermFrequency:");
-                        String max = line.substring(index+ 17, line.indexOf(';'));
-                        max_tf = Integer.parseInt(max);
-                        line = line.substring(line.indexOf(';') + 1);
-                        index = line.indexOf("City:");
-                        DocCity = line.substring(index + 5,line.indexOf(';')+1);
-                        if(DocCity.length() == 1)
-                            DocCity = "";
-//                        line = line.substring(line.indexOf(';') + 1);
-//                        index = line.indexOf("Languge:");
-//                        DocLang = line.substring(index + 8,line.indexOf(';')+1);
-                        DocDetailes DD = new DocDetailes(null,null,null,DocCity,DocLang);
-                        DD.setDocLength(Doclength);
-                        DD.setMaxTermFrequency(max_tf);
-                        Ans.put(doc,DD);
-                        //tmp += Doclength;
-                        //counter++;
-//                        line = line.substring(line.indexOf(';') + 1);
-//                        index = line.indexOf("DocEntitys:");
-//                        line = line.substring(index + 11);
-//                        //HashMap<String,Double> tmpHash = new HashMap<>();
-//                        String Entitys = line.substring(index + 11,line.lastIndexOf("#")+1);
-//                        Searcher.DocsResultEntitys.put(doc,Entitys);
-                    }
-                    line = br.readLine();
-                } catch (Exception e) {
-                    System.out.println("problem load docs!");
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return Ans;
-    }
 }
