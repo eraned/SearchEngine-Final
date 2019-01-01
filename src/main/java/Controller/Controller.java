@@ -92,6 +92,7 @@ public class Controller{
             PathOUT.setDisable(true);
             String Pathout = PathOUT.getText();
             String Pathin = PathIN.getText();
+          //  showAlert("Search Engine Has started!" );
             searchEngine = new SearchEngine(Pathin, Pathout,Stemmer.isSelected());
             LoadLangugesToScroll_Engine();
             LoadCitiesToScroll_Engine();
@@ -255,34 +256,38 @@ public class Controller{
      * read the dic from the disk and initialized it to new data structure that save in the memory.
      */
     public void LoadDicToMemory() throws IOException {
-        if (!Stemmer.isSelected()) {
-            HashMap dic = ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut/Dictionary.txt");
-            HashMap docs = ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut/Docs.txt");
-            searcher = new Searcher(dic, docs, PathOUT.getText() + "\\EngineOut\\", PathIN.getText());
-            LoadCitiesToScroll_Disk();
-            LoadLangugesToScroll_Disk();
-            searcher.setAVG(AVGdl);
-        } else {
-            HashMap dic = ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut/Dictionary.txt");
-            HashMap docs = ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut/Docs.txt");
-            searcher = new Searcher(dic,docs, PathOUT.getText() + "\\EngineOut_WithStemmer\\", PathIN.getText());
-            LoadCitiesToScroll_Disk();
-            LoadLangugesToScroll_Disk();
-            searcher.setAVG(AVGdl);
-        }
-        PathIN.setDisable(false);
-        PathOUT.setDisable(false);
-        LoadDic.setDisable(false);
-        ShoewDic.setDisable(false);
-        SingleQuery.setDisable(false);
-        PathQueriesFile.setDisable(false);
-        BrowseQueryButton.setDisable(false);
-        RunSingleQueryButton.setDisable(false);
-        runQueryFileButton.setDisable(false);
-        if (searcher != null)
-            showAlert("Dictionary successfully loaded to Memory!");
-        else
-            showAlert("Dictionry failed to load in to the Memory!");
+            if(PathIN.getText().isEmpty() && PathOUT.getText().isEmpty())
+                showAlert("Please enter Path's!");
+            else {
+                if (!Stemmer.isSelected()) {
+                    HashMap dic = ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut/Dictionary.txt");
+                    HashMap docs = ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut/Docs.txt");
+                    searcher = new Searcher(dic, docs, PathOUT.getText() + "\\EngineOut\\", PathIN.getText());
+                    LoadCitiesToScroll_Disk();
+                    LoadLangugesToScroll_Disk();
+                    searcher.setAVG(AVGdl);
+                } else {
+                    HashMap dic = ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut/Dictionary.txt");
+                    HashMap docs = ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut/Docs.txt");
+                    searcher = new Searcher(dic, docs, PathOUT.getText() + "\\EngineOut_WithStemmer\\", PathIN.getText());
+                    LoadCitiesToScroll_Disk();
+                    LoadLangugesToScroll_Disk();
+                    searcher.setAVG(AVGdl);
+                }
+                PathIN.setDisable(false);
+                PathOUT.setDisable(false);
+                LoadDic.setDisable(false);
+                ShoewDic.setDisable(false);
+                SingleQuery.setDisable(false);
+                PathQueriesFile.setDisable(false);
+                BrowseQueryButton.setDisable(false);
+                RunSingleQueryButton.setDisable(false);
+                runQueryFileButton.setDisable(false);
+                if (searcher != null)
+                    showAlert("Dictionary successfully loaded to Memory!");
+                else
+                    showAlert("Dictionry failed to load in to the Memory!");
+            }
     }
     /**
      *
@@ -516,7 +521,8 @@ public class Controller{
                         DocCity = line.substring(index + 5,line.indexOf(';')+1);
                         if(DocCity.length() == 1)
                             DocCity = "";
-                        DocEntitys = line.substring(line.indexOf(';') + 1);
+                        index = line.indexOf("DocEntitys:");
+                        DocEntitys = line.substring(index + 11);
                         DocDetailes DD = new DocDetailes(null,null,null,DocCity);
                         DD.setDocLength(Doclength);
                         DD.setMaxTermFrequency(max_tf);

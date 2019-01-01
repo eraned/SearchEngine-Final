@@ -61,7 +61,12 @@ public class Searcher {
         for (int i = 0 ;i < Queries.size(); i++) {
             HashMap<String, TermDetailes> tmpQuery = SearcherParser.ParseDoc(Queries.get(i).getValue().toString(), "", "", "");
             HashSet<String> QueryWords = new HashSet<>(tmpQuery.keySet());
-            ranker.InitializScores(QueryWords, Queries.get(i).getKey().toString(), semanticNeeded);
+            try {
+                ranker.InitializScores(QueryWords, Queries.get(i).getKey().toString(), semanticNeeded);
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
         }
 
     }
@@ -84,7 +89,17 @@ public class Searcher {
      * @return
      */
     public static String EntityIdentification(String DocToSearch){
-        return Loaded_AllDocs.get(DocToSearch).getDocSuspectedEntitys().toString();
+        String line = Loaded_AllDocs.get(DocToSearch).getDocSuspectedEntitys().toString();
+        StringBuilder stb = new StringBuilder();
+        stb.append("#### Doc Entitys ####\n");
+        while(line.length() > 1){
+            String term = line.substring(0,line.indexOf("-"));
+            String tf = line.substring(line.indexOf("-")+1,line.indexOf(";"));
+            stb.append(term + " " + tf + "\n");
+            line = line.substring(line.indexOf(";")+1);
+        }
+        stb.append("#################\n");
+        return stb.toString();
     }
 
 

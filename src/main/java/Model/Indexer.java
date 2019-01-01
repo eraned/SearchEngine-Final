@@ -188,7 +188,6 @@ public class Indexer {
         ArrayList<String> SortedPost = new ArrayList<>(Posting.keySet());
         Collections.sort(SortedPost);
         PostingNumber++;
-        int postingcounter = 0;
         try {
             FileWriter FW = new FileWriter(tmpPost);
             BufferedWriter BW = new BufferedWriter(FW);
@@ -202,7 +201,6 @@ public class Indexer {
                 BW.newLine();
             }
             BW.close();
-            System.out.println("posting   " + PostingNumber + "   " + postingcounter);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -533,7 +531,6 @@ public class Indexer {
                         Suspected = Suspected.substring(Suspected.indexOf(";") + 1);
                     }
                     int counter = 0;
-                    stb.append("#### Entitys Result ####\n");
                     List<Entry<String, Integer>> list = new LinkedList<Entry<String, Integer>>(ans.entrySet());
                     Collections.sort(list, new Comparator<Entry<String, Integer>>() {
                         public int compare(Entry<String, Integer> o1, Entry<String, Integer> o2) {
@@ -543,12 +540,12 @@ public class Indexer {
                     Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
                     for (Entry<String, Integer> entry : list) {
                         if (counter < 5) {
-                            stb.append(entry.getKey() + " " + entry.getValue() + "\n");
+                            stb.append(entry.getKey() + "-" + entry.getValue() + ";");
                             counter++;
                         } else
                             break;
                     }
-                    stb.append("###################\n");
+                    stb.append("#");
                     SearchEngine.All_Docs.get(Doc).getDocSuspectedEntitys().setLength(0);
                     SearchEngine.All_Docs.get(Doc).getDocSuspectedEntitys().append(stb.toString());
                     stb.setLength(0);

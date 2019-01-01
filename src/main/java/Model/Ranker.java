@@ -97,18 +97,21 @@ public class Ranker {
 
     public void ProccesQuery(HashSet<String> querywords) {
         for(String term : querywords) {
-            if(StringUtils.isAllUpperCase(term) && Searcher.Loaded_Dictionary.get(term) != null) {
-                Query.add(term);
-                if(Searcher.Loaded_Dictionary.get(term.toLowerCase()) != null)
-                Query.add(term.toLowerCase());
-            }
-            else if(StringUtils.isAllLowerCase(term) && Searcher.Loaded_Dictionary.get(term) != null){
-                Query.add(term);
-                if(Searcher.Loaded_Dictionary.get(term.toUpperCase()) != null)
-                    Query.add(term.toUpperCase());
-            }
-                else
+            try {
+                if (StringUtils.isAllUpperCase(term) && Searcher.Loaded_Dictionary.get(term) != null) {
+                    Query.add(term);
+                    if (Searcher.Loaded_Dictionary.get(term.toLowerCase()) != null)
+                        Query.add(term.toLowerCase());
+                } else if (StringUtils.isAllLowerCase(term) && Searcher.Loaded_Dictionary.get(term) != null) {
+                    Query.add(term);
+                    if (Searcher.Loaded_Dictionary.get(term.toUpperCase()) != null)
+                        Query.add(term.toUpperCase());
+                } else
                     continue;
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
         }
         querylength = Query.size();
     }
@@ -177,7 +180,6 @@ public class Ranker {
         RankerResult.clear();
         BM25_Matrix.clear();
         BM25tmp.clear();
-        //Query_BM25.clear();
         SemanticsWords.clear();
     }
 
@@ -186,7 +188,7 @@ public class Ranker {
      * @param RankedQuery
      * @param queryID
      */
-    public void RankDocs(HashMap<Double, String> RankedQuery, String queryID) { //HashMap<Rank,DocID> return only max 50 docs  ...final rank = 0.45 cosim + 0.45 BM25 + 0.1 InTitle
+    public void RankDocs(HashMap<Double, String> RankedQuery, String queryID) {
         ArrayList<Double> SortedRank = new ArrayList<>(RankedQuery.keySet());
         Collections.sort(SortedRank,Collections.<Double>reverseOrder());
         for (int i = 0; i < SortedRank.size() && i < 50; i++) {
@@ -314,61 +316,3 @@ public class Ranker {
     }
 }
 
-
-//
-//    public void ProccesCompare() {
-//        for (String Doc : PostingTFResult.keySet()) {
-//            double CosSimRankUP = 0;
-//            double CosSimRankDOWNdoc = 0;
-//            double CosSimRankDOWNquery = 0;
-//            double BM25UP = 0;
-//            double BM25DOWN = 0;
-//            double BM25Log = 0;
-//            double BM25Rank = 0;
-//            double CosSimRankDOWN = 0;
-//            double CosSimRank = 0;
-//            for (String term : PostingTFResult.get(Doc).keySet()) {
-//                try {
-//                    double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
-//                    //calc CosSim
-//                    testline = 2;
-//                    CosSimRankUP += CosSim_Matrix.get(Doc).get(term) * Query_CosSim.get(term);
-//                    // System.out.println(CosSimRankUP);
-//                    CosSimRankDOWNdoc += Math.pow(CosSim_Matrix.get(Doc).get(term), 2);
-//                    testline = 3;
-//                    CosSimRankDOWNquery += Math.pow(Query_CosSim.get(term), 2);
-//                    double x = CosSim_Matrix.get(Doc).get(term);
-//                    double y = Query_CosSim.get(term);
-//                    double z = Math.pow(CosSim_Matrix.get(Doc).get(term), 2);
-//                    //calc BM25
-//                    testline = 4;
-//                    BM25UP = BM25_Matrix.get(Doc).get(term) * (k + 1) * Query_BM25.get(term);
-//                    // System.out.println(BM25UP);
-//                    testline = 5;
-//                    BM25DOWN = BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl));
-//                    // System.out.println(BM25DOWN);
-//                    testline = 6;
-//                    BM25Log = (Math.log((Searcher.NumOfDocs + 1) / idf) / Math.log(2));
-//                    //System.out.println(BM25Log);
-//                    double a = BM25_Matrix.get(Doc).get(term);
-//                    double b = Query_BM25.get(term);
-//                    double d = Searcher.DocsResultDL.get(Doc);
-//                    double c = (Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl);
-//                    BM25Rank += BM25UP * BM25DOWN * BM25Log;
-//                    BM25Rank += ((((k+1)*BM25_Matrix.get(Doc).get(term))/(BM25_Matrix.get(Doc).get(term) + k * (1-b+b*Searcher.DocsResultDL.get(Doc)/Searcher.AVGdl)))*Math.log((Searcher.NumOfDocs + 1)/idf));
-//                    //  System.out.println(BM25Rank);
-//                } catch (Exception e) {
-//                    System.out.println("Problem in Compare");
-//                    System.out.println(Doc);
-//                    System.out.println(term);
-//                    break;
-//                }
-//            }
-//            CosSimRankDOWN = Math.sqrt(CosSimRankDOWNdoc * CosSimRankDOWNquery);
-//            CosSimRank = CosSimRankUP / CosSimRankDOWN;
-//            System.out.println(Doc + "###" +BM25Rank + "###"+ CosSimRank);
-//            RankerResult.put((0.5 * CosSimRank) + (0.5 * BM25Rank), Doc);
-//            RankerResult.put(BM25Rank, Doc);
-//
-//        }
-//    }
