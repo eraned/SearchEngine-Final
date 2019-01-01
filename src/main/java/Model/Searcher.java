@@ -11,7 +11,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.*;
 
 
 /**
@@ -21,9 +20,10 @@ public class Searcher {
 
     public Ranker ranker;
     public static Parse SearcherParser;
-    public boolean SemanticNeeded;
     public static HashMap<String, DictionaryDetailes> Loaded_Dictionary;
     public static HashMap<String, DocDetailes> Loaded_AllDocs;
+    //public static HashMap<String, DocDetailes> Loaded_AllDocs;
+
     public static double AVGdl;
     public static double NumOfDocs;
     public static ObservableList<String> citiesToFilter;
@@ -61,7 +61,7 @@ public class Searcher {
         for (int i = 0 ;i < Queries.size(); i++) {
             HashMap<String, TermDetailes> tmpQuery = SearcherParser.ParseDoc(Queries.get(i).getValue().toString(), "", "", "");
             HashSet<String> QueryWords = new HashSet<>(tmpQuery.keySet());
-            ranker.InitializScores(QueryWords, Queries.get(i).getKey().toString(), SemanticNeeded);
+            ranker.InitializScores(QueryWords, Queries.get(i).getKey().toString(), semanticNeeded);
         }
 
     }
@@ -75,7 +75,7 @@ public class Searcher {
         SearcherParser = new Parse(Steemer,PathIN + "\\stop_words.txt");
         HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(Query,"","","");
         HashSet<String> QueryWords = new HashSet<>(tmpQuery.keySet());
-        ranker.InitializScores(QueryWords,"000",SemanticNeeded);
+        ranker.InitializScores(QueryWords,"000",semanticNeeded);
     }
 
 
@@ -111,7 +111,9 @@ public class Searcher {
             QueryID = QueryID.substring(QueryID.indexOf("Number:")+7,QueryID.indexOf("<title>"));
             QueryID = QueryID.trim();
             String QueryContent = element.getElementsByTag("title").text();
-            String QueryDescription = element.getElementsByTag("desc").text();
+            String QueryDesc = element.getElementsByTag("desc").text();
+            QueryDesc = QueryDesc.substring(QueryDesc.indexOf(":")+1,QueryDesc.indexOf("Narrative:"));
+            QueryStb.append(QueryContent + QueryDesc);
             Pair p = new Pair(QueryID,QueryStb.toString());
             Result.add(p);
         }

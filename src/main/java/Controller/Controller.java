@@ -256,147 +256,34 @@ public class Controller{
      */
     public void LoadDicToMemory() throws IOException {
         if (!Stemmer.isSelected()) {
-            searcher = new Searcher(ItsTimeToLoadDictionary(PathOUT.getText() + "\\EngineOut\\Dictionary.txt"), ItsTimeToLoadAllDocs(PathOUT.getText() + "\\EngineOut\\Docs.txt"), PathOUT.getText() + "\\EngineOut\\", PathIN.getText());
+            HashMap dic = ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut/Dictionary.txt");
+            HashMap docs = ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut/Docs.txt");
+            searcher = new Searcher(dic, docs, PathOUT.getText() + "\\EngineOut\\", PathIN.getText());
             LoadCitiesToScroll_Disk();
             LoadLangugesToScroll_Disk();
             searcher.setAVG(AVGdl);
         } else {
-            searcher = new Searcher(ItsTimeToLoadDictionary(PathOUT.getText() + "\\EngineOut_WithStemmer\\Dictionary.txt"), ItsTimeToLoadAllDocs(PathOUT.getText() + "\\EngineOut_WithStemmer\\Docs.txt"), PathOUT.getText() + "\\EngineOut_WithStemmer\\", PathIN.getText());
+            HashMap dic = ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut/Dictionary.txt");
+            HashMap docs = ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut/Docs.txt");
+            searcher = new Searcher(dic,docs, PathOUT.getText() + "\\EngineOut_WithStemmer\\", PathIN.getText());
             LoadCitiesToScroll_Disk();
             LoadLangugesToScroll_Disk();
             searcher.setAVG(AVGdl);
         }
+        PathIN.setDisable(false);
+        PathOUT.setDisable(false);
+        LoadDic.setDisable(false);
+        ShoewDic.setDisable(false);
+        SingleQuery.setDisable(false);
+        PathQueriesFile.setDisable(false);
+        BrowseQueryButton.setDisable(false);
+        RunSingleQueryButton.setDisable(false);
+        runQueryFileButton.setDisable(false);
         if (searcher != null)
             showAlert("Dictionary successfully loaded to Memory!");
         else
             showAlert("Dictionry failed to load in to the Memory!");
     }
-
-
-    /**
-     * reading line by line from disk and create new data structue that represent the Dictionary.
-     *
-     * @param Path - where from to load the Dictionary from disk to memory
-     * @return
-     */
-    public static HashMap<String, DictionaryDetailes> ItsTimeToLoadDictionary(String Path) {
-        HashMap<String, DictionaryDetailes> LoadedDic = new HashMap<>();int index;
-        try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
-            String line = br.readLine();
-            int totalfreq = 0, df = 0, pointer = 0;
-            while (line != null) {
-                try {
-                    index = line.indexOf(':');
-                    String term = line.substring(0, index);
-                    line = line.substring(index + 1);
-                    if (!term.isEmpty()) {
-                        index = line.indexOf("TotalTF:");
-                        String TFreq = line.substring(index+8,line.indexOf(';'));
-                        totalfreq = Integer.parseInt(TFreq);
-                        line = line.substring(line.indexOf(';') + 1);
-                        index = line.indexOf("DF:");
-                        String DF = line.substring(index + 3, line.indexOf(';'));
-                        df = Integer.parseInt(DF);
-                        line = line.substring(line.indexOf(';') + 1);
-                        index = line.indexOf("Pointer:");
-                        String point = line.substring(index + 8,line.indexOf("#"));
-                        pointer = Integer.parseInt(point);
-                        DictionaryDetailes DD = new DictionaryDetailes();
-                        DD.setNumOfTermInCorpus(totalfreq);
-                        DD.setNumOfDocsTermIN(df);
-                        DD.setPointer(pointer);
-                        LoadedDic.put(term, DD);
-                    }
-                    line = br.readLine();
-                } catch (Exception e) {
-                    System.out.println("problem!");
-                    break;
-                }
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return LoadedDic;
-    }
-
-    /**
-     * @param Path
-     */
-    public static HashMap<String, DocDetailes> ItsTimeToLoadAllDocs(String Path) {
-        HashMap<String, DocDetailes> Ans = new HashMap<>();
-        int index;
-        int Doclength;
-        String DocCity;
-        String DocLang;
-        double tmp = 0;
-        double counter = 0;
-        int max_tf;
-        String term;
-        String tf;
-        int DocsLengthCounter = 0;
-        try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
-            //upload languges
-            Controller_Languages = new HashSet<>();
-            String languuges = br.readLine();
-            index = languuges.indexOf(':');
-            languuges = languuges.substring(index + 1);
-            while(languuges.length() > 1) {
-                String l = languuges.substring(0,languuges.indexOf(";"));
-                Controller_Languages.add(l);
-                languuges = languuges.substring(languuges.indexOf(";")+1);
-            }
-            //upload cities
-            Controller_Cities = new HashSet<>();
-            String cities = br.readLine();
-            index = cities.indexOf(':');
-            cities = cities.substring(index + 1);
-            while(cities.length() > 1){
-                String c = cities.substring(0,cities.indexOf(";"));
-                Controller_Cities.add(c);
-                cities = cities.substring(cities.indexOf(";")+1);
-            }
-            //upload alldocs
-            String line = br.readLine();
-            while (line != null) {
-                try {
-                    index = line.indexOf(':');
-                    String doc = line.substring(0, index);
-                    line = line.substring(index + 1);
-                    if (!doc.isEmpty()) {
-                        index = line.indexOf("DocLength:");
-                        String Length = line.substring(index+ 10, line.indexOf(';'));
-                        Doclength = Integer.parseInt(Length);
-                        DocsLengthCounter += Doclength;
-                        line = line.substring(line.indexOf(';') + 1);
-                        index = line.indexOf("MaxTermFrequency:");
-                        String max = line.substring(index+ 17, line.indexOf(';'));
-                        max_tf = Integer.parseInt(max);
-                        line = line.substring(line.indexOf(';') + 1);
-                        index = line.indexOf("City:");
-                        DocCity = line.substring(index + 5,line.indexOf(';')+1);
-                        if(DocCity.length() == 1)
-                            DocCity = "";
-                        DocDetailes DD = new DocDetailes(null,null,null,DocCity);
-                        DD.setDocLength(Doclength);
-                        DD.setMaxTermFrequency(max_tf);
-                        Ans.put(doc,DD);
-                    }
-                    line = br.readLine();
-                } catch (Exception e) {
-                    System.out.println("problem load docs!");
-                    break;
-                }
-            }
-            AVGdl = DocsLengthCounter;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return Ans;
-    }
-
-
-
     /**
      *
      */
@@ -414,12 +301,16 @@ public class Controller{
     public void RunQuery() throws IOException, URISyntaxException {
         if(searcher == null) {
             if (!Stemmer.isSelected()) {
-                searcher = new Searcher(ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut/Dictionary.txt"), ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut/Docs.txt"), PathOUT.getText() + "/EngineOut/", PathIN.getText());
+                HashMap dic = ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut/Dictionary.txt");
+                HashMap docs = ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut/Docs.txt");
+                searcher = new Searcher(dic,docs , PathOUT.getText() + "/EngineOut/", PathIN.getText());
                 LoadCitiesToScroll_Disk();
                 LoadLangugesToScroll_Disk();
                 searcher.setAVG(AVGdl);
             } else {
-                searcher = new Searcher(ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut_WithStemmer/Dictionary.txt"), ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut_WithStemmer/Docs.txt"), PathOUT.getText() + "/EngineOut_WithStemmer/", PathIN.getText());
+                HashMap dic = ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut/Dictionary.txt");
+                HashMap docs = ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut/Docs.txt");
+                searcher = new Searcher(dic,docs, PathOUT.getText() + "/EngineOut_WithStemmer/", PathIN.getText());
                 LoadCitiesToScroll_Disk();
                 LoadLangugesToScroll_Disk();
                 searcher.setAVG(AVGdl);
@@ -516,6 +407,132 @@ public class Controller{
      *
      */
     public void RunSearchIdentitis() {
-        showAlert(searcher.EntityIdentification(DocSelctor.getSelectionModel().getSelectedItem().toString()));
+        String docTosearch = DocSelctor.getSelectionModel().getSelectedItem().toString();
+        docTosearch = docTosearch.substring(docTosearch.indexOf("-")+2);
+        showAlert(searcher.EntityIdentification(docTosearch));
+    }
+
+    /**
+     * reading line by line from disk and create new data structue that represent the Dictionary.
+     *
+     * @param Path - where from to load the Dictionary from disk to memory
+     * @return
+     */
+    public static HashMap<String, DictionaryDetailes> ItsTimeToLoadDictionary(String Path) {
+        HashMap<String, DictionaryDetailes> LoadedDic = new HashMap<>(); int index;
+        try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
+            String line = br.readLine();
+            int totalfreq = 0, df = 0, pointer = 0;
+            while (line != null) {
+                try {
+                    index = line.indexOf(':');
+                    String term = line.substring(0, index);
+                    line = line.substring(index + 1);
+                    if (!term.isEmpty()) {
+                        index = line.indexOf("TotalTF:");
+                        String TFreq = line.substring(index+8,line.indexOf(';'));
+                        totalfreq = Integer.parseInt(TFreq);
+                        line = line.substring(line.indexOf(';') + 1);
+                        index = line.indexOf("DF:");
+                        String DF = line.substring(index + 3, line.indexOf(';'));
+                        df = Integer.parseInt(DF);
+                        line = line.substring(line.indexOf(';') + 1);
+                        index = line.indexOf("Pointer:");
+                        String point = line.substring(index + 8,line.indexOf("#"));
+                        pointer = Integer.parseInt(point);
+                        DictionaryDetailes DD = new DictionaryDetailes();
+                        DD.setNumOfTermInCorpus(totalfreq);
+                        DD.setNumOfDocsTermIN(df);
+                        DD.setPointer(pointer);
+                        LoadedDic.put(term, DD);
+                    }
+                    line = br.readLine();
+                } catch (Exception e) {
+                    System.out.println("problem!");
+                    break;
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return LoadedDic;
+    }
+
+    /**
+     * @param Path
+     */
+    public static HashMap<String, DocDetailes> ItsTimeToLoadAllDocs(String Path) {
+        HashMap<String, DocDetailes> Ans = new HashMap<>();
+        int index;
+        int Doclength;
+        String DocCity;
+        String DocEntitys;
+        double tmp = 0;
+        double counter = 0;
+        int max_tf;
+        String term;
+        String tf;
+        int DocsLengthCounter = 0;
+        try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
+            //upload languges
+            Controller_Languages = new HashSet<>();
+            String languuges = br.readLine();
+            index = languuges.indexOf(':');
+            languuges = languuges.substring(index + 1);
+            while(languuges.length() > 1) {
+                String l = languuges.substring(0,languuges.indexOf(";"));
+                Controller_Languages.add(l);
+                languuges = languuges.substring(languuges.indexOf(";")+1);
+            }
+            //upload cities
+            Controller_Cities = new HashSet<>();
+            String cities = br.readLine();
+            index = cities.indexOf(':');
+            cities = cities.substring(index + 1);
+            while(cities.length() > 1){
+                String c = cities.substring(0,cities.indexOf(";"));
+                Controller_Cities.add(c);
+                cities = cities.substring(cities.indexOf(";")+1);
+            }
+            //upload alldocs
+            String line = br.readLine();
+            while (line != null) {
+                try {
+                    index = line.indexOf(':');
+                    String doc = line.substring(0, index);
+                    line = line.substring(index + 1);
+                    if (!doc.isEmpty()) {
+                        index = line.indexOf("DocLength:");
+                        String Length = line.substring(index+ 10, line.indexOf(';'));
+                        Doclength = Integer.parseInt(Length);
+                        DocsLengthCounter += Doclength;
+                        line = line.substring(line.indexOf(';') + 1);
+                        index = line.indexOf("MaxTermFrequency:");
+                        String max = line.substring(index+ 17, line.indexOf(';'));
+                        max_tf = Integer.parseInt(max);
+                        line = line.substring(line.indexOf(';') + 1);
+                        index = line.indexOf("City:");
+                        DocCity = line.substring(index + 5,line.indexOf(';')+1);
+                        if(DocCity.length() == 1)
+                            DocCity = "";
+                        DocEntitys = line.substring(line.indexOf(';') + 1);
+                        DocDetailes DD = new DocDetailes(null,null,null,DocCity);
+                        DD.setDocLength(Doclength);
+                        DD.setMaxTermFrequency(max_tf);
+                        DD.getDocSuspectedEntitys().append(DocEntitys);
+                        Ans.put(doc,DD);
+                    }
+                    line = br.readLine();
+                } catch (Exception e) {
+                    System.out.println("problem load docs!");
+                    break;
+                }
+            }
+            AVGdl = DocsLengthCounter;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Ans;
     }
 }

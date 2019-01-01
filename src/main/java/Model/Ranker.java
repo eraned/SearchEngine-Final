@@ -36,14 +36,12 @@ public class Ranker {
      * @param pathforFindposting
      */
     public Ranker(String pathforFindposting) {
-       // Steemerneeded = StemmingNeeded;
         Query = new HashSet<>();
         PostingPath = pathforFindposting;
         PostingTFResult = new HashMap<>();
         PostingTitelResult = new HashMap<>();
         RankerResult = new HashMap<>();
         BM25_Matrix = new HashMap<>();
-        //Query_BM25 = new HashMap<>();
         BM25tmp = new HashMap<>();
         SemanticsWords = new HashSet<>();
     }

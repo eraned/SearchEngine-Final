@@ -44,9 +44,6 @@ public class Indexer {
     public int NumOfTerms_Numbers;
     public String DocMaxCity;
     public static HashSet<String> Entitys;
-    int counterbefore;
-    int counterafter;
-
 
     /**
      * Constructor
@@ -70,8 +67,6 @@ public class Indexer {
         NumOfTerms_Numbers = 0;
         DocMaxCity = "";
         Entitys = new HashSet<>();
-        counterbefore = 0;
-        counterafter = 0;
         if (StemmerNeeded)
             stbOUT.append(CorpusPathOUT + "\\EngineOut_WithStemmer\\"); //todo
             //stbOUT.append(CorpusPathOUT + "/EngineOut_WithStemmer/"); //todo
@@ -222,10 +217,6 @@ public class Indexer {
     public void ItsTimeForMERGE_All_Postings() throws IOException {
         File file = new File(stbOUT.toString());
         File[] FilestoMerge = file.listFiles();
-        //String tmpPath = stbOUT + "tmpMerge" + ".txt";
-        String FinalePath = stbOUT + "FinaleMerge" + ".txt";
-        //String tmpPath_odd = stbOUT + "tmpMerge-odd" + ".txt";
-
         //todo - corpus more then one block
         if (FilestoMerge.length >= 1) {
             while (FilestoMerge.length > 1) {
@@ -282,9 +273,6 @@ public class Indexer {
 
 
         FileWriter FW = new FileWriter(new File(stbOUT.toString() + MergeNumber + "tmp.txt"));
-//        MergeNumber++;
-
-        //FileWriter FW = new FileWriter(new File(PathToMerge));
         BufferedReader BR1 = new BufferedReader(new FileReader(F1));
         BufferedReader BR2 = new BufferedReader(new FileReader(F2));
         String S1 = BR1.readLine();
@@ -377,23 +365,6 @@ public class Indexer {
                 //A-E
                 if (tmpFirst >= 'a' && tmpFirst <= 'e') {
                     A_E_BW.write(S);
-                    if (stbTerm.toString().equals("exploration")) {
-                        String docID;
-                        int index;
-                        index = S.indexOf(':');
-                        S = S.substring(index + 1);
-                        while (S.length() > 1) {
-                            try {
-                                index = S.indexOf("id:");
-                                docID = S.substring(index + 3, S.indexOf(';'));
-                                S = S.substring(S.indexOf(">") + 1);
-                                counterafter++;
-                            } catch (Exception e) {
-                                System.out.println("problem get tf!");
-                                break;
-                            }
-                        }
-                    }
                     if (Dictionary.containsKey(stbTerm.toString())) {
                         Dictionary.get(stbTerm.toString()).setPointer(countA_E);
                     }
@@ -485,8 +456,6 @@ public class Indexer {
         ItsTimeToWriteDictionary();
         LoadEntitiysToDocs();
         Dictionary.clear();
-        //    System.out.println("counter befoe:"+counterbefore);
-        //   System.out.println("counter after:"+counterafter);
     }
 
     /**
@@ -543,43 +512,53 @@ public class Indexer {
 
     //https://stackoverflow.com/questions/8119366/sorting-hashmap-by-values
     public void LoadEntitiysToDocs() {
-        HashMap<String, Integer> ans = new HashMap<>();
-        HashMap<Integer, String> tmp = new HashMap<>();
-        StringBuilder stb = new StringBuilder();
-        String term;
-        String tf;
-        int TF;
-        int counter = 0;
-        String Suspected;
-        for (String Doc : SearchEngine.All_Docs.keySet()) {
-            Suspected = SearchEngine.All_Docs.get(Doc).getDocSuspectedEntitys().toString();
-            while (Suspected.length() > 1) {
-                term = Suspected.substring(0, Suspected.indexOf(":"));
-                tf = Suspected.substring(Suspected.indexOf(":") + 1, Suspected.indexOf(";"));
-                TF = Integer.parseInt(tf);
-                if (Entitys.contains(term)) {
-                    ans.put(term, TF);
+        try {
+            HashMap<String, Integer> ans = new HashMap<>();
+            HashMap<Integer, String> tmp = new HashMap<>();
+            StringBuilder stb = new StringBuilder();
+            String term;
+            String tf;
+            int TF;
+            String Suspected;
+            for (String Doc : SearchEngine.All_Docs.keySet()) {
+                try {
+                    Suspected = SearchEngine.All_Docs.get(Doc).getDocSuspectedEntitys().toString();
+                    while (Suspected.length() > 1) {
+                        term = Suspected.substring(0, Suspected.indexOf(":"));
+                        tf = Suspected.substring(Suspected.indexOf(":") + 1, Suspected.indexOf(";"));
+                        TF = Integer.parseInt(tf);
+                        if (Entitys.contains(term)) {
+                            ans.put(term, TF);
+                        }
+                        Suspected = Suspected.substring(Suspected.indexOf(";") + 1);
+                    }
+                    int counter = 0;
+                    stb.append("#### Entitys Result ####\n");
+                    List<Entry<String, Integer>> list = new LinkedList<Entry<String, Integer>>(ans.entrySet());
+                    Collections.sort(list, new Comparator<Entry<String, Integer>>() {
+                        public int compare(Entry<String, Integer> o1, Entry<String, Integer> o2) {
+                            return o2.getValue().compareTo(o1.getValue());
+                        }
+                    });
+                    Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
+                    for (Entry<String, Integer> entry : list) {
+                        if (counter < 5) {
+                            stb.append(entry.getKey() + " " + entry.getValue() + "\n");
+                            counter++;
+                        } else
+                            break;
+                    }
+                    stb.append("###################\n");
+                    SearchEngine.All_Docs.get(Doc).getDocSuspectedEntitys().setLength(0);
+                    SearchEngine.All_Docs.get(Doc).getDocSuspectedEntitys().append(stb.toString());
+                    stb.setLength(0);
+                    ans.clear();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                Suspected = Suspected.substring(Suspected.indexOf(";") + 1);
             }
-            stb.append("#### Entitys Result ####\n");
-            List<Entry<String, Integer>> list = new LinkedList<Entry<String, Integer>>(ans.entrySet());
-            Collections.sort(list, new Comparator<Entry<String, Integer>>() {
-                public int compare(Entry<String, Integer> o1, Entry<String, Integer> o2) {
-                    return o2.getValue().compareTo(o1.getValue());
-                }
-            });
-            Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
-            for (Entry<String, Integer> entry : list) {
-                if (counter < 5) {
-                    stb.append(entry.getKey() + " " + entry.getValue() + "\n");
-                    counter++;
-                } else
-                    break;
-            }
-            stb.append("###################\n");
-            SearchEngine.All_Docs.get(Doc).setDocSuspectedEntitys(stb);
-            stb.setLength(0);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

@@ -76,7 +76,7 @@
                                     </rowConstraints>
                                     <children>
                                         <Button fx:id="resetEngine" disable="true" mnemonicParsing="false" onAction="#resetAll" prefHeight="27.0" prefWidth="150.0" text="Reset All" GridPane.columnIndex="0" />
-                                        <Button fx:id="LoadDic" disable="true" mnemonicParsing="false" onAction="#LoadDicToMemory" prefHeight="27.0" prefWidth="150.0" text="Load Dictionary" GridPane.columnIndex="1" />
+                                        <Button fx:id="LoadDic" disable="false" mnemonicParsing="false" onAction="#LoadDicToMemory" prefHeight="27.0" prefWidth="150.0" text="Load Dictionary" GridPane.columnIndex="1" />
                                         <Button fx:id="ShoewDic" disable="true" mnemonicParsing="false" onAction="#ShowDictionary" prefHeight="27.0" prefWidth="150.0" text="Show Dictionary" GridPane.columnIndex="2" />
                                     </children>
                                 </GridPane>
