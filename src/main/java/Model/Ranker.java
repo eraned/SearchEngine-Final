@@ -1,7 +1,6 @@
 package Model;
 
 import javafx.util.Pair;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import java.io.*;
 import java.net.URI;
@@ -15,19 +14,16 @@ import java.util.*;
  */
 public class Ranker {
     public boolean Steemerneeded;
-    HashMap<String, TermDetailes> Query;
-    HashMap<String, TermDetailes> QueryNar;
+    HashSet<String> Query;
     public String PostingPath;
     public HashMap<String, HashMap<String, Double>> PostingTFResult;
     public HashMap<String, HashMap<String, Boolean>> PostingTitelResult;
     public HashMap<Double, String> RankerResult;//HashMap<Rank,DocID>
     public HashMap<String, HashMap<String, Double>> BM25_Matrix;  //new--- <Docid,<term ,BM25 score>>
     public HashMap<String, Double> BM25tmp;//for Docid
-    public HashMap<String, Double> Query_BM25;
     public HashSet<String> SemanticsWords;
     public int Pointer;
     public double Cij;
-    public double Ciq;
     public double querylength;
     public double b = 0.75;
     public double k = 1.3;
@@ -41,39 +37,37 @@ public class Ranker {
      */
     public Ranker(String pathforFindposting,boolean StemmingNeeded) {
         Steemerneeded = StemmingNeeded;
-        Query = new HashMap<>();
-        QueryNar = new HashMap<>();
+        Query = new HashSet<>();
         PostingPath = pathforFindposting;
         PostingTFResult = new HashMap<>();
         PostingTitelResult = new HashMap<>();
         RankerResult = new HashMap<>();
         BM25_Matrix = new HashMap<>();
-        Query_BM25 = new HashMap<>();
+        //Query_BM25 = new HashMap<>();
         BM25tmp = new HashMap<>();
         SemanticsWords = new HashSet<>();
     }
     /**
-     * @param QueryAfterParse
      * @param Queryid
      * @param semanticNeeded
      * @throws IOException
      * @throws URISyntaxException
      */
-    public void InitializScores(HashMap<String, TermDetailes> QueryAfterParse,String Queryid, boolean semanticNeeded) throws IOException, URISyntaxException { //Matrix of columns: d1,d2,d3....q     rows: t1,t2,t3....
+    public void InitializScores(HashSet<String> querywords,String Queryid, boolean semanticNeeded) throws IOException, URISyntaxException { //Matrix of columns: d1,d2,d3....q     rows: t1,t2,t3....
         if (semanticNeeded)
-            ProccesSemantic(QueryAfterParse,Steemerneeded);
-        ProccesQuery(QueryAfterParse,Steemerneeded);
+            ProccesSemantic(querywords,Steemerneeded);
+        ProccesQuery(querywords,Steemerneeded);
         ProccesReOrgnize();
         ProccesCompare();
         RankDocs(RankerResult, Queryid);
         ClearAll();
     }
 
-    public void ProccesSemantic(HashMap<String, TermDetailes> QueryAfterParse,boolean Steemer) {
+    public void ProccesSemantic(HashSet<String> querywords,boolean Steemer) {
         try {
             //part 1 - process query words for API
             HashSet<String> tmp = new HashSet<>();
-            for (String term : QueryAfterParse.keySet()) {
+            for (String term : querywords) {
                 if (term.contains("-")) {
                     String[] splited = StringUtils.split(term, "-");
                     for (int i = 0; i < splited.length; i++) {
@@ -91,18 +85,8 @@ public class Ranker {
                 SemanticsWords = GetSemanticFromAPI(term);
                 if (SemanticsWords != null) {
                     for (String word : SemanticsWords) {
-                        if (Searcher.LoadedDictionary.get(word) != null) {
-                            TermDetailes tmpTD = new TermDetailes("API");
-                            tmpTD.setTF(1);
-                            tmpTD.setInTitle(false);
-                            Query.put(word, tmpTD);
-                        }
-                        if (Searcher.LoadedDictionary.get(word.toUpperCase()) != null) {
-                            TermDetailes tmpTD = new TermDetailes("API");
-                            tmpTD.setTF(1);
-                            tmpTD.setInTitle(false);
-                            Query.put(word.toUpperCase(), tmpTD);
-                        }
+                        if (Searcher.Loaded_Dictionary.get(word) != null)
+                            Query.add(word);
                     }
                 } else {
                     continue;
@@ -113,38 +97,29 @@ public class Ranker {
         }
     }
 
-    public void ProccesQuery(HashMap<String, TermDetailes> QueryAfterParse,boolean Steemer) {
-        for(String term : QueryAfterParse.keySet()) {
-            if(StringUtils.isAllUpperCase(term) && Searcher.LoadedDictionary.get(term) != null) {
-                Query.put(term, QueryAfterParse.get(term));
-                if(Searcher.LoadedDictionary.get(term.toLowerCase()) != null)
-                Query.put(term.toLowerCase(), QueryAfterParse.get(term));
+    public void ProccesQuery(HashSet<String> querywords,boolean Steemer) {
+        for(String term : querywords) {
+            if(StringUtils.isAllUpperCase(term) && Searcher.Loaded_Dictionary.get(term) != null) {
+                Query.add(term);
+                if(Searcher.Loaded_Dictionary.get(term.toLowerCase()) != null)
+                Query.add(term.toLowerCase());
             }
-            else if(StringUtils.isAllLowerCase(term) && Searcher.LoadedDictionary.get(term) != null){
-                Query.put(term, QueryAfterParse.get(term));
-                if(Searcher.LoadedDictionary.get(term.toUpperCase()) != null)
-                    Query.put(term.toUpperCase(), QueryAfterParse.get(term));
+            else if(StringUtils.isAllLowerCase(term) && Searcher.Loaded_Dictionary.get(term) != null){
+                Query.add(term);
+                if(Searcher.Loaded_Dictionary.get(term.toUpperCase()) != null)
+                    Query.add(term.toUpperCase());
             }
                 else
                     continue;
         }
         querylength = Query.size();
-        for (String term : Query.keySet()){
-            try {
-                Ciq = Query.get(term).getTF();
-                Query_BM25.put(term, Ciq);
-            } catch (Exception e) {
-                System.out.println("Probelem in Query section");
-                System.out.println(term);
-            }
-        }
     }
 
     public void ProccesReOrgnize() {
         //part 1
-        for (String term : Query.keySet()) {
+        for (String term : Query) {
             try {
-                Pointer = Searcher.LoadedDictionary.get(term).getPointer();
+                Pointer = Searcher.Loaded_Dictionary.get(term).getPointer();
                 GetTF_InTitelFromPosting(Pointer, term);// <docid,tf> from posting
             } catch (Exception e) {
                 System.out.println("Probellm in reorgnized part 1 reg");
@@ -155,7 +130,7 @@ public class Ranker {
         //part 2
         for (String Doc : PostingTFResult.keySet()) {
             if (Searcher.citiesToFilter != null) {
-                if (!Searcher.citiesToFilter.contains(Searcher.DocsResultCITY.get(Doc)))
+                if (!Searcher.citiesToFilter.contains(Searcher.Loaded_AllDocs.get(Doc).getDocCity()))
                     continue;
             }
             for (String term : PostingTFResult.get(Doc).keySet()) {
@@ -180,8 +155,8 @@ public class Ranker {
             boolean T = false;
             for (String term : PostingTFResult.get(Doc).keySet()) {
                 try {
-                    double idf = (Searcher.LoadedDictionary.get(term).getNumOfDocsTermIN() + 1);
-                    BM25Rank += ((((k + 1) * BM25_Matrix.get(Doc).get(term)) / (BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * Searcher.DocsResultDL.get(Doc) / Searcher.AVGdl))) * Math.log((Searcher.NumOfDocs + 1) / idf));
+                    double idf = (Searcher.Loaded_Dictionary.get(term).getNumOfDocsTermIN() + 1);
+                    BM25Rank += ((((k + 1) * BM25_Matrix.get(Doc).get(term)) / (BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * Searcher.Loaded_AllDocs.get(Doc).getDocLength() / Searcher.AVGdl))) * Math.log((Searcher.NumOfDocs + 1) / idf));
                     T = PostingTitelResult.get(Doc).get(term);
                 } catch (Exception e) {
                     System.out.println("Problem in Compare");
@@ -204,7 +179,7 @@ public class Ranker {
         RankerResult.clear();
         BM25_Matrix.clear();
         BM25tmp.clear();
-        Query_BM25.clear();
+        //Query_BM25.clear();
         SemanticsWords.clear();
     }
 
@@ -236,18 +211,31 @@ public class Ranker {
         int index;
         tmpFirst = Character.toLowerCase(tmpFirst);
         StringBuilder stb = new StringBuilder();
+//        if (tmpFirst >= 'a' && tmpFirst <= 'e') { //todo
+//            stb.append(PostingPath + "\\A_E.txt");
+//        } else if (tmpFirst >= 'f' && tmpFirst <= 'j') {
+//            stb.append(PostingPath + "\\F_J.txt");
+//        } else if (tmpFirst >= 'k' && tmpFirst <= 'p') {
+//            stb.append(PostingPath + "\\K_P.txt");
+//        } else if (tmpFirst >= 'q' && tmpFirst <= 'u') {
+//            stb.append(PostingPath + "\\Q_U.txt");
+//        } else if (tmpFirst >= 'v' && tmpFirst <= 'z') {
+//            stb.append(PostingPath + "\\V_Z.txt");
+//        } else {
+//            stb.append(PostingPath + "\\Numbers.txt");
+//        }
         if (tmpFirst >= 'a' && tmpFirst <= 'e') { //todo
-            stb.append(PostingPath + "\\A_E.txt");
+            stb.append(PostingPath + "/A_E.txt");
         } else if (tmpFirst >= 'f' && tmpFirst <= 'j') {
-            stb.append(PostingPath + "\\F_J.txt");
+            stb.append(PostingPath + "/F_J.txt");
         } else if (tmpFirst >= 'k' && tmpFirst <= 'p') {
-            stb.append(PostingPath + "\\K_P.txt");
+            stb.append(PostingPath + "/K_P.txt");
         } else if (tmpFirst >= 'q' && tmpFirst <= 'u') {
-            stb.append(PostingPath + "\\Q_U.txt");
+            stb.append(PostingPath + "/Q_U.txt");
         } else if (tmpFirst >= 'v' && tmpFirst <= 'z') {
-            stb.append(PostingPath + "\\V_Z.txt");
+            stb.append(PostingPath + "/V_Z.txt");
         } else {
-            stb.append(PostingPath + "\\Numbers.txt");
+            stb.append(PostingPath + "/Numbers.txt");
         }
         File SelectedPosting = new File(stb.toString());
         try (BufferedReader br = new BufferedReader(new FileReader(SelectedPosting))) {

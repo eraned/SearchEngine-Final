@@ -49,15 +49,15 @@ public class ReadFile {
         File[] SubDirectories = file.listFiles();
         StringBuilder out = new StringBuilder();
         for (File tmp : SubDirectories) {
-            StringBuilder stop =new StringBuilder( MainPath.toString() + "\\stop_words.txt"); //todo
-            //StringBuilder stop =new StringBuilder( MainPath.toString() + "/stop_words.txt");
+            //StringBuilder stop =new StringBuilder( MainPath.toString() + "\\stop_words.txt"); //todo
+            StringBuilder stop =new StringBuilder( MainPath.toString() + "/stop_words.txt");
             if(SteemerNeeded)
-                 out.append( MainPath.toString() + "\\EngineOut_WithStemmer\\"); //todo
-                //out.append( MainPath.toString() + "/EngineOut_WithStemmer/");
+                 //out.append( MainPath.toString() + "\\EngineOut_WithStemmer\\"); //todo
+                out.append( MainPath.toString() + "/EngineOut_WithStemmer/");
 
             else
-                out.append( MainPath.toString() + "\\EngineOut\\"); //todo
-                //out.append( MainPath.toString() + "/EngineOut/");
+                //out.append( MainPath.toString() + "\\EngineOut\\"); //todo
+                out.append( MainPath.toString() + "/EngineOut/");
             if (tmp.isFile() && !(tmp.toString().equals(stop.toString())) && !(tmp.toString().equals(out.toString()))) {
                 SubFilesPath.add(tmp);
             } else if (tmp != null && tmp.isDirectory()) {
@@ -84,11 +84,13 @@ public class ReadFile {
         Document d = Jsoup.parse(content);
         Elements elements = d.getElementsByTag("DOC"); //process doc
         for (Element element : elements) {
-            boolean flag = false;
+            boolean flagCity = false;
+            boolean flagLang = false;
             String DocID = element.getElementsByTag("DOCNO").text();
             String DocText = element.getElementsByTag("TEXT").text();
             String DocDate = element.getElementsByTag("DATE1").text();
             String DocTitle = element.getElementsByTag("TI").text();
+            String DocLanguage = "";
             String CitySection = element.getElementsByTag("F").toString();
             if (!CitySection.isEmpty()){
                 String[] splited = StringUtils.split(CitySection, "[]}{(),<>%/:\"");
@@ -96,7 +98,7 @@ public class ReadFile {
                     if (splited[i].equals("104")) {
                         String[] finaleCity = StringUtils.split(splited[i + 1], " ");
                         if(finaleCity.length > 1) {
-                            flag = true;
+                            flagCity = true;
                             CitySection = finaleCity[1].toUpperCase();
                             if(CitySection.equals("BUENOS"))CitySection = "BUENOS AIRES";
                             if(CitySection.equals("TEL"))CitySection = "TEL AVIV";
@@ -108,27 +110,30 @@ public class ReadFile {
                             if(CitySection.equals("SANTIAGO"))CitySection = "SANTIAGO DE CHILE";
                             if(CitySection.equals("--"))CitySection = "";
                         }
-                        else{
-                            flag = true;
-                            CitySection = "";
-                        }
+//                        else{
+//                            flagCity = true;
+//                            CitySection = "";
+//                        }
                     }
                     if(splited[i].equals("105")){
                         String[] finaleLanguage = StringUtils.split(splited[i + 1], " ");
                         if(finaleLanguage.length > 1) {
-                            String Lang = finaleLanguage[1].toUpperCase();
-                            if(!SearchEngine.Languages.contains(Lang)) {
-                                SearchEngine.Languages.add(Lang);
+                            flagLang = true;
+                            DocLanguage = finaleLanguage[1].toUpperCase();
+                            if(!SearchEngine.Languages.contains(DocLanguage)) {
+                                SearchEngine.Languages.add(DocLanguage);
                             }
                             break;
                         }
                     }
 
                 }
-                if(!flag)
+                if(!flagCity)
                     CitySection = "";
+                if(!flagLang)
+                    DocLanguage = "";
             }
-            tmpDocs.put(DocID, new DocDetailes(DocText, DocDate, DocTitle, CitySection));
+            tmpDocs.put(DocID, new DocDetailes(DocText, DocDate, DocTitle, CitySection,DocLanguage));
         }
         return tmpDocs;
     }

@@ -20,50 +20,42 @@ import java.util.*;
 public class Searcher {
 
     public Ranker ranker;
-    public static Indexer SearcherIndexer;
     public static Parse SearcherParser;
     public boolean SemanticNeeded;
     public boolean Steemerneeded;
-    public static HashMap<String, DictionaryDetailes> LoadedDictionary;
+    public static HashMap<String, DictionaryDetailes> Loaded_Dictionary;
+    public static HashMap<String, DocDetailes> Loaded_AllDocs;
+    //public static HashMap<String,String> DocsResultEntitys;
     public static double AVGdl;
     public static double NumOfDocs;
-    public static HashMap<String, Double> DocsResultDL;
-    public static HashMap<String, Double> DocsResultMax;
-    public static HashMap<String, String> DocsResultCITY;
-    public static HashMap<String,HashMap<String, Double>> DocsResultEntitys;
+    public int counter;
     public static ObservableList<String> citiesToFilter;
     public static ArrayList<Pair> Results; //<<queryid,Docid>>
 
 
 
+
+
     /**
      * Constructor
-     * @param indexer
-     * @param parser
      * @param semanticNeeded
-     * @param cities
      * @throws IOException
      */
-    public Searcher(Indexer indexer, Parse parser, boolean semanticNeeded,boolean SteemerNeeded,ObservableList<String> cities) throws IOException {
-        SearcherIndexer = indexer;
-        SearcherParser = parser;
+    public Searcher(HashMap<String, DictionaryDetailes> dictionary,HashMap<String, DocDetailes> all_Docs,boolean semanticNeeded,boolean Steemer,String PathOut,String PathIn) throws IOException {
+        SearcherParser = new Parse(Steemer,PathIn);
         SemanticNeeded = semanticNeeded;
-        SteemerNeeded = SteemerNeeded;
-        AVGdl = 0;
-        NumOfDocs = 0;
-        if(cities != null)
-            citiesToFilter = cities;
-        DocsResultDL = new HashMap<>();
-        DocsResultCITY = new HashMap<>();
-        DocsResultMax = new HashMap<>();
-        DocsResultEntitys = new HashMap<>();
+        Steemerneeded = Steemer;
+        //DocsResultEntitys = new HashMap<>();
         Results = new ArrayList<>();
-        if(indexer.Dictionary.isEmpty())
-        LoadedDictionary = SearchEngine.ItsTimeToLoadDictionary(SearcherIndexer.stbOUT.toString() + "Dictionary.txt");
-        else
-            LoadedDictionary = indexer.Dictionary;
-        SearchEngine.ItsTimeToLoadAllDocs(  SearcherIndexer.stbOUT.toString() + "Docs.txt");
-        ranker = new Ranker(SearcherIndexer.stbOUT.toString(),SteemerNeeded);
+        Loaded_Dictionary = dictionary;
+        Loaded_AllDocs = all_Docs;
+        NumOfDocs = Loaded_AllDocs.size();
+        counter = 0;
+        for(String doc : Loaded_AllDocs.keySet()){
+            counter += Loaded_AllDocs.get(doc).getDocLength();
+        }
+        AVGdl = counter/NumOfDocs;
+        ranker = new Ranker(PathOut,Steemerneeded);
     }
 
 
@@ -76,7 +68,8 @@ public class Searcher {
         ArrayList<Pair> Queries = SplitQueriesFile(QueryPath);
         for (int i = 0 ;i < Queries.size(); i++) {
             HashMap<String, TermDetailes> tmpQuery = SearcherParser.ParseDoc(Queries.get(i).getValue().toString(), "", "", "");
-            ranker.InitializScores(tmpQuery, Queries.get(i).getKey().toString(), SemanticNeeded);
+            HashSet<String> QueryWords = new HashSet<>(tmpQuery.keySet());
+            ranker.InitializScores(QueryWords, Queries.get(i).getKey().toString(), SemanticNeeded);
         }
 
     }
@@ -88,34 +81,17 @@ public class Searcher {
      */
     public void ProccesSingleQuery(String Query) throws IOException, URISyntaxException {
         HashMap<String, TermDetailes> tmpQuery =  SearcherParser.ParseDoc(Query,"","","");
-        ranker.InitializScores(tmpQuery,"000",SemanticNeeded);
+        HashSet<String> QueryWords = new HashSet<>(tmpQuery.keySet());
+        ranker.InitializScores(QueryWords,"000",SemanticNeeded);
     }
 
 
     /**
-     * @param Entitys
      * @param DocToSearch
      * @return
      */
-    public static String EntityIdentification(HashSet<String> Entitys,String DocToSearch){
-        HashMap<String,Double> tmp = new HashMap<>();
-        HashMap<Double,String> ans = new HashMap<>();
-        StringBuilder stb = new StringBuilder().append("#### Entitys Result ####\n");
-        for(String term : DocsResultEntitys.get(DocToSearch).keySet()){
-            if(Entitys.contains(term)){
-                tmp.put(term.toUpperCase(),DocsResultEntitys.get(DocToSearch).get(term));
-            }
-        }
-        for(String term : tmp.keySet()){
-            ans.put(tmp.get(term),term);
-        }
-        ArrayList<Double> SortedEntitys = new ArrayList<>(ans.keySet());
-        Collections.sort(SortedEntitys, Collections.reverseOrder());
-        for(int i = 0 ; i < SortedEntitys.size() && i < 5  ;i++){
-            stb.append(ans.get(SortedEntitys.get(i)) + " " + SortedEntitys.get(i) +"\n");
-        }
-        stb.append("###################\n");
-        return stb.toString();
+    public static String EntityIdentification(String DocToSearch){
+        return Loaded_AllDocs.get(DocToSearch).getDocSuspectedEntitys().toString();
     }
 
 
@@ -148,7 +124,27 @@ public class Searcher {
         return Result;
     }
 
-//    public StringBuilder ProccessNarrative(String Nar){
+    public void AddCitiesToFilter(ObservableList<String> cities){
+        citiesToFilter = cities;
+    }
+
+
+
+    /**
+     * @param FileToSaveIn
+     * @throws IOException
+     */
+    public static void WriteResults(File FileToSaveIn) throws IOException {
+        //FileWriter FW = new FileWriter(FileToSaveIn.getAbsolutePath()+"\\results.txt"); //todo
+        FileWriter FW = new FileWriter(FileToSaveIn.getAbsolutePath()+"/results.txt");
+        for(int i = 0 ; i < Results.size();i++) {
+            FW.write( Results.get(i).getKey()+ " 0" + " " + Results.get(i).getValue() + " 1" + " 00.00" + " test" + System.getProperty( "line.separator" ));
+        }
+        FW.close();
+    }
+
+
+    //    public StringBuilder ProccessNarrative(String Nar){
 //        StringBuilder ans = new StringBuilder();
 //
 //
@@ -158,19 +154,6 @@ public class Searcher {
 //
 //        return ans;
 //    }
-
-    /**
-     * @param FileToSaveIn
-     * @throws IOException
-     */
-    public static void WriteResults(File FileToSaveIn) throws IOException {
-        FileWriter FW = new FileWriter(FileToSaveIn.getAbsolutePath()+"\\results.txt"); //todo
-        //FileWriter FW = new FileWriter(FileToSaveIn.getAbsolutePath()+"/results.txt");
-        for(int i = 0 ; i < Results.size();i++) {
-            FW.write( Results.get(i).getKey()+ " 0" + " " + Results.get(i).getValue() + " 1" + " 00.00" + " test" + System.getProperty( "line.separator" ));
-        }
-        FW.close();
-    }
 
 }
 

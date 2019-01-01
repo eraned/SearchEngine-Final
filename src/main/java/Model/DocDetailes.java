@@ -1,5 +1,7 @@
 package Model;
 
+import java.util.HashSet;
+
 /**
  *
  */
@@ -11,6 +13,7 @@ public class DocDetailes {
     private String DocDate;
     private String DocTitle;
     private String DocCity;
+    private String DocLanguage;
     private StringBuilder DocSuspectedEntitys;
 
 
@@ -21,11 +24,12 @@ public class DocDetailes {
      * @param docTitle
      * @param city
      */
-    public DocDetailes(String docText, String docDate, String docTitle, String city) {
+    public DocDetailes(String docText, String docDate, String docTitle, String city,String language) {
         DocText = docText;
         DocDate = docDate;
         DocTitle = docTitle;
         DocCity = city;
+        DocLanguage = language;
         DocLength = 0;
         MaxTermFrequency = 0;
         DocSuspectedEntitys = new StringBuilder();
@@ -68,4 +72,8 @@ public class DocDetailes {
     public void setDocCity(String docCity) {DocCity = docCity; }
     public StringBuilder getDocSuspectedEntitys() {return DocSuspectedEntitys;}
     public void setDocSuspectedEntitys(StringBuilder ent) {DocSuspectedEntitys = ent;}
+    public String getDocLanguage() {return DocLanguage;}
+    public void setDocLanguage(String docLanguage) {DocLanguage = docLanguage;}
+    //public HashSet<String> getDocSuspectedEntitys() {return DocSuspectedEntitys;}
+    //public void setDocSuspectedEntitys(HashSet<String> docSuspectedEntitys) {DocSuspectedEntitys = docSuspectedEntitys;}
 }

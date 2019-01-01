@@ -64,9 +64,12 @@ public class Indexer {
         counterbefore = 0;
         counterafter = 0;
         if (StemmerNeeded)
-            stbOUT.append(CorpusPathOUT + "\\EngineOut_WithStemmer\\"); //todo
+            //stbOUT.append(CorpusPathOUT + "\\EngineOut_WithStemmer\\"); //todo
+            stbOUT.append(CorpusPathOUT + "/EngineOut_WithStemmer/"); //todo
+
         else
-            stbOUT.append(CorpusPathOUT + "\\EngineOut\\"); //todo
+            //stbOUT.append(CorpusPathOUT + "\\EngineOut\\"); //todo
+            stbOUT.append(CorpusPathOUT + "/EngineOut/"); //todo
         File folder = new File(stbOUT.toString());
         File[] listOfFiles = folder.listFiles();
         if (listOfFiles != null) {
@@ -189,12 +192,6 @@ public class Indexer {
                 BW.write(term + ":");
                 for (TermDetailes TD : Posting.get(term)) {
                     BW.write("Docid:" + TD.getDocId() + ";TF:" + TD.getTF() + ";InTitle:" + TD.getInTitle() + "->");
-                }
-                if (term.equals("exploration")) {
-                    for (TermDetailes TD : Posting.get(term)) {
-                        counterbefore++;
-                        postingcounter++;
-                    }
                 }
                 BW.write("#");
                 BW.newLine();
@@ -324,12 +321,18 @@ public class Indexer {
      * split the final posting file to 6 ranges to improve to find doc for query
      */
     public void ItsTimeForSPLIT_Final_Posting() {
-        File Numbers = new File(stbOUT + "\\Numbers.txt"); //todo
-        File A_E = new File(stbOUT + "\\A_E.txt");
-        File F_J = new File(stbOUT + "\\F_J.txt");
-        File K_P = new File(stbOUT + "\\K_P.txt");
-        File Q_U = new File(stbOUT + "\\Q_U.txt");
-        File V_Z = new File(stbOUT + "\\V_Z.txt");
+//        File Numbers = new File(stbOUT + "\\Numbers.txt"); //todo
+//        File A_E = new File(stbOUT + "\\A_E.txt");
+//        File F_J = new File(stbOUT + "\\F_J.txt");
+//        File K_P = new File(stbOUT + "\\K_P.txt");
+//        File Q_U = new File(stbOUT + "\\Q_U.txt");
+//        File V_Z = new File(stbOUT + "\\V_Z.txt");
+        File Numbers = new File(stbOUT + "/Numbers.txt"); //todo
+        File A_E = new File(stbOUT + "/A_E.txt");
+        File F_J = new File(stbOUT + "/F_J.txt");
+        File K_P = new File(stbOUT + "/K_P.txt");
+        File Q_U = new File(stbOUT + "/Q_U.txt");
+        File V_Z = new File(stbOUT + "/V_Z.txt");
         File Final_Posting = new File(stbOUT.toString() + MergeNumber + "tmp.txt");
         int countNumber = 0;
         int countA_E = 0;
@@ -468,17 +471,18 @@ public class Indexer {
             e.printStackTrace();
         }
         ItsTimeToWriteDictionary();
+        LoadEntitiysToDocs();
         Dictionary.clear();
-    //    System.out.println("counter befoe:"+counterbefore);
-     //   System.out.println("counter after:"+counterafter);
+        //    System.out.println("counter befoe:"+counterbefore);
+        //   System.out.println("counter after:"+counterafter);
     }
 
     /**
      * after the inverted index was created write the Dictionary to the disk
      */
     public void ItsTimeToWriteDictionary(){
-        File DictionaryDoc = new File(stbOUT + "\\Dictionary" + ".txt"); //todo
-        //File DictionaryDoc = new File(stbOUT + "/Dictionary" + ".txt");
+        //File DictionaryDoc = new File(stbOUT + "\\Dictionary" + ".txt"); //todo
+        File DictionaryDoc = new File(stbOUT + "/Dictionary" + ".txt");
         ArrayList<String> SortedDic = new ArrayList<>(Dictionary.keySet());
         Collections.sort(SortedDic);
 
@@ -525,6 +529,36 @@ public class Indexer {
         else if(!NumberUtils.isParsable(term) && StringUtils.isNumeric(term))
             return false;
         return true;
+    }
+
+    public void LoadEntitiysToDocs(){
+        HashMap<String,Integer> ans = new HashMap<>();
+        StringBuilder stb = new StringBuilder();
+        String term;
+        String tf;
+        int TF;
+        String Suspected;
+        for(String Doc : SearchEngine.All_Docs.keySet()){
+            Suspected = SearchEngine.All_Docs.get(Doc).getDocSuspectedEntitys().toString();
+            while(Suspected.length() > 1){
+                term = Suspected.substring(0, Suspected.indexOf(":"));
+                tf = Suspected.substring(Suspected.indexOf(":")+1, Suspected.indexOf(";"));
+                TF = Integer.parseInt(tf);
+                if(Entitys.contains(term)){
+                    ans.put(term,TF);
+                }
+                Suspected = Suspected.substring(Suspected.indexOf(";") + 1);
+            }
+            stb.append("#### Entitys Result ####\n");
+            ArrayList<Integer> SortedEntitys = new ArrayList<>(ans.values());
+            Collections.sort(SortedEntitys, Collections.reverseOrder());
+            for(int i = 0 ; i < SortedEntitys.size() && i < 5  ;i++){
+                stb.append(ans.get(SortedEntitys.get(i)) + " " + SortedEntitys.get(i) +"\n");
+            }
+            stb.append("###################\n");
+            SearchEngine.All_Docs.get(Doc).setDocSuspectedEntitys(stb);
+            stb.setLength(0);
+        }
     }
 }
 

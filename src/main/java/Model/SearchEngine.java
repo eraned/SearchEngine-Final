@@ -40,8 +40,8 @@ public class SearchEngine {
         long StartTime = System.nanoTime();
         CorpusPathIN = corpusPathIN;
         CorpusPathOUT = corpusPathOUT;
-        StopWordsPath = new StringBuilder(CorpusPathIN + "\\stop_words.txt"); //todo
-        //StopWordsPath = new StringBuilder(CorpusPathIN + "/stop_words.txt");
+        //StopWordsPath = new StringBuilder(CorpusPathIN + "\\stop_words.txt"); //todo
+        StopWordsPath = new StringBuilder(CorpusPathIN + "/stop_words.txt");
         StemmerNeeded = isSteemer;
         readFile = new ReadFile(CorpusPathIN,StemmerNeeded);
         parser = new Parse(StemmerNeeded, StopWordsPath.toString());
@@ -170,13 +170,32 @@ public class SearchEngine {
      *
      */
     public void ItsTimeToWriteAllDocs() {
-        File AllDocsFile = new File(indexer.stbOUT + "\\Docs" + ".txt"); //todo
-        //File AllDocsFile = new File(indexer.stbOUT + "/Docs" + ".txt");
-        ArrayList<String> SortedDocs = new ArrayList<>(All_Docs.keySet());
-        Collections.sort(SortedDocs);
-        try {
+        //File AllDocsFile = new File(indexer.stbOUT + "\\Docs" + ".txt"); //todo
+        try{
+            File AllDocsFile = new File(indexer.stbOUT + "/Docs" + ".txt");
             FileWriter FW = new FileWriter(AllDocsFile);
             BufferedWriter BW = new BufferedWriter(FW);
+            //write languges
+            StringBuilder stbLang = new StringBuilder();
+            stbLang.append("Languges:");
+            for(String lang : Languages){
+                stbLang.append(lang +";");
+            }
+            stbLang.append("#");
+            BW.write(stbLang.toString());
+            BW.newLine();
+            //write cities
+            StringBuilder stbCity = new StringBuilder();
+            stbCity.append("Cities:");
+            for(String city : Cities.keySet()){
+                stbCity.append(city + ";");
+            }
+            stbCity.append("#");
+            BW.write(stbCity.toString());
+            BW.newLine();
+            //write all docs
+            ArrayList<String> SortedDocs = new ArrayList<>(All_Docs.keySet());
+            Collections.sort(SortedDocs);
             for (String doc : SortedDocs) {
                 BW.write(doc + ":" + "DocLength:" + All_Docs.get(doc).getDocLength() + ";MaxTermFrequency:" + All_Docs.get(doc).getMaxTermFrequency() + ";City:" + All_Docs.get(doc).getDocCity() + ";DocEntitys:" + All_Docs.get(doc).getDocSuspectedEntitys().toString());
                 BW.newLine();
@@ -237,16 +256,31 @@ public class SearchEngine {
     /**
      * @param Path
      */
-    public static void ItsTimeToLoadAllDocs(String Path) {
+    public static HashMap<String, DocDetailes> ItsTimeToLoadAllDocs(String Path) {
+        HashMap<String, DocDetailes> Ans = new HashMap<>();
         int index;
-        double Doclength;
+        int Doclength;
         String DocCity;
+        String DocLang;
         double tmp = 0;
         double counter = 0;
-        double max_tf;
+        int max_tf;
         String term;
         String tf;
         try (BufferedReader br = new BufferedReader(new FileReader(Path))) {
+            //upload languges
+            String languuges = br.readLine();
+            index = languuges.indexOf(':');
+            languuges = languuges.substring(index + 1);
+            while(languuges.length() > 1){
+
+            }
+            //upload cities
+            String cities = br.readLine();
+            while(cities.length() > 1){
+
+            }
+            //upload alldocs
             String line = br.readLine();
             while (line != null) {
                 try {
@@ -256,32 +290,31 @@ public class SearchEngine {
                     if (!doc.isEmpty()) {
                         index = line.indexOf("DocLength:");
                         String Length = line.substring(index+ 10, line.indexOf(';'));
-                        Doclength = Double.parseDouble(Length);
+                        Doclength = Integer.parseInt(Length);
                         line = line.substring(line.indexOf(';') + 1);
                         index = line.indexOf("MaxTermFrequency:");
                         String max = line.substring(index+ 17, line.indexOf(';'));
-                        max_tf = Double.parseDouble(max);
+                        max_tf = Integer.parseInt(max);
                         line = line.substring(line.indexOf(';') + 1);
                         index = line.indexOf("City:");
                         DocCity = line.substring(index + 5,line.indexOf(';')+1);
                         if(DocCity.length() == 1)
                             DocCity = "";
-                        tmp += Doclength;
-                        counter++;
-                        Searcher.DocsResultDL.put(doc, Doclength);
-                        Searcher.DocsResultCITY.put(doc, DocCity);
-                        Searcher.DocsResultMax.put(doc, max_tf);
-                        index = line.indexOf("DocEntitys:");
-                        line = line.substring(index + 11);
-                        HashMap<String,Double> tmpHash = new HashMap<>();
-                        while(line.length() > 1) {
-                            term = line.substring(0, line.indexOf(":"));
-                            tf = line.substring(line.indexOf(":")+1, line.indexOf(";"));
-                            double TF = Double.parseDouble(tf);
-                            tmpHash.put(term, TF);
-                            line = line.substring(line.indexOf(";") + 1);
-                        }
-                        Searcher.DocsResultEntitys.put(doc,tmpHash);
+//                        line = line.substring(line.indexOf(';') + 1);
+//                        index = line.indexOf("Languge:");
+//                        DocLang = line.substring(index + 8,line.indexOf(';')+1);
+                        DocDetailes DD = new DocDetailes(null,null,null,DocCity,DocLang);
+                        DD.setDocLength(Doclength);
+                        DD.setMaxTermFrequency(max_tf);
+                        Ans.put(doc,DD);
+                        //tmp += Doclength;
+                        //counter++;
+//                        line = line.substring(line.indexOf(';') + 1);
+//                        index = line.indexOf("DocEntitys:");
+//                        line = line.substring(index + 11);
+//                        //HashMap<String,Double> tmpHash = new HashMap<>();
+//                        String Entitys = line.substring(index + 11,line.lastIndexOf("#")+1);
+//                        Searcher.DocsResultEntitys.put(doc,Entitys);
                     }
                     line = br.readLine();
                 } catch (Exception e) {
@@ -292,7 +325,6 @@ public class SearchEngine {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Searcher.AVGdl = tmp / counter;
-        Searcher.NumOfDocs = counter;
+        return Ans;
     }
 }

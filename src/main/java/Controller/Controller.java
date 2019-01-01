@@ -1,5 +1,6 @@
 package Controller;
 
+import Model.Parse;
 import Model.SearchEngine;
 import Model.DictionaryDetailes;
 import Model.Searcher;
@@ -223,12 +224,10 @@ public class Controller{
      */
     public void LoadDicToMemory() throws IOException {
         if(!Stemmer.isSelected())
-            searchEngine.GetIndexer().Dictionary  = SearchEngine.ItsTimeToLoadDictionary(  PathOUT.getText() + "\\EngineOut\\Dictionary.txt"); //todo
-            //searchEngine.GetIndexer().Dictionary  = SearchEngine.ItsTimeToLoadDictionary(  PathOUT.getText() + "/EngineOut/Dictionary.txt");
+            searcher = new Searcher(SearchEngine.ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut/Dictionary.txt"), SearchEngine.ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut/Docs.txt"),Semantic.isSelected(),Stemmer.isSelected(),PathOUT.getText() + "/EngineOut/",PathIN.getText());
         else
-            searchEngine.GetIndexer().Dictionary  = SearchEngine.ItsTimeToLoadDictionary( PathOUT.getText()+ "\\EngineOut_WithStemmer\\Dictionary.txt"); //todo
-            //searchEngine.GetIndexer().Dictionary  = SearchEngine.ItsTimeToLoadDictionary( PathOUT.getText()+ "/EngineOut_WithStemmer/Dictionary.txt");
-        if (LoadDic != null)
+            searcher = new Searcher(SearchEngine.ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut_WithStemmer/Dictionary.txt"), SearchEngine.ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut_WithStemmer/Docs.txt"),Semantic.isSelected(),Stemmer.isSelected(),PathOUT.getText() + "/EngineOut_WithStemmer/",PathIN.getText());
+        if (searcher != null)
             showAlert("Dictionary successfully loaded to Memory!");
          else
             showAlert("Dictionry failed to load in to the Memory!");
@@ -248,26 +247,27 @@ public class Controller{
      */
     public void LoadDocsToScroll(){
         for(Pair pair : Searcher.Results) {
-            DocSelctor.getItems().add(pair.getValue());
+            DocSelctor.getItems().add(pair.getKey().toString() + " - " + pair.getValue().toString());
         }
     }
 
-    public void LoadOutPut() {
-
-    }
 
     /**
      * @throws IOException
      * @throws URISyntaxException
      */
     public void RunQuery() throws IOException, URISyntaxException {
+        if(searcher == null) {
+            if (!Stemmer.isSelected())
+                searcher = new Searcher(SearchEngine.ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut/Dictionary.txt"), SearchEngine.ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut/Docs.txt"), Semantic.isSelected(), Stemmer.isSelected(), PathOUT.getText() + "/EngineOut/", PathIN.getText());
+            else
+                searcher = new Searcher(SearchEngine.ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut_WithStemmer/Dictionary.txt"), SearchEngine.ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut_WithStemmer/Docs.txt"), Semantic.isSelected(), Stemmer.isSelected(), PathOUT.getText() + "/EngineOut_WithStemmer/", PathIN.getText());
+        }
         if (CitySelctor.getCheckModel().getCheckedItems().size() > 1 || (CitySelctor.getCheckModel().getCheckedItems().size() == 1 && !CitySelctor.getCheckModel().getCheckedItems().equals("None"))) {
             ObservableList<String> cities = FXCollections.observableArrayList();
             cities.addAll(CitySelctor.getCheckModel().getCheckedItems());
-            searcher = new Searcher(searchEngine.indexer, searchEngine.parser, Semantic.isSelected(),Stemmer.isSelected(), cities);
+            searcher.AddCitiesToFilter(cities);
         }
-        else
-            searcher = new Searcher(searchEngine.indexer, searchEngine.parser, Semantic.isSelected(),Stemmer.isSelected(),null);
         if(!SingleQuery.getText().isEmpty())
             searcher.ProccesSingleQuery(SingleQuery.getText());
         else if(!PathQueriesFile.getText().isEmpty())
@@ -320,6 +320,7 @@ public class Controller{
         PathQueriesFile.clear();
         PathForResults.clear();
         DocSelctor.getItems().clear();
+        showAlert("ready for new Search!" );
     }
 
     /**
@@ -350,6 +351,6 @@ public class Controller{
      *
      */
     public void RunSearchIdentitis() {
-        showAlert(searcher.EntityIdentification(searcher.SearcherIndexer.Entitys,DocSelctor.getSelectionModel().getSelectedItem().toString()));
+        showAlert(searcher.EntityIdentification(DocSelctor.getSelectionModel().getSelectedItem().toString()));
     }
 }
