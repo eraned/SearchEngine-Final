@@ -166,7 +166,6 @@ public class Ranker {
                     BM25UP = ((k + 1) * BM25_Matrix.get(Doc).get(term));
                     BM25DOWN = (BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * ((double) Searcher.Loaded_AllDocs.get(Doc).getDocLength() / Searcher.AVGdl)));
                     BM25LOG = Math.log((Searcher.NumOfDocs + 1) / idf);
-                    //  BM25Rank += ((((k + 1) * BM25_Matrix.get(Doc).get(term)) / (BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * (Searcher.Loaded_AllDocs.get(Doc).getDocLength() / Searcher.AVGdl)))) * Math.log((Searcher.NumOfDocs + 1) / idf));
                     //  System.out.println(Doc +" - " + BM25_Matrix.get(Doc).get(term) + " - "+ Math.log((Searcher.NumOfDocs + 1) / idf));
                     BM25Rank += (BM25UP / BM25DOWN) * BM25LOG;
                     T = PostingTitelResult.get(Doc).get(term);
@@ -206,7 +205,7 @@ public class Ranker {
         System.out.println(queryID );
         for (int i = 0; i < SortedRank.size() && i < 50; i++) {
             Searcher.Results.add(new Pair(queryID, RankedQuery.get(SortedRank.get(i))));
-            System.out.println(RankedQuery.get(SortedRank.get(i)) +" - " +SortedRank.get(i) );
+           // System.out.println(RankedQuery.get(SortedRank.get(i)) +" - " +SortedRank.get(i) );
         }
     }
 

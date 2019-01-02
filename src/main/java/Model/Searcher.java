@@ -2,6 +2,8 @@ package Model;
 
 import javafx.collections.ObservableList;
 import javafx.util.Pair;
+import org.apache.commons.lang3.RegExUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -59,14 +61,67 @@ public class Searcher {
         ArrayList<Pair> Queries = SplitQueriesFile(QueryPath);
         SearcherParser = new Parse(Steemer,PathIN + "\\stop_words.txt");
         for (int i = 0 ;i < Queries.size(); i++) {
+            System.out.println(Queries.get(i).getKey());
+            System.out.println("before parser:");
+            System.out.println(Queries.get(i).getValue().toString());
+
+
+
             HashMap<String, TermDetailes> tmpQuery = SearcherParser.ParseDoc(Queries.get(i).getValue().toString(), "", "", "");
-            HashSet<String> QueryWords = new HashSet<>(tmpQuery.keySet());
-            try {
-                ranker.InitializScores(QueryWords, Queries.get(i).getKey().toString(), semanticNeeded);
+            HashSet<String> QueryWords = new HashSet<>();
+            for(String term : tmpQuery.keySet()) {
+                if (StringUtils.contains(term, '-')) {
+                    QueryWords.add(term);
+                    String[] splited = StringUtils.split(term, "-");
+                    for (int t = 0; t < splited.length; t++) {
+                        if (StringUtils.isAlphanumeric(splited[t]))
+                            QueryWords.add(splited[t]);
+                    }
+                } else {
+                    if (StringUtils.isAlphanumeric(term))
+                        QueryWords.add(term);
+                }
             }
-            catch (Exception e){
-                e.printStackTrace();
+//                        try {
+//                ranker.InitializScores(QueryWords, Queries.get(i).getKey().toString(), semanticNeeded);
+//            }
+//            catch (Exception e){
+//                e.printStackTrace();
+//            }
+
+
+            System.out.println("after parser:");
+            System.out.println(QueryWords);
+
+
+
+            HashSet<String> Query = new HashSet<>();
+            for(String term : QueryWords) {
+                try {
+                    if (StringUtils.isAllUpperCase(term) && Searcher.Loaded_Dictionary.get(term) != null) {
+                        Query.add(term);
+                        if (Searcher.Loaded_Dictionary.get(term.toLowerCase()) != null) {
+                            Query.add(term.toLowerCase());
+                        }
+                    } else if (StringUtils.isAllLowerCase(term) && Searcher.Loaded_Dictionary.get(term) != null) {
+                        Query.add(term);
+                        if (Searcher.Loaded_Dictionary.get(term.toUpperCase()) != null) {
+                            Query.add(term.toUpperCase());
+                        }
+                    } else if (term.contains("-") && Searcher.Loaded_Dictionary.get(term) != null)
+                        Query.add(term);
+                    else {
+                        System.out.println("term not in dic : " + term);
+                        continue;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
+            System.out.println("after process query:");
+            System.out.println(Query);
+
+
         }
 
     }
@@ -125,9 +180,19 @@ public class Searcher {
             String QueryID = element.getElementsByTag("num").toString();
             QueryID = QueryID.substring(QueryID.indexOf("Number:")+7,QueryID.indexOf("<title>"));
             QueryID = QueryID.trim();
+            //original Query
             String QueryContent = element.getElementsByTag("title").text();
+            //analized Description
             String QueryDesc = element.getElementsByTag("desc").text();
             QueryDesc = QueryDesc.substring(QueryDesc.indexOf(":")+1,QueryDesc.indexOf("Narrative:"));
+
+
+
+            //analized Narrative
+
+
+
+
             QueryStb.append(QueryContent + QueryDesc);
             Pair p = new Pair(QueryID,QueryStb.toString());
             Result.add(p);
