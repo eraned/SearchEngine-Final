@@ -253,7 +253,7 @@ public class Ranker {
 //        }
         File SelectedPosting = new File(stb.toString());
         try (BufferedReader br = new BufferedReader(new FileReader(SelectedPosting))) {
-            for(int i =0;i<pointer;i++){
+            for(int i =0; i < pointer; i++){
                 br.readLine();
             }
             String TermLIne = br.readLine();

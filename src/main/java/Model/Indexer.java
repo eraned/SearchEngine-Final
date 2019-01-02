@@ -44,6 +44,10 @@ public class Indexer {
     public int NumOfTerms_Numbers;
     public String DocMaxCity;
     public static HashSet<String> Entitys;
+    public int atlanticCounter_Docs;
+    public int atlanticCounter_TF;
+    public int atlanticCounter_TotalTF;
+    public int atlanticCounter_Idf;
 
     /**
      * Constructor
@@ -52,6 +56,10 @@ public class Indexer {
      * @param isStemmer     - get from the user
      */
     public Indexer(String corpusPathOUT, boolean isStemmer) {
+        atlanticCounter_Docs = 0;
+        atlanticCounter_TF = 0;
+        atlanticCounter_TotalTF = 0;
+        atlanticCounter_Idf = 0;
         CorpusPathOUT = corpusPathOUT;
         StemmerNeeded = isStemmer;
         Dictionary = new HashMap<>();
@@ -132,6 +140,9 @@ public class Indexer {
             if (StringUtils.isAlpha(tmpTerm) && StringUtils.isAllUpperCase(tmpTerm)) {
                 Ent.append(tmpTerm + ":" + tmpTermDetailes.getTF() + ";");
             }
+
+
+
             // not in Post
             if (!Posting.containsKey(tmpTerm)) {
                 Posting.put(tmpTerm, new ArrayList<TermDetailes>());
@@ -163,7 +174,17 @@ public class Indexer {
             if (tmpTermDetailes.getTF() > MaxTermFreq) {
                 MaxTermFreq = tmpTermDetailes.getTF();
             }
+
+            if(tmpTerm.equals("atlantic")){
+                System.out.println(" found here - mini posting");
+                System.out.println(tmpTerm + "  "+tmpTermDetailes.getDocId() +"  "+ tmpTermDetailes.getTF());
+                System.out.println(Docid);
+                DictionaryDetailes test = Dictionary.get("atlantic");
+                System.out.println("idf  : " + test.getNumOfDocsTermIN());
+                System.out.println("total tf : " + test.getNumOfTermInCorpus());
+            }
         }
+
         SearchEngine.All_Docs.get(Docid).setMaxTermFrequency(MaxTermFreq);
         SearchEngine.All_Docs.get(Docid).setDocLength(DocAfterParse.size());
         Ent.append("#");
@@ -192,7 +213,9 @@ public class Indexer {
             FileWriter FW = new FileWriter(tmpPost);
             BufferedWriter BW = new BufferedWriter(FW);
             for (String term : SortedPost) {
-
+//                if(term.equals("atlantic")){
+//                    System.out.println(" found here - flush posting");
+//                }
                 BW.write(term + ":");
                 for (TermDetailes TD : Posting.get(term)) {
                     BW.write("Docid:" + TD.getDocId() + ";TF:" + TD.getTF() + ";InTitle:" + TD.getInTitle() + "->");
@@ -282,6 +305,11 @@ public class Indexer {
             String t1 = S1.substring(0, S1.indexOf(":"));
             String t2 = S2.substring(0, S2.indexOf(":"));
             Compare = t1.compareTo(t2);
+
+//            if(t1.equals("atlantic") || t2.equals("atlantic") ){
+//                System.out.println(" found here - extrenal sort");
+//            }
+
             if (Compare > 0) {
                 FW.write(S2 + System.getProperty("line.separator"));
                 S2 = BR2.readLine();
@@ -325,12 +353,6 @@ public class Indexer {
         File K_P = new File(stbOUT + "\\K_P.txt");
         File Q_U = new File(stbOUT + "\\Q_U.txt");
         File V_Z = new File(stbOUT + "\\V_Z.txt");
-//        File Numbers = new File(stbOUT + "/Numbers.txt"); //todo
-//        File A_E = new File(stbOUT + "/A_E.txt");
-//        File F_J = new File(stbOUT + "/F_J.txt");
-//        File K_P = new File(stbOUT + "/K_P.txt");
-//        File Q_U = new File(stbOUT + "/Q_U.txt");
-//        File V_Z = new File(stbOUT + "/V_Z.txt");
         File Final_Posting = new File(stbOUT.toString() + MergeNumber + "tmp.txt");
         int countNumber = 0;
         int countA_E = 0;
@@ -360,6 +382,9 @@ public class Indexer {
                 stbTerm.append(S.substring(0, S.indexOf(":")));
                 char tmpFirst = stbTerm.charAt(0);
                 tmpFirst = Character.toLowerCase(tmpFirst);
+//                if(stbTerm.equals("atlantic")){
+//                    System.out.println(" found here - split final posting");
+//                }
                 //A-E
                 if (tmpFirst >= 'a' && tmpFirst <= 'e') {
                     A_E_BW.write(S);
@@ -472,6 +497,10 @@ public class Indexer {
                 if ((StringUtils.isAlpha(term)) && (StringUtils.isAllUpperCase(term))) {
                     Entitys.add(term);
                 }
+//                if(term.equals("atlantic") ){
+//                    System.out.println(" found here - write dic");
+//                }
+
                 BW.write(term + ":" + "TotalTF:" + Dictionary.get(term).getNumOfTermInCorpus() + ";DF:" + Dictionary.get(term).getNumOfDocsTermIN() + ";Pointer:" + Dictionary.get(term).getPointer() + "#");
                 BW.newLine();
             }
