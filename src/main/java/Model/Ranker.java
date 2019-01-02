@@ -54,6 +54,7 @@ public class Ranker {
     public void InitializScores(HashSet<String> querywords,String Queryid, boolean semanticNeeded) throws IOException, URISyntaxException { //Matrix of columns: d1,d2,d3....q     rows: t1,t2,t3....
         if (semanticNeeded)
             ProccesSemantic(querywords);
+        System.out.println(Queryid);
         ProccesQuery(querywords);
         ProccesReOrgnize();
         ProccesCompare();
@@ -100,12 +101,14 @@ public class Ranker {
             try {
                 if (StringUtils.isAllUpperCase(term) && Searcher.Loaded_Dictionary.get(term) != null) {
                     Query.add(term);
-                    if (Searcher.Loaded_Dictionary.get(term.toLowerCase()) != null)
+                    if (Searcher.Loaded_Dictionary.get(term.toLowerCase()) != null) {
                         Query.add(term.toLowerCase());
+                    }
                 } else if (StringUtils.isAllLowerCase(term) && Searcher.Loaded_Dictionary.get(term) != null) {
                     Query.add(term);
-                    if (Searcher.Loaded_Dictionary.get(term.toUpperCase()) != null)
+                    if (Searcher.Loaded_Dictionary.get(term.toUpperCase()) != null) {
                         Query.add(term.toUpperCase());
+                    }
                 } else
                     continue;
             }
@@ -154,10 +157,18 @@ public class Ranker {
         for (String Doc : PostingTFResult.keySet()) {
             double BM25Rank = 0;
             boolean T = false;
+            double BM25UP = 0;
+            double BM25DOWN = 0;
+            double BM25LOG = 0;
             for (String term : PostingTFResult.get(Doc).keySet()) {
                 try {
                     double idf = (Searcher.Loaded_Dictionary.get(term).getNumOfDocsTermIN() + 1);
-                    BM25Rank += ((((k + 1) * BM25_Matrix.get(Doc).get(term)) / (BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * Searcher.Loaded_AllDocs.get(Doc).getDocLength() / Searcher.AVGdl))) * Math.log((Searcher.NumOfDocs + 1) / idf));
+                    BM25UP = ((k + 1) * BM25_Matrix.get(Doc).get(term));
+                    BM25DOWN = (BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * ((double) Searcher.Loaded_AllDocs.get(Doc).getDocLength() / Searcher.AVGdl)));
+                    BM25LOG = Math.log((Searcher.NumOfDocs + 1) / idf);
+                    //  BM25Rank += ((((k + 1) * BM25_Matrix.get(Doc).get(term)) / (BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * (Searcher.Loaded_AllDocs.get(Doc).getDocLength() / Searcher.AVGdl)))) * Math.log((Searcher.NumOfDocs + 1) / idf));
+                    //  System.out.println(Doc +" - " + BM25_Matrix.get(Doc).get(term) + " - "+ Math.log((Searcher.NumOfDocs + 1) / idf));
+                    BM25Rank += (BM25UP / BM25DOWN) * BM25LOG;
                     T = PostingTitelResult.get(Doc).get(term);
                 } catch (Exception e) {
                     System.out.println("Problem in Compare");
@@ -166,9 +177,9 @@ public class Ranker {
                     break;
                 }
             }
-           // System.out.println(Doc + "###" + BM25Rank);
-            if(T)
-            RankerResult.put(BM25Rank + 0.05, Doc);
+            //      System.out.println(Doc + " - "+BM25Rank);
+            if (T)
+                RankerResult.put(BM25Rank + 0.05, Doc);
             else
                 RankerResult.put((BM25Rank), Doc);
         }
@@ -189,13 +200,14 @@ public class Ranker {
      * @param queryID
      */
     public void RankDocs(HashMap<Double, String> RankedQuery, String queryID) {
+
         ArrayList<Double> SortedRank = new ArrayList<>(RankedQuery.keySet());
         Collections.sort(SortedRank,Collections.<Double>reverseOrder());
+        System.out.println(queryID );
         for (int i = 0; i < SortedRank.size() && i < 50; i++) {
             Searcher.Results.add(new Pair(queryID, RankedQuery.get(SortedRank.get(i))));
-         //   System.out.println(SortedRank.get(i) + "##" + RankedQuery.get(SortedRank.get(i)));
+            System.out.println(RankedQuery.get(SortedRank.get(i)) +" - " +SortedRank.get(i) );
         }
-    //    System.out.println("finish rank!");
     }
 
     /**
