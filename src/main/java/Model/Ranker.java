@@ -109,10 +109,13 @@ public class Ranker {
                     if (Searcher.Loaded_Dictionary.get(term.toUpperCase()) != null) {
                         Query.add(term.toUpperCase());
                     }
-                } else
+                } else if (term.contains("-") && Searcher.Loaded_Dictionary.get(term) != null)
+                    Query.add(term);
+                else {
+                    System.out.println("term not in dic : " + term);
                     continue;
-            }
-            catch (Exception e){
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

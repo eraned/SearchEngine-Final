@@ -59,17 +59,14 @@ public class Searcher {
      */
     public void ProccesQueryFile(String QueryPath,boolean semanticNeeded,boolean Steemer) throws IOException, URISyntaxException {
         ArrayList<Pair> Queries = SplitQueriesFile(QueryPath);
-        SearcherParser = new Parse(Steemer,PathIN + "\\stop_words.txt");
-        for (int i = 0 ;i < Queries.size(); i++) {
-            System.out.println(Queries.get(i).getKey());
-            System.out.println("before parser:");
-            System.out.println(Queries.get(i).getValue().toString());
-
-
-
+        SearcherParser = new Parse(Steemer, PathIN + "\\stop_words.txt");
+        for (int i = 0; i < Queries.size(); i++) {
+            // System.out.println(Queries.get(i).getKey());
+            // System.out.println("before parser:");
+            // System.out.println(Queries.get(i).getValue().toString());
             HashMap<String, TermDetailes> tmpQuery = SearcherParser.ParseDoc(Queries.get(i).getValue().toString(), "", "", "");
             HashSet<String> QueryWords = new HashSet<>();
-            for(String term : tmpQuery.keySet()) {
+            for (String term : tmpQuery.keySet()) {
                 if (StringUtils.contains(term, '-')) {
                     QueryWords.add(term);
                     String[] splited = StringUtils.split(term, "-");
@@ -82,48 +79,14 @@ public class Searcher {
                         QueryWords.add(term);
                 }
             }
-//                        try {
-//                ranker.InitializScores(QueryWords, Queries.get(i).getKey().toString(), semanticNeeded);
-//            }
-//            catch (Exception e){
-//                e.printStackTrace();
-//            }
-
-
-            System.out.println("after parser:");
-            System.out.println(QueryWords);
-
-
-
-            HashSet<String> Query = new HashSet<>();
-            for(String term : QueryWords) {
-                try {
-                    if (StringUtils.isAllUpperCase(term) && Searcher.Loaded_Dictionary.get(term) != null) {
-                        Query.add(term);
-                        if (Searcher.Loaded_Dictionary.get(term.toLowerCase()) != null) {
-                            Query.add(term.toLowerCase());
-                        }
-                    } else if (StringUtils.isAllLowerCase(term) && Searcher.Loaded_Dictionary.get(term) != null) {
-                        Query.add(term);
-                        if (Searcher.Loaded_Dictionary.get(term.toUpperCase()) != null) {
-                            Query.add(term.toUpperCase());
-                        }
-                    } else if (term.contains("-") && Searcher.Loaded_Dictionary.get(term) != null)
-                        Query.add(term);
-                    else {
-                        System.out.println("term not in dic : " + term);
-                        continue;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            try {
+                ranker.InitializScores(QueryWords, Queries.get(i).getKey().toString(), semanticNeeded);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            System.out.println("after process query:");
-            System.out.println(Query);
-
-
+            // System.out.println("after parser:");
+            //  System.out.println(QueryWords);
         }
-
     }
 
     /**
@@ -167,7 +130,8 @@ public class Searcher {
         BufferedReader bfr = new BufferedReader(new FileReader(QueriesDirectory));
         ArrayList<Pair> Result = new ArrayList<>(); // <Queryid,Query>
         StringBuilder stb = new StringBuilder();
-        String line = bfr.readLine();int Q;
+        String line = bfr.readLine();
+        int Q;
         while (line != null) {
             stb.append(" " + line);
             line = bfr.readLine();
@@ -178,23 +142,35 @@ public class Searcher {
         for (Element element : elements) {
             StringBuilder QueryStb = new StringBuilder();
             String QueryID = element.getElementsByTag("num").toString();
-            QueryID = QueryID.substring(QueryID.indexOf("Number:")+7,QueryID.indexOf("<title>"));
+            QueryID = QueryID.substring(QueryID.indexOf("Number:") + 7, QueryID.indexOf("<title>"));
             QueryID = QueryID.trim();
             //original Query
             String QueryContent = element.getElementsByTag("title").text();
+            QueryStb.append(QueryContent + " ");
             //analized Description
             String QueryDesc = element.getElementsByTag("desc").text();
-            QueryDesc = QueryDesc.substring(QueryDesc.indexOf(":")+1,QueryDesc.indexOf("Narrative:"));
-
-
-
+            QueryDesc = QueryDesc.substring(QueryDesc.indexOf(":") + 1, QueryDesc.indexOf("Narrative:"));
+            if (QueryDesc.contains("Identify") || QueryDesc.contains("Find")) {
+                if (QueryDesc.contains("Identify documents that discuss") || QueryDesc.contains("Find documents that discuss")) {
+                    int I = QueryDesc.indexOf("Identify documents that discuss");
+                    int F = QueryDesc.indexOf("Find documents that discusss");
+                    if (I != -1)
+                        QueryStb.append(QueryDesc.substring(I + 32));
+                    if (F != -1)
+                        QueryStb.append(QueryDesc.substring(F + 29));
+                } else {
+                    int I = QueryDesc.indexOf("Identify");
+                    int F = QueryDesc.indexOf("Find");
+                    if (I != -1)
+                        QueryStb.append(QueryDesc.substring(I + 9));
+                    if (F != -1)
+                        QueryStb.append(QueryDesc.substring(F + 5));
+                }
+            }
+            else
+                QueryStb.append(QueryDesc);
             //analized Narrative
-
-
-
-
-            QueryStb.append(QueryContent + QueryDesc);
-            Pair p = new Pair(QueryID,QueryStb.toString());
+            Pair p = new Pair(QueryID, QueryStb.toString());
             Result.add(p);
         }
         return Result;
