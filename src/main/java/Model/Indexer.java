@@ -140,9 +140,6 @@ public class Indexer {
             if (StringUtils.isAlpha(tmpTerm) && StringUtils.isAllUpperCase(tmpTerm)) {
                 Ent.append(tmpTerm + ":" + tmpTermDetailes.getTF() + ";");
             }
-
-
-
             // not in Post
             if (!Posting.containsKey(tmpTerm)) {
                 Posting.put(tmpTerm, new ArrayList<TermDetailes>());
@@ -152,22 +149,23 @@ public class Indexer {
             else {
                 Posting.get(tmpTerm).add(tmpTermDetailes);
             }
-            //in dic
+            //in dic regular
             if (Dictionary.containsKey(tmpTerm)) {
-                if (Dictionary.containsKey(tmpTerm.toUpperCase()) && Character.isLowerCase(tmpTerm.charAt(0))) {
-                    Dictionary.put(tmpTerm.toLowerCase(), Dictionary.get(tmpTerm.toUpperCase()));
-                    Dictionary.remove(tmpTerm.toUpperCase());
-                    Dictionary.get(tmpTerm.toLowerCase()).setNumOfDocsTermIN(Posting.get(tmpTerm).size());
-                    Dictionary.get(tmpTerm.toLowerCase()).UpdateNumOfTermInCorpus(tmpTermDetailes.getTF());
-                } else {
-                    Dictionary.get(tmpTerm).setNumOfDocsTermIN(Posting.get(tmpTerm).size());
-                    Dictionary.get(tmpTerm).UpdateNumOfTermInCorpus(tmpTermDetailes.getTF());
-                }
+                Dictionary.get(tmpTerm).UpdateNumOfDocsTermIN(Posting.get(tmpTerm).size());
+                Dictionary.get(tmpTerm).UpdateNumOfTermInCorpus(tmpTermDetailes.getTF());
+            }
+            //in dic with big letters
+            else if (Dictionary.containsKey(tmpTerm.toUpperCase()) && Character.isLowerCase(tmpTerm.charAt(0))) {
+                DictionaryDetailes tmp = Dictionary.get(tmpTerm.toUpperCase());
+                tmp.UpdateNumOfDocsTermIN(Posting.get(tmpTerm).size());
+                tmp.UpdateNumOfTermInCorpus(tmpTermDetailes.getTF());
+                Dictionary.remove(tmpTerm.toUpperCase());
+                Dictionary.put(tmpTerm.toLowerCase(), tmp);
             }
             // not in Dic
             else {
                 DictionaryDetailes tmpDictionaryDetailes = new DictionaryDetailes();
-                tmpDictionaryDetailes.UpdateNumOfTermInCorpus(tmpTermDetailes.getTF());
+                tmpDictionaryDetailes.setNumOfTermInCorpus(tmpTermDetailes.getTF());
                 tmpDictionaryDetailes.setNumOfDocsTermIN(Posting.get(tmpTerm).size());
                 Dictionary.put(tmpTerm, tmpDictionaryDetailes);
             }
@@ -175,14 +173,14 @@ public class Indexer {
                 MaxTermFreq = tmpTermDetailes.getTF();
             }
 
-            if(tmpTerm.equals("atlantic")){
-                System.out.println(" found here - mini posting");
-                System.out.println(tmpTerm + "  "+tmpTermDetailes.getDocId() +"  "+ tmpTermDetailes.getTF());
-                System.out.println(Docid);
-                DictionaryDetailes test = Dictionary.get("atlantic");
-                System.out.println("idf  : " + test.getNumOfDocsTermIN());
-                System.out.println("total tf : " + test.getNumOfTermInCorpus());
-            }
+//            if (tmpTerm.equals("atlantic")) {
+//                System.out.println(" found here - mini posting");
+//                System.out.println(tmpTerm + "  " + tmpTermDetailes.getDocId() + "  " + tmpTermDetailes.getTF());
+//                System.out.println(Docid);
+//                DictionaryDetailes test = Dictionary.get("atlantic");
+//                System.out.println("idf  : " + test.getNumOfDocsTermIN());
+//                System.out.println("total tf : " + test.getNumOfTermInCorpus());
+//            }
         }
 
         SearchEngine.All_Docs.get(Docid).setMaxTermFrequency(MaxTermFreq);
