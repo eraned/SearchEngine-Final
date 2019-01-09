@@ -200,12 +200,8 @@ public class Controller{
         String Pathout = PathOUT.getText();
         if (Stemmer.isSelected())
             FileToReset = new File(Pathout + "\\EngineOut_WithStemmer\\"); //todo
-            //FileToReset = new File(Pathout + "/EngineOut_WithStemmer/");
-
         else
             FileToReset = new File(Pathout + "\\EngineOut\\"); //todo
-            //FileToReset = new File(Pathout + "/EngineOut/");
-
 
         if (FileToReset.exists()) {
             File[] fileList = FileToReset.listFiles();
@@ -238,12 +234,10 @@ public class Controller{
             String Pathout = PathOUT.getText();
             if(!Stemmer.isSelected()) {
                 File dictionary = new File(Pathout + "\\EngineOut\\Dictionary.txt"); //todo
-                //File dictionary = new File(Pathout + "/EngineOut/Dictionary.txt");
                 Desktop.getDesktop().edit(dictionary);
             }
             else{
                 File dictionary = new File(Pathout + "\\EngineOut_WithStemmer\\Dictionary.txt"); //todo
-                //File dictionary = new File(Pathout + "/EngineOut_WithStemmer/Dictionary.txt");
                 Desktop.getDesktop().edit(dictionary);
             }
         }
@@ -267,8 +261,8 @@ public class Controller{
                     LoadLangugesToScroll_Disk();
                     searcher.setAVG(AVGdl);
                 } else {
-                    HashMap dic = ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut/Dictionary.txt");
-                    HashMap docs = ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut/Docs.txt");
+                    HashMap dic = ItsTimeToLoadDictionary(PathOUT.getText() + "/EngineOut_WithStemmer/Dictionary.txt");
+                    HashMap docs = ItsTimeToLoadAllDocs(PathOUT.getText() + "/EngineOut_WithStemmer/Docs.txt");
                     searcher = new Searcher(dic, docs, PathOUT.getText() + "\\EngineOut_WithStemmer\\", PathIN.getText());
                     LoadCitiesToScroll_Disk();
                     LoadLangugesToScroll_Disk();
@@ -365,7 +359,6 @@ public class Controller{
     public void NewSearch() {
         File ResultsToReset;
         String ResultPath = PathForResults.getText() + "\\Results"; //todo
-        //String ResultPath = PathForResults.getText() + "/Results";
         ResultsToReset = new File(ResultPath);
         if (ResultsToReset.exists()) {
             File[] fileList = ResultsToReset.listFiles();
@@ -402,7 +395,6 @@ public class Controller{
      */
     public void SaveResults() throws IOException {
         File SavedResultsFile = new File(PathForResults.getText() + "\\Results"); //todo
-        //File SavedResultsFile = new File(PathForResults.getText() + "/Results");
         SavedResultsFile.mkdir();
         Searcher.WriteResults(SavedResultsFile);
         showAlert("Results Saved successfully!");
@@ -518,7 +510,7 @@ public class Controller{
                         max_tf = Integer.parseInt(max);
                         line = line.substring(line.indexOf(';') + 1);
                         index = line.indexOf("City:");
-                        DocCity = line.substring(index + 5,line.indexOf(';')+1);
+                        DocCity = line.substring(index + 5,line.indexOf(';'));
                         if(DocCity.length() == 1)
                             DocCity = "";
                         index = line.indexOf("DocEntitys:");

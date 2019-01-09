@@ -41,7 +41,6 @@ public class SearchEngine {
         CorpusPathIN = corpusPathIN;
         CorpusPathOUT = corpusPathOUT;
         StopWordsPath = new StringBuilder(CorpusPathIN + "\\stop_words.txt"); //todo
-        //StopWordsPath = new StringBuilder(CorpusPathIN + "/stop_words.txt");
         StemmerNeeded = isSteemer;
         readFile = new ReadFile(CorpusPathIN,StemmerNeeded);
         parser = new Parse(StemmerNeeded, StopWordsPath.toString());
@@ -71,7 +70,6 @@ public class SearchEngine {
         }
         indexer.ItsTimeForMERGE_All_Postings();
         ItsTimeToWriteAllDocs();
-        //All_Docs.clear();
         long FinishTime = System.nanoTime();
         TotalTime = FinishTime - StartTime;
     }
@@ -170,7 +168,6 @@ public class SearchEngine {
     public void ItsTimeToWriteAllDocs() {
         try{
             File AllDocsFile = new File(indexer.stbOUT + "\\Docs" + ".txt"); //todo
-            //File AllDocsFile = new File(indexer.stbOUT + "/Docs" + ".txt");
             FileWriter FW = new FileWriter(AllDocsFile);
             BufferedWriter BW = new BufferedWriter(FW);
             //write languges
@@ -203,8 +200,4 @@ public class SearchEngine {
             e.printStackTrace();
         }
     }
-
-
-
-
 }

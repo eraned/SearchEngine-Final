@@ -13,7 +13,6 @@ import java.util.*;
  *
  */
 public class Ranker {
-   // public boolean Steemerneeded;
     HashSet<String> Query;
     public String PostingPath;
     public HashMap<String, HashMap<String, Double>> PostingTFResult;
@@ -101,18 +100,13 @@ public class Ranker {
             try {
                 if (StringUtils.isAllUpperCase(term) && Searcher.Loaded_Dictionary.get(term) != null) {
                     Query.add(term);
-                    if (Searcher.Loaded_Dictionary.get(term.toLowerCase()) != null) {
-                        Query.add(term.toLowerCase());
-                    }
+
                 } else if (StringUtils.isAllLowerCase(term) && Searcher.Loaded_Dictionary.get(term) != null) {
                     Query.add(term);
-                    if (Searcher.Loaded_Dictionary.get(term.toUpperCase()) != null) {
-                        Query.add(term.toUpperCase());
-                    }
+
                 } else if (term.contains("-") && Searcher.Loaded_Dictionary.get(term) != null)
                     Query.add(term);
                 else {
-                    System.out.println("term not in dic : " + term);
                     continue;
                 }
             } catch (Exception e) {
@@ -127,11 +121,9 @@ public class Ranker {
         for (String term : Query) {
             try {
                 Pointer = Searcher.Loaded_Dictionary.get(term).getPointer();
-                GetTF_InTitelFromPosting(Pointer, term);// <docid,tf> from posting
+                GetTF_InTitelFromPosting(Pointer, term);
             } catch (Exception e) {
-                System.out.println("Probellm in reorgnized part 1 reg");
-                System.out.println(term);
-                break;
+                continue;
             }
         }
         //part 2
@@ -145,10 +137,7 @@ public class Ranker {
                     Cij = PostingTFResult.get(Doc).get(term);
                     BM25tmp.put(term, Cij);
                 } catch (Exception e) {
-                    System.out.println("Probellm in reorgnized part 2");
-                    System.out.println(Doc);
-                    System.out.println(term);
-                    break;
+                    continue;
                 }
             }
             BM25_Matrix.put(Doc, BM25tmp);
@@ -169,17 +158,12 @@ public class Ranker {
                     BM25UP = ((k + 1) * BM25_Matrix.get(Doc).get(term));
                     BM25DOWN = (BM25_Matrix.get(Doc).get(term) + k * (1 - b + b * ((double) Searcher.Loaded_AllDocs.get(Doc).getDocLength() / Searcher.AVGdl)));
                     BM25LOG = Math.log((Searcher.NumOfDocs + 1) / idf);
-                    //  System.out.println(Doc +" - " + BM25_Matrix.get(Doc).get(term) + " - "+ Math.log((Searcher.NumOfDocs + 1) / idf));
                     BM25Rank += (BM25UP / BM25DOWN) * BM25LOG;
                     T = PostingTitelResult.get(Doc).get(term);
                 } catch (Exception e) {
-                    System.out.println("Problem in Compare");
-                    System.out.println(Doc);
-                    System.out.println(term);
-                    break;
+                    continue;
                 }
             }
-            //      System.out.println(Doc + " - "+BM25Rank);
             if (T)
                 RankerResult.put(BM25Rank + 0.05, Doc);
             else
@@ -187,13 +171,15 @@ public class Ranker {
         }
     }
 
-    public void ClearAll(){
+    public void ClearAll() {
         Query.clear();
         PostingTFResult.clear();
+        PostingTitelResult.clear();
         RankerResult.clear();
         BM25_Matrix.clear();
         BM25tmp.clear();
-        SemanticsWords.clear();
+        if (SemanticsWords != null)
+            SemanticsWords.clear();
     }
 
 
@@ -208,7 +194,6 @@ public class Ranker {
         System.out.println(queryID );
         for (int i = 0; i < SortedRank.size() && i < 50; i++) {
             Searcher.Results.add(new Pair(queryID, RankedQuery.get(SortedRank.get(i))));
-           // System.out.println(RankedQuery.get(SortedRank.get(i)) +" - " +SortedRank.get(i) );
         }
     }
 
@@ -238,22 +223,9 @@ public class Ranker {
         } else {
             stb.append(PostingPath + "\\Numbers.txt");
         }
-//        if (tmpFirst >= 'a' && tmpFirst <= 'e') { //todo
-//            stb.append(PostingPath + "/A_E.txt");
-//        } else if (tmpFirst >= 'f' && tmpFirst <= 'j') {
-//            stb.append(PostingPath + "/F_J.txt");
-//        } else if (tmpFirst >= 'k' && tmpFirst <= 'p') {
-//            stb.append(PostingPath + "/K_P.txt");
-//        } else if (tmpFirst >= 'q' && tmpFirst <= 'u') {
-//            stb.append(PostingPath + "/Q_U.txt");
-//        } else if (tmpFirst >= 'v' && tmpFirst <= 'z') {
-//            stb.append(PostingPath + "/V_Z.txt");
-//        } else {
-//            stb.append(PostingPath + "/Numbers.txt");
-//        }
         File SelectedPosting = new File(stb.toString());
         try (BufferedReader br = new BufferedReader(new FileReader(SelectedPosting))) {
-            for(int i =0; i < pointer; i++){
+            for (int i = 0; i < pointer; i++) {
                 br.readLine();
             }
             String TermLIne = br.readLine();
@@ -274,21 +246,20 @@ public class Ranker {
                     title = Boolean.parseBoolean(Title);
                     if (PostingTFResult.containsKey(docID)) {
                         PostingTFResult.get(docID).put(term, tf);
-                        PostingTitelResult.get(docID).put(term,title);
+                        PostingTitelResult.get(docID).put(term, title);
                     } else {
                         HashMap<String, Double> tmpTF = new HashMap<>();
                         tmpTF.put(term, tf);
                         HashMap<String, Boolean> tmpTitl = new HashMap<>();
                         tmpTitl.put(term, title);
                         PostingTFResult.put(docID, tmpTF);
-                        PostingTitelResult.put(docID,tmpTitl);
+                        PostingTitelResult.put(docID, tmpTitl);
                     }
                     TermLIne = TermLIne.substring(TermLIne.indexOf("->"));
                     if (TermLIne.length() == 3)
                         break;
                 } catch (Exception e) {
-                    System.out.println("problem get tf!");
-                    break;
+                    continue;
                 }
             }
         } catch (Exception e) {

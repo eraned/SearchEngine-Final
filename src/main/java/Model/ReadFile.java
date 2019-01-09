@@ -50,14 +50,10 @@ public class ReadFile {
         StringBuilder out = new StringBuilder();
         for (File tmp : SubDirectories) {
             StringBuilder stop =new StringBuilder( MainPath.toString() + "\\stop_words.txt"); //todo
-            //StringBuilder stop =new StringBuilder( MainPath.toString() + "/stop_words.txt");
             if(SteemerNeeded)
                  out.append( MainPath.toString() + "\\EngineOut_WithStemmer\\"); //todo
-                //out.append( MainPath.toString() + "/EngineOut_WithStemmer/");
-
             else
                 out.append( MainPath.toString() + "\\EngineOut\\"); //todo
-                //out.append( MainPath.toString() + "/EngineOut/");
             if (tmp.isFile() && !(tmp.toString().equals(stop.toString())) && !(tmp.toString().equals(out.toString()))) {
                 SubFilesPath.add(tmp);
             } else if (tmp != null && tmp.isDirectory()) {

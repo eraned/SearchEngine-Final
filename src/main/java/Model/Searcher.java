@@ -2,7 +2,6 @@ package Model;
 
 import javafx.collections.ObservableList;
 import javafx.util.Pair;
-import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,8 +23,6 @@ public class Searcher {
     public static Parse SearcherParser;
     public static HashMap<String, DictionaryDetailes> Loaded_Dictionary;
     public static HashMap<String, DocDetailes> Loaded_AllDocs;
-    //public static HashMap<String, DocDetailes> Loaded_AllDocs;
-
     public static double AVGdl;
     public static double NumOfDocs;
     public static ObservableList<String> citiesToFilter;
@@ -61,9 +58,6 @@ public class Searcher {
         ArrayList<Pair> Queries = SplitQueriesFile(QueryPath);
         SearcherParser = new Parse(Steemer, PathIN + "\\stop_words.txt");
         for (int i = 0; i < Queries.size(); i++) {
-            // System.out.println(Queries.get(i).getKey());
-            // System.out.println("before parser:");
-            // System.out.println(Queries.get(i).getValue().toString());
             HashMap<String, TermDetailes> tmpQuery = SearcherParser.ParseDoc(Queries.get(i).getValue().toString(), "", "", "");
             HashSet<String> QueryWords = new HashSet<>();
             for (String term : tmpQuery.keySet()) {
@@ -84,8 +78,6 @@ public class Searcher {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            // System.out.println("after parser:");
-            //  System.out.println(QueryWords);
         }
     }
 
@@ -167,9 +159,6 @@ public class Searcher {
                         QueryStb.append(QueryDesc.substring(F + 5));
                 }
             }
-            else
-                QueryStb.append(QueryDesc);
-            //analized Narrative
             Pair p = new Pair(QueryID, QueryStb.toString());
             Result.add(p);
         }
@@ -188,7 +177,6 @@ public class Searcher {
      */
     public static void WriteResults(File FileToSaveIn) throws IOException {
         FileWriter FW = new FileWriter(FileToSaveIn.getAbsolutePath()+"\\results.txt"); //todo
-        //FileWriter FW = new FileWriter(FileToSaveIn.getAbsolutePath()+"/results.txt");
         for(int i = 0 ; i < Results.size();i++) {
             FW.write( Results.get(i).getKey()+ " 0" + " " + Results.get(i).getValue() + " 1" + " 00.00" + " test" + System.getProperty( "line.separator" ));
         }

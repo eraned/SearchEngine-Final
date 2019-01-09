@@ -51,7 +51,6 @@ public class Indexer {
 
     /**
      * Constructor
-     *
      * @param corpusPathOUT - where to save all the output of the indexer
      * @param isStemmer     - get from the user
      */
@@ -77,11 +76,8 @@ public class Indexer {
         Entitys = new HashSet<>();
         if (StemmerNeeded)
             stbOUT.append(CorpusPathOUT + "\\EngineOut_WithStemmer\\"); //todo
-            //stbOUT.append(CorpusPathOUT + "/EngineOut_WithStemmer/"); //todo
-
         else
             stbOUT.append(CorpusPathOUT + "\\EngineOut\\"); //todo
-        //stbOUT.append(CorpusPathOUT + "/EngineOut/"); //todo
         File folder = new File(stbOUT.toString());
         File[] listOfFiles = folder.listFiles();
         if (listOfFiles != null) {
@@ -104,10 +100,9 @@ public class Indexer {
      * @param Docid         - the docid that parsed
      * @throws IOException
      */
-
     public void CreateMINI_Posting(HashMap<String, TermDetailes> DocAfterParse, String Docid) throws IOException {
         int MaxTermFreq = 0;
-        StringBuilder Ent = new StringBuilder();//HashSet<String> EntHash = new HashSet<>();
+        StringBuilder Ent = new StringBuilder();
         //improve parser
         for (String tmpTerm : DocAfterParse.keySet()) {
             TermDetailes tmpTermDetailes = DocAfterParse.get(tmpTerm);
@@ -151,13 +146,13 @@ public class Indexer {
             }
             //in dic regular
             if (Dictionary.containsKey(tmpTerm)) {
-                Dictionary.get(tmpTerm).UpdateNumOfDocsTermIN(Posting.get(tmpTerm).size());
+                Dictionary.get(tmpTerm).UpdateNumOfDocsTermIN();
                 Dictionary.get(tmpTerm).UpdateNumOfTermInCorpus(tmpTermDetailes.getTF());
             }
             //in dic with big letters
             else if (Dictionary.containsKey(tmpTerm.toUpperCase()) && Character.isLowerCase(tmpTerm.charAt(0))) {
                 DictionaryDetailes tmp = Dictionary.get(tmpTerm.toUpperCase());
-                tmp.UpdateNumOfDocsTermIN(Posting.get(tmpTerm).size());
+                tmp.UpdateNumOfDocsTermIN();
                 tmp.UpdateNumOfTermInCorpus(tmpTermDetailes.getTF());
                 Dictionary.remove(tmpTerm.toUpperCase());
                 Dictionary.put(tmpTerm.toLowerCase(), tmp);
@@ -166,21 +161,11 @@ public class Indexer {
             else {
                 DictionaryDetailes tmpDictionaryDetailes = new DictionaryDetailes();
                 tmpDictionaryDetailes.setNumOfTermInCorpus(tmpTermDetailes.getTF());
-                tmpDictionaryDetailes.setNumOfDocsTermIN(Posting.get(tmpTerm).size());
                 Dictionary.put(tmpTerm, tmpDictionaryDetailes);
             }
             if (tmpTermDetailes.getTF() > MaxTermFreq) {
                 MaxTermFreq = tmpTermDetailes.getTF();
             }
-
-//            if (tmpTerm.equals("atlantic")) {
-//                System.out.println(" found here - mini posting");
-//                System.out.println(tmpTerm + "  " + tmpTermDetailes.getDocId() + "  " + tmpTermDetailes.getTF());
-//                System.out.println(Docid);
-//                DictionaryDetailes test = Dictionary.get("atlantic");
-//                System.out.println("idf  : " + test.getNumOfDocsTermIN());
-//                System.out.println("total tf : " + test.getNumOfTermInCorpus());
-//            }
         }
 
         SearchEngine.All_Docs.get(Docid).setMaxTermFrequency(MaxTermFreq);
@@ -211,9 +196,6 @@ public class Indexer {
             FileWriter FW = new FileWriter(tmpPost);
             BufferedWriter BW = new BufferedWriter(FW);
             for (String term : SortedPost) {
-//                if(term.equals("atlantic")){
-//                    System.out.println(" found here - flush posting");
-//                }
                 BW.write(term + ":");
                 for (TermDetailes TD : Posting.get(term)) {
                     BW.write("Docid:" + TD.getDocId() + ";TF:" + TD.getTF() + ";InTitle:" + TD.getInTitle() + "->");
@@ -288,10 +270,8 @@ public class Indexer {
      * @param F2 - tmp posting file to merge
      * @throws IOException
      */
-    public void EXTERNAL_SORT(File F1, File F2, int counter) throws IOException {
-
-
-        FileWriter FW = new FileWriter(new File(stbOUT.toString() + MergeNumber + "tmp.txt"));
+    public void EXTERNAL_SORT(File F1, File F2, int merge) throws IOException {
+        FileWriter FW = new FileWriter(new File(stbOUT.toString() + merge + "tmp.txt"));
         BufferedReader BR1 = new BufferedReader(new FileReader(F1));
         BufferedReader BR2 = new BufferedReader(new FileReader(F2));
         String S1 = BR1.readLine();
@@ -303,11 +283,6 @@ public class Indexer {
             String t1 = S1.substring(0, S1.indexOf(":"));
             String t2 = S2.substring(0, S2.indexOf(":"));
             Compare = t1.compareTo(t2);
-
-//            if(t1.equals("atlantic") || t2.equals("atlantic") ){
-//                System.out.println(" found here - extrenal sort");
-//            }
-
             if (Compare > 0) {
                 FW.write(S2 + System.getProperty("line.separator"));
                 S2 = BR2.readLine();
@@ -358,7 +333,6 @@ public class Indexer {
         int countK_P = 0;
         int countQ_U = 0;
         int countV_Z = 0;
-
         try {
             BufferedReader BR_Final_Posting = new BufferedReader(new FileReader(Final_Posting));
             FileWriter Numbers_FW = new FileWriter(Numbers);
@@ -380,9 +354,6 @@ public class Indexer {
                 stbTerm.append(S.substring(0, S.indexOf(":")));
                 char tmpFirst = stbTerm.charAt(0);
                 tmpFirst = Character.toLowerCase(tmpFirst);
-//                if(stbTerm.equals("atlantic")){
-//                    System.out.println(" found here - split final posting");
-//                }
                 //A-E
                 if (tmpFirst >= 'a' && tmpFirst <= 'e') {
                     A_E_BW.write(S);
@@ -456,7 +427,6 @@ public class Indexer {
                     continue;
                 }
             }
-
             BR_Final_Posting.close();
             Files.delete(Final_Posting.toPath());
             Numbers_BW.close();
@@ -484,10 +454,8 @@ public class Indexer {
      */
     public void ItsTimeToWriteDictionary() {
         File DictionaryDoc = new File(stbOUT + "\\Dictionary" + ".txt"); //todo
-        //File DictionaryDoc = new File(stbOUT + "/Dictionary" + ".txt");
         ArrayList<String> SortedDic = new ArrayList<>(Dictionary.keySet());
         Collections.sort(SortedDic);
-
         try {
             FileWriter FW = new FileWriter(DictionaryDoc);
             BufferedWriter BW = new BufferedWriter(FW);
@@ -495,10 +463,6 @@ public class Indexer {
                 if ((StringUtils.isAlpha(term)) && (StringUtils.isAllUpperCase(term))) {
                     Entitys.add(term);
                 }
-//                if(term.equals("atlantic") ){
-//                    System.out.println(" found here - write dic");
-//                }
-
                 BW.write(term + ":" + "TotalTF:" + Dictionary.get(term).getNumOfTermInCorpus() + ";DF:" + Dictionary.get(term).getNumOfDocsTermIN() + ";Pointer:" + Dictionary.get(term).getPointer() + "#");
                 BW.newLine();
             }
@@ -535,7 +499,7 @@ public class Indexer {
     }
 
 
-    //https://stackoverflow.com/questions/8119366/sorting-hashmap-by-values
+    // todo https://stackoverflow.com/questions/8119366/sorting-hashmap-by-values
     public void LoadEntitiysToDocs() {
         try {
             HashMap<String, Integer> ans = new HashMap<>();

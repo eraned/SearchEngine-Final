@@ -30,30 +30,20 @@ public class CityDetailes {
         Currency = currency;
         PopulationSize = populationSize;
     }
-
+    public String getCountry() {return Country;}
+    public void setCountry(String country) {Country = country;}
+    public String getCurrency() {return Currency; }
+    public void setCurrency(String currency) {Currency = currency; }
+    public String getPopulationSize() {return PopulationSize;}
+    public void setPopulationSize(String populationSize) {PopulationSize = populationSize;}
     public void AddNewDoc(String docid, ArrayList<Integer> positionsindoc) {
         CityInDoc.put(docid, positionsindoc);
     }
-
     public HashMap<String, ArrayList<Integer>> getCityInDoc() {
         return CityInDoc;
     }
-
 }
-//    public String getCountry() {
-//        return Country;
-//    }
-//    public void setCountry(String country) {
-//        Country = country;
-//    }
-//    public String getCurrency() {return Currency; }
-//    public void setCurrency(String currency) {Currency = currency; }
-//    public String getPopulationSize() {
-//        return PopulationSize;
-//    }
-//    public void setPopulationSize(String populationSize) {
-//        PopulationSize = populationSize;
-//    }
+
 
 
 

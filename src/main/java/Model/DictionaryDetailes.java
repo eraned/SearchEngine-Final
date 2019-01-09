@@ -28,5 +28,5 @@ public class DictionaryDetailes {
         Pointer = pointer;
     }
     public void UpdateNumOfTermInCorpus(int update){this.NumOfTermInCorpus += update;}
-    public void UpdateNumOfDocsTermIN(int update){this.NumOfDocsTermIN += update;}
+    public void UpdateNumOfDocsTermIN(){this.NumOfDocsTermIN++;}
 }
